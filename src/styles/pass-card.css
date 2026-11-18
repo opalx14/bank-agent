@@ -1,0 +1,183 @@
+/* Physical Guarantee Pass (342x216, container-query scaled) & Burst particles. */
+.ox-sec-card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 342 / 216;
+  container-type: inline-size;
+  perspective: 1000px;
+}
+
+.ox-sec-face {
+  --u: calc(100cqw / 342);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: calc(var(--u) * 18);
+  background: var(--c-bg);
+  color: var(--c-ink);
+  box-shadow: var(--c-shadow), inset 0 0 0 1px var(--c-edge);
+  font-family: var(--font-sans);
+  transform-style: preserve-3d;
+  transition: transform 0.35s var(--ox-spring);
+}
+.ox-sec-face.is-tilted { animation: ox-card-tilt 7s ease-in-out infinite; will-change: transform; }
+.ox-sec-card:hover .ox-sec-face.is-tilted { animation-play-state: paused; transform: rotateX(2deg) rotateY(-4deg); }
+@keyframes ox-card-tilt {
+  0%, 100% { transform: rotateX(3deg) rotateY(-5deg); }
+  50% { transform: rotateX(-2.5deg) rotateY(5deg); }
+}
+
+.ox-sec-jade {
+  --c-bg: linear-gradient(145deg, #0c3b36 0%, #072220 55%, #061816 100%);
+  --c-ink: #f0fdfa;
+  --c-muted: #99f6e4;
+  --c-pat: #5eead4;
+  --c-pat-op: 0.22;
+  --c-wave-op: 0.34;
+  --c-seal-bg: #14b8a6;
+  --c-seal-fg: #042f2e;
+  --c-stamp: #34d399;
+  --c-scan: #5eead4;
+  --c-edge: rgba(94, 234, 212, 0.28);
+  --c-shadow: 0 2px 4px rgba(6, 78, 59, 0.16), 0 18px 34px -10px rgba(6, 78, 59, 0.34);
+}
+
+.ox-sec-crimson {
+  --c-bg: linear-gradient(145deg, #e84142 0%, #c8232c 62%, #991b1b 100%);
+  --c-ink: #fff7f7;
+  --c-muted: #fecaca;
+  --c-pat: #ffffff;
+  --c-pat-op: 0.22;
+  --c-wave-op: 0.34;
+  --c-seal-bg: #0b0f19;
+  --c-seal-fg: #ffffff;
+  --c-stamp: #0b0f19;
+  --c-scan: #ffffff;
+  --c-edge: rgba(255, 255, 255, 0.24);
+  --c-shadow: 0 2px 4px rgba(153, 27, 27, 0.22), 0 18px 36px -12px rgba(232, 65, 66, 0.42);
+}
+
+.ox-sec-obsidian {
+  --c-bg: linear-gradient(145deg, #161d2e 0%, #0d121c 65%, #070a10 100%);
+  --c-ink: #f8fafc;
+  --c-muted: #94a3b8;
+  --c-pat: #cbd5e1;
+  --c-pat-op: 0.16;
+  --c-wave-op: 0.25;
+  --c-seal-bg: #f8fafc;
+  --c-seal-fg: #0b0f19;
+  --c-stamp: #f59e0b;
+  --c-scan: #e84142;
+  --c-edge: rgba(255, 255, 255, 0.16);
+  --c-shadow: 0 2px 4px rgba(11, 15, 25, 0.22), 0 18px 34px -12px rgba(11, 15, 25, 0.44);
+}
+
+.ox-sec-pattern { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.ox-sec-rings { transform-box: view-box; transform-origin: 296px 92px; animation: oxSecRot 90s linear infinite; }
+@keyframes oxSecRot { to { transform: rotate(360deg); } }
+
+.ox-sec-head {
+  position: absolute; top: calc(var(--u) * 14); left: calc(var(--u) * 16); right: calc(var(--u) * 16);
+  height: calc(var(--u) * 20); display: flex; align-items: center; gap: calc(var(--u) * 7);
+}
+.ox-sec-mono { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+.ox-sec-brand { font-size: calc(var(--u) * 9.5); font-weight: 700; letter-spacing: 0.12em; white-space: nowrap; }
+.ox-sec-state {
+  margin-left: auto; height: calc(var(--u) * 17); padding: 0 calc(var(--u) * 6);
+  border-radius: calc(var(--u) * 4); border: calc(var(--u) * 1) dashed var(--c-ink);
+  display: inline-flex; align-items: center; font-size: calc(var(--u) * 8); font-weight: 700; letter-spacing: 0.08em;
+}
+.ox-sec-state-solid { border-style: solid; background: var(--c-ink); color: #0b0f19; }
+
+.ox-sec-badge {
+  position: absolute; left: calc(var(--u) * 16); top: calc(var(--u) * 44);
+  width: calc(var(--u) * 52); height: calc(var(--u) * 62); border-radius: calc(var(--u) * 10);
+  background: var(--c-seal-bg); color: var(--c-seal-fg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--u) * 24); font-weight: 800; letter-spacing: -0.04em;
+}
+.ox-sec-who {
+  position: absolute; left: calc(var(--u) * 80); right: calc(var(--u) * 16); top: calc(var(--u) * 44);
+  display: flex; flex-direction: column; gap: calc(var(--u) * 2); min-width: 0;
+}
+.ox-sec-who-stamped { right: calc(var(--u) * 122); }
+.ox-sec-title {
+  font-size: calc(var(--u) * 15); line-height: calc(var(--u) * 19); font-weight: 800;
+  letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ox-sec-sub { font-size: calc(var(--u) * 10); color: var(--c-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ox-sec-amt { font-size: calc(var(--u) * 14); font-weight: 800; color: var(--c-ink); font-variant-numeric: tabular-nums; margin-top: calc(var(--u) * 2); }
+
+.ox-sec-fields {
+  position: absolute; left: calc(var(--u) * 16); right: calc(var(--u) * 16); top: calc(var(--u) * 124);
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--u) * 8);
+}
+.ox-sec-field { min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 2); }
+.ox-sec-fk { font-size: calc(var(--u) * 7.8); font-weight: 600; letter-spacing: 0.1em; color: var(--c-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ox-sec-fv { font-size: calc(var(--u) * 10.5); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.ox-sec-mrz {
+  position: absolute; left: calc(var(--u) * 16); right: calc(var(--u) * 16); bottom: calc(var(--u) * 11);
+  font-size: calc(var(--u) * 8.6); line-height: calc(var(--u) * 12); font-weight: 500;
+  letter-spacing: 0.08em; white-space: pre; overflow: hidden; color: var(--c-muted);
+}
+.ox-sec-mrz > div { position: relative; overflow: hidden; }
+.ox-sec-typing::after {
+  content: ""; position: absolute; inset: 0; background: #0d121c;
+  animation: oxSecType 1.9s steps(44) infinite;
+}
+@keyframes oxSecType { 0% { transform: translateX(0); } 75%, 100% { transform: translateX(100%); } }
+
+.ox-sec-stamp {
+  position: absolute; right: calc(var(--u) * 14); top: calc(var(--u) * 46);
+  max-width: calc(var(--u) * 104);
+  padding: calc(var(--u) * 4) calc(var(--u) * 9); border: calc(var(--u) * 2.2) solid var(--c-stamp);
+  border-radius: calc(var(--u) * 7); color: var(--c-stamp); text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 1);
+  overflow: hidden; transform: rotate(-9deg);
+  animation: oxSecStamp 0.42s cubic-bezier(0.55, 0, 0.45, 1) backwards;
+}
+.ox-sec-stamp-main {
+  max-width: 100%; font-size: calc(var(--u) * 9.5); line-height: 1.15;
+  font-weight: 800; letter-spacing: 0.08em; overflow-wrap: break-word;
+}
+.ox-sec-stamp-sub {
+  max-width: 100%; font-size: calc(var(--u) * 7.5); line-height: 1.2;
+  font-weight: 700; letter-spacing: 0.08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+@keyframes oxSecStamp { 0% { transform: scale(1.8) rotate(-2deg); } 70% { transform: scale(0.94) rotate(-10deg); } 100% { transform: scale(1) rotate(-9deg); } }
+
+.ox-sec-scan {
+  position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: var(--c-scan); box-shadow: 0 0 14px 3px var(--c-scan);
+  animation: oxSecScan 0.85s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate; pointer-events: none;
+}
+@keyframes oxSecScan { to { transform: translateY(calc(var(--u) * 212)); } }
+
+.ox-sec-shine {
+  position: absolute; top: -40px; bottom: -40px; left: 0; width: 26%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.36), transparent);
+  transform: translateX(-160%) skewX(-18deg); pointer-events: none;
+}
+.ox-sec-shine-once { animation: oxSecShine 1.4s cubic-bezier(0.3, 0, 0.2, 1) 0.25s both; }
+.ox-sec-shine-loop { animation: oxSecShineLoop 5.2s cubic-bezier(0.3, 0, 0.2, 1) 1.5s infinite; }
+@keyframes oxSecShine { from { transform: translateX(-160%) skewX(-18deg); } to { transform: translateX(520%) skewX(-18deg); } }
+@keyframes oxSecShineLoop { 0% { transform: translateX(-160%) skewX(-18deg); } 38%, 100% { transform: translateX(520%) skewX(-18deg); } }
+
+.ox-burst { position: absolute; inset: 0; pointer-events: none; }
+.ox-burst i {
+  position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  border-radius: 9999px; background: var(--ox-avax);
+  animation: oxBurst 0.65s var(--ox-spring) forwards;
+}
+@keyframes oxBurst {
+  0% { transform: rotate(var(--a)) translateY(0) scale(0.9); opacity: 1; }
+  100% { transform: rotate(var(--a)) translateY(calc(-1 * var(--d))) scale(0); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ox-sec-rings, .ox-sec-typing::after, .ox-sec-scan, .ox-sec-shine-loop, .ox-sec-stamp, .ox-sec-face.is-tilted { animation: none; }
+  .ox-sec-card:hover .ox-sec-face.is-tilted { transform: none; }
+  .ox-sec-typing::after { display: none; }
+}

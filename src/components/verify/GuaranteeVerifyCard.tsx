@@ -1,0 +1,209 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { CheckCircle2, ExternalLink, Loader2, Printer, ShieldAlert, ShieldCheck } from "lucide-react";
+import type { GuaranteeCertificate } from "@/types";
+import type { OnChainGuaranteeVerification } from "@/lib/avalanche/reader";
+import { computePrintFeeBreakdown } from "@/core/opalx/print-fee";
+import { AvalancheTechVerifier } from "@/components/opalx/AvalancheTechVerifier";
+import { BrandOrb } from "@/components/shared/BrandOrb";
+import { formatAvax, formatUtcTime, formatVnd, truncateHex } from "@/components/shared/formatters";
+import { OnChainProofBadge } from "@/components/shared/OnChainProofBadge";
+import { OpalxGuaranteePass } from "@/components/shared/OpalxGuaranteePass";
+
+interface GuaranteeVerifyCardProps {
+  guaranteeId: string;
+  guarantee: GuaranteeCertificate | null;
+  onChain: OnChainGuaranteeVerification;
+}
+
+export function GuaranteeVerifyCard({ guaranteeId, guarantee, onChain }: GuaranteeVerifyCardProps) {
+  const [payingFee, setPayingFee] = useState(false);
+  const [feeTxHash, setFeeTxHash] = useState<string | undefined>(guarantee?.proofBundle.feeSettlementTxHash);
+  const isValid = onChain.source === "ON_CHAIN_FUJI_RPC" ? onChain.valid : Boolean(guarantee && !guarantee.revoked);
+  const fee = computePrintFeeBreakdown(Math.max(1, guarantee?.printCount ?? 1));
+  const issuerName = guarantee?.enterpriseName || "California Fitness & Yoga";
+  const railBadge = guarantee ? (guarantee.sandbox ? "[SANDBOX]" : "[LIVE BANK]") : "FUJI RPC";
+  const primaryTxHash = guarantee?.proofBundle.guaranteeTxHash;
+  const commitmentHex = onChain.orderCommitment ?? guarantee?.orderCommitment;
+
+  const handlePayAvaxFee = async () => {
+    setPayingFee(true);
+    try {
+      const res = await fetch("/api/avax/settle-fee", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ guaranteeId }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { receipt?: { txHash?: string } };
+      if (json.receipt?.txHash) setFeeTxHash(json.receipt.txHash);
+    } finally {
+      setPayingFee(false);
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-6">
+      <div className="ox-pass-surface space-y-5 rounded-3xl p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ox-line)] pb-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <BrandOrb seed={guarantee?.enterpriseId || issuerName} label={issuerName} size={36} />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-[var(--ox-ink)]">{issuerName}</p>
+              <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-[var(--ox-muted)]">
+                <span>Avalanche Fuji · 43113</span>
+                <span>·</span>
+                <span>0 PII On-Chain</span>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${railBadge === "[LIVE BANK]" ? "bg-[var(--ox-ok-tint)] text-[var(--ox-ok-ink)]" : "bg-[var(--ox-soft)] text-[var(--ox-ink)]"}`}>
+                  {railBadge}
+                </span>
+              </div>
+            </div>
+          </div>
+          <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 font-mono text-xs font-bold ${isValid ? "ox-badge-verified" : "ox-badge-avax"}`}>
+            {isValid ? <CheckCircle2 className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
+            <span>{isValid ? "HỢP LỆ TRÊN FUJI" : "ĐÃ THU HỒI / KHÔNG HỢP LỆ"}</span>
+          </span>
+        </div>
+
+        <div className="flex justify-center py-1">
+          <OpalxGuaranteePass
+            variant={isValid ? "jade" : "obsidian"}
+            tilt
+            stamped={isValid}
+            stampTitle={isValid ? "HỢP LỆ FUJI" : "ĐÃ THU HỒI"}
+            stampSub={onChain.liveBlockNumber ? `#${onChain.liveBlockNumber}` : "FUJI 43113"}
+            shine="once"
+            solidState
+            statusLabel={isValid ? "CHỨNG CHỈ HỢP LỆ" : "ĐÃ THU HỒI"}
+            enterpriseName={issuerName}
+            packageName={guarantee?.productName || guarantee?.description || (guarantee ? `Đơn #${guarantee.orderCode}` : "Bản ghi On-Chain")}
+            amountVnd={guarantee?.amountVnd}
+            guaranteeId={guaranteeId}
+            holderLabel={guarantee?.payerName || "Hội viên OpalX"}
+            bankLabel={railBadge}
+            txRef={primaryTxHash ?? onChain.orderCommitment ?? guaranteeId}
+          />
+        </div>
+
+        <dl className="divide-y divide-[var(--ox-line)] border-t border-[var(--ox-line)] font-mono text-xs tabular-nums">
+          <div className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+            <dt className="text-[var(--ox-muted)]">Nguồn xác thực RPC</dt>
+            <dd className="flex items-center gap-2 font-bold text-[var(--ox-ink)]">
+              <span className={`h-2 w-2 rounded-full ${isValid ? "bg-emerald-500" : "bg-[var(--ox-avax)]"}`} aria-hidden="true" />
+              <span>{onChain.source}{onChain.liveBlockNumber ? ` · #${onChain.liveBlockNumber.toLocaleString("en-US")}` : ""}</span>
+            </dd>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+            <dt className="text-[var(--ox-muted)]">Số tiền / Ký quỹ AVAX</dt>
+            <dd className="font-bold text-[var(--ox-ok-ink)]">
+              {guarantee ? formatVnd(guarantee.amountVnd) : "On-Chain Record"} · {formatAvax(onChain.collateralAvax ?? guarantee?.collateralAvax ?? 0.0002, 4)}
+            </dd>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+            <dt className="text-[var(--ox-muted)]">Phí in &amp; hash mỗi lần</dt>
+            <dd className="font-bold text-[var(--ox-ink)]">
+              {fee.totalFeePerPrintAvax} AVAX (≈ {formatVnd(fee.totalFeePerPrintVnd)})
+            </dd>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+            <dt className="text-[var(--ox-muted)]">SHA-256 Commitment</dt>
+            <dd className="text-[var(--ox-ink)]">
+              {truncateHex(commitmentHex, 8)} · {formatUtcTime(guarantee?.issuedAtIso)}
+            </dd>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+            <dt className="text-[var(--ox-muted)]">Giao dịch Fuji / Explorer</dt>
+            <dd className="flex items-center gap-2">
+              <span className="font-semibold text-[var(--ox-ink)]">{truncateHex(primaryTxHash ?? onChain.opalxCoreAddress, 6)}</span>
+              <a
+                href={primaryTxHash ? `https://testnet.snowtrace.io/tx/${primaryTxHash}` : `https://testnet.snowtrace.io/address/${onChain.opalxCoreAddress}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-semibold text-[var(--ox-ok-ink)] hover:underline"
+              >
+                <span>Snowtrace</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </dd>
+          </div>
+        </dl>
+
+        {guarantee?.benefits && guarantee.benefits.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-[var(--ox-ink)]">Quyền lợi bảo chứng đính kèm:</p>
+            <div className="flex flex-wrap gap-1.5">
+              {guarantee.benefits.map((benefit) => (
+                <span key={benefit} className="inline-flex items-center gap-1 rounded-full bg-[var(--ox-soft)] px-2.5 py-1 text-[11px] font-medium text-[var(--ox-ink)]">
+                  <ShieldCheck className="h-3 w-3 text-[var(--ox-ok-ink)]" />
+                  <span>{benefit}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {guarantee?.claimedRights && guarantee.claimedRights.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-[var(--ox-ink)]">Quyền lợi đã ký xác thực ví:</p>
+            <ul className="divide-y divide-[var(--ox-line)] rounded-2xl bg-[var(--ox-soft)] px-3.5 text-xs">
+              {guarantee.claimedRights.map((claim) => (
+                <li key={claim.id} className="py-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-[var(--ox-ok-ink)]">{claim.label}</span>
+                    <span className="font-mono text-[10px] text-[var(--ox-muted)] tabular-nums">{truncateHex(claim.signature, 4)}</span>
+                  </div>
+                  <p className="mt-0.5 text-[11px] text-[var(--ox-muted)]">{claim.verificationNote}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {guarantee && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-[var(--ox-ink)]">Bằng chứng giao dịch AVAX trên Avalanche Fuji:</p>
+            <div className="flex flex-wrap gap-2">
+              <OnChainProofBadge label="1. Enterprise" txHash={guarantee.proofBundle.enterpriseTxHash} />
+              <OnChainProofBadge label="2. Bank" txHash={guarantee.proofBundle.bankTxHash} />
+              <OnChainProofBadge label="3. OpalXCore" txHash={guarantee.proofBundle.guaranteeTxHash} />
+              <OnChainProofBadge label="4. Fee AVAX" txHash={feeTxHash} />
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2.5 border-t border-[var(--ox-line)] pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            {guarantee && (
+              <Link href={`/print/${encodeURIComponent(guaranteeId)}`} className="ox-btn-ghost inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold">
+                <Printer className="h-3.5 w-3.5" />
+                <span>Xem &amp; In Hóa Đơn Đối Chiếu</span>
+              </Link>
+            )}
+            <a
+              href={`https://testnet.snowtrace.io/address/${onChain.opalxCoreAddress}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-[var(--ox-muted)] hover:text-[var(--ox-ink)] hover:underline"
+            >
+              <span>Snowtrace</span>
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+          <button
+            type="button"
+            disabled={payingFee}
+            onClick={() => void handlePayAvaxFee()}
+            className="ox-btn-avax inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl px-4 py-2 text-xs disabled:opacity-60"
+          >
+            {payingFee && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            <span>Ghi Fee Xác Thực (0.00001 AVAX)</span>
+          </button>
+        </div>
+      </div>
+
+      <AvalancheTechVerifier guaranteeId={guaranteeId} compact defaultOpen />
+    </div>
+  );
+}

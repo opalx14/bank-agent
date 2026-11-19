@@ -1,12 +1,14 @@
 import { z } from "zod";
 import {
+  buildSessionClearCookieHeader,
+  buildSessionSetCookieHeader,
+  resolveRequestSession,
+} from "@/core/auth/session-guard";
+import {
   deriveEmbeddedUserWallet,
   signUserWalletAction,
 } from "@/core/auth/wallet-auth";
-import {
-  getActiveUserSession,
-  saveActiveUserSession,
-} from "@/core/ledger/store";
+import { saveActiveUserSession } from "@/core/ledger/store";
 
 const authActionSchema = z.discriminatedUnion("mode", [
   z.object({
@@ -36,9 +38,10 @@ const authActionSchema = z.discriminatedUnion("mode", [
   }),
 ]);
 
-export async function GET(): Promise<Response> {
+export async function GET(request?: Request): Promise<Response> {
+  const session = resolveRequestSession(request);
   return Response.json(
-    { session: getActiveUserSession() },
+    { session },
     { status: 200, headers: { "Cache-Control": "no-store" } },
   );
 }
@@ -62,7 +65,16 @@ export async function POST(request: Request): Promise<Response> {
   const data = parsed.data;
   if (data.mode === "LOGOUT") {
     saveActiveUserSession(null);
-    return Response.json({ session: null }, { status: 200 });
+    return Response.json(
+      { session: null },
+      {
+        status: 200,
+        headers: {
+          "Set-Cookie": buildSessionClearCookieHeader(request),
+          "Cache-Control": "no-store",
+        },
+      },
+    );
   }
 
   if (data.mode === "LOGIN") {
@@ -85,17 +97,21 @@ export async function POST(request: Request): Promise<Response> {
       lastConfirmedAtIso: confirmation.signedAtIso,
     };
     saveActiveUserSession(session);
-    return Response.json({ session, confirmation }, { status: 200 });
+    return Response.json(
+      { session, confirmation },
+      {
+        status: 200,
+        headers: {
+          "Set-Cookie": buildSessionSetCookieHeader(session, request),
+          "Cache-Control": "no-store",
+        },
+      },
+    );
   }
 
-  let current = getActiveUserSession();
+  const current = resolveRequestSession(request);
   if (!current) {
-    current = deriveEmbeddedUserWallet({
-      provider: "GOOGLE",
-      email: "demo.member@california.vn",
-      displayName: "California Demo Member",
-      defaultScopeId: "california-fitness",
-    });
+    return Response.json({ error: "AUTH_REQUIRED" }, { status: 401 });
   }
   const confirmation = await signUserWalletAction({
     email: current.email,
@@ -108,5 +124,14 @@ export async function POST(request: Request): Promise<Response> {
     lastConfirmedAtIso: confirmation.signedAtIso,
   };
   saveActiveUserSession(updated);
-  return Response.json({ session: updated, confirmation }, { status: 200 });
+  return Response.json(
+    { session: updated, confirmation },
+    {
+      status: 200,
+      headers: {
+        "Set-Cookie": buildSessionSetCookieHeader(updated, request),
+        "Cache-Control": "no-store",
+      },
+    },
+  );
 }

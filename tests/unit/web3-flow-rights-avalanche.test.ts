@@ -15,10 +15,10 @@ let tempDir = "";
 let prevLedgerPath: string | undefined;
 let prevOffline: string | undefined;
 
-const jsonPost = (url: string, body: unknown) =>
+const jsonPost = (url: string, body: unknown, headers: Record<string, string> = {}) =>
   new Request(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
 
@@ -50,6 +50,7 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
       }),
     );
     expect(entLoginRes.status).toBe(200);
+    const entHeaders = { Cookie: (entLoginRes.headers.get("set-cookie") ?? "").split(";")[0] };
     const entLogin = await entLoginRes.json();
     expect(entLogin.session.role).toBe("ENTERPRISE");
     expect(entLogin.session.merchantContractAddress).toMatch(/^0x[a-fA-F0-9]{40}$/);
@@ -73,7 +74,7 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
           guaranteeRightLabel: "Membership Pass & Club Guarantee",
           benefits: ["Front-desk QR check-in", "100% PolicyVault coverage"],
         },
-      }),
+      }, entHeaders),
     );
     expect(regRes.status).toBe(200);
     const regJson = (await regRes.json()) as { enterprise: VerifiedEnterpriseProfile; enterprises: VerifiedEnterpriseProfile[] };
@@ -92,7 +93,7 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
         amountVnd: 9_800_000,
         guaranteeRightLabel: "Platinum Privileges",
         benefits: ["Front-desk QR check-in", "ERC-8004 membership tier credits"],
-      }),
+      }, entHeaders),
     );
     expect(addPkgRes.status).toBe(200);
 

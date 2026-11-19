@@ -11,6 +11,12 @@ import { getGatewayAddresses, isNonZeroAddress } from "@/lib/avalanche/network";
 
 const FALLBACK_ENTERPRISE_GATEWAY = "0xaE97E6Bd5e581D2AFFa6364bdc5975f9eF3f86CB" as const;
 
+/**
+ * Resolves the server-only HMAC pepper for deterministic embedded wallet key derivation.
+ * Security boundary: wallet key derivation stays isolated to `OPALX_WALLET_AUTH_PEPPER`
+ * (or `OPALX_COMMITMENT_PEPPER`) and never mixes with `OPALX_SESSION_SECRET`, which signs
+ * stateless HTTP session cookies (`opalx_session`) in `session-guard.ts`.
+ */
 function resolveServerWalletPepper(): string {
   return (
     process.env.OPALX_WALLET_AUTH_PEPPER?.trim() ||

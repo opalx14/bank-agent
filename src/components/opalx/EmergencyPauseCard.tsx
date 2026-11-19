@@ -12,18 +12,26 @@ interface EmergencyPauseCardProps {
 export function EmergencyPauseCard({ paused, onUpdated }: EmergencyPauseCardProps) {
   const [loading, setLoading] = useState(false);
   const [lastTxHash, setLastTxHash] = useState<string | undefined>();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const togglePause = async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       const res = await fetch("/api/policy/kill-switch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paused: !paused }),
       });
-      const json = (await res.json().catch(() => ({}))) as { txHash?: string };
+      const json = (await res.json().catch(() => ({}))) as { txHash?: string; error?: string };
+      if (!res.ok) {
+        setErrorMsg(json.error ?? "Bank auditor permission required.");
+        return;
+      }
       if (json.txHash) setLastTxHash(json.txHash);
       await onUpdated();
+    } catch {
+      setErrorMsg("Unable to reach kill-switch service.");
     } finally {
       setLoading(false);
     }
@@ -49,6 +57,11 @@ export function EmergencyPauseCard({ paused, onUpdated }: EmergencyPauseCardProp
 
       <div className="space-y-2.5">
         {lastTxHash && <OnChainProofBadge label="Pause Tx" txHash={lastTxHash} />}
+        {errorMsg && (
+          <p role="alert" className="ox-badge-avax rounded-xl px-3 py-2 text-xs font-medium">
+            {errorMsg}
+          </p>
+        )}
         <button
           type="button"
           disabled={loading}

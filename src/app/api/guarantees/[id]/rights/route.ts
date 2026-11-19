@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { resolveRequestSession } from "@/core/auth/session-guard";
 import { signUserWalletAction } from "@/core/auth/wallet-auth";
-import { findGuarantee, getActiveUserSession, mutateLedger } from "@/core/ledger/store";
+import { findGuarantee, mutateLedger } from "@/core/ledger/store";
 import type { GuaranteeCertificate, GuaranteeRightClaim, GuaranteeRightKind } from "@/types";
 
 const claimRightSchema = z.object({
@@ -70,7 +71,7 @@ export async function POST(
 
   const email = (
     parsed.data.email?.trim() ||
-    getActiveUserSession()?.email ||
+    resolveRequestSession(request)?.email ||
     guarantee.buyerEmail ||
     "member.opalx@gmail.com"
   ).toLowerCase();

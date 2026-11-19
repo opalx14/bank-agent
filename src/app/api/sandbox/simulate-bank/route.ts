@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isSandboxEndpointAllowed } from "@/core/auth/session-guard";
 import { buildSampleTt78Xml } from "@/core/enterprise/einvoice-samples";
 import { findOrder, readLedger, upsertOrder } from "@/core/ledger/store";
 import { buildOrderQrWithImage } from "@/core/bank/vietqr-builder";
@@ -59,6 +60,10 @@ async function ensureOrder(orderCode: number, scenario: SandboxScenario): Promis
 }
 
 export async function POST(request: Request): Promise<Response> {
+  if (!isSandboxEndpointAllowed()) {
+    return Response.json({ error: "SANDBOX_DISABLED_IN_LIVE_MODE" }, { status: 403 });
+  }
+
   let rawBody: unknown;
   try {
     rawBody = await request.json();

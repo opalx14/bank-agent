@@ -1,11 +1,3 @@
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  renameSync,
-  writeFileSync,
-} from "node:fs";
-import path from "node:path";
 import type {
   BankAttestationProof,
   EnterpriseOrder,
@@ -18,17 +10,10 @@ import type {
 import { normalizeAccountHolderName } from "@/core/enterprise/catalog";
 import { computePrintFeeBreakdown } from "@/core/opalx/print-fee";
 import { buildDefaultBankConfig, buildInitialLedgerState, type LedgerState } from "./seed";
-
-function resolveLedgerPath(): string {
-  return process.env.OPALX_LEDGER_PATH?.trim() || path.join(process.cwd(), ".opalx", "ledger.json");
-}
+import { readRawLedgerJson, writeRawLedgerJson } from "./storage-adapter";
 
 function persistLedger(state: LedgerState): void {
-  const target = resolveLedgerPath();
-  mkdirSync(path.dirname(target), { recursive: true });
-  const tmpPath = `${target}.${process.pid}.${Date.now()}.tmp`;
-  writeFileSync(tmpPath, JSON.stringify(state, null, 2), "utf8");
-  renameSync(tmpPath, target);
+  writeRawLedgerJson(JSON.stringify(state, null, 2));
 }
 
 const LEGACY_SAAS_CAT = "SaaS & H\u1ea1 t\u1ea7ng AI";
@@ -60,14 +45,14 @@ function migrateLegacyCaliLabels<T extends { enterpriseId?: string; enterpriseNa
 
 /** Reads persistent atomic ledger JSON, cold-starting cleanly if absent or corrupt. */
 export function readLedger(): LedgerState {
-  const target = resolveLedgerPath();
-  if (!existsSync(target)) {
+  const raw = readRawLedgerJson();
+  if (raw === null) {
     const initial = buildInitialLedgerState();
     persistLedger(initial);
     return initial;
   }
   try {
-    const parsed = JSON.parse(readFileSync(target, "utf8")) as Partial<LedgerState>;
+    const parsed = JSON.parse(raw) as Partial<LedgerState>;
     if (!Array.isArray(parsed.orders) || !Array.isArray(parsed.guarantees)) {
       throw new Error("INVALID_LEDGER_SHAPE");
     }

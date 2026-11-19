@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="opalx_bg_primary">#F8FAFC</color>
+    <color name="opalx_bg_secondary">#F1F5F9</color>
+    <color name="opalx_bg_surface">#FFFFFF</color>
+    <color name="opalx_bg_card">#FFFFFF</color>
+    <color name="opalx_border">#E2E8F0</color>
+    <color name="opalx_border_active">#0F766E</color>
+    <color name="opalx_accent_emerald">#0F766E</color>
+    <color name="opalx_accent_cyan">#0F766E</color>
+    <color name="opalx_accent_amber">#B45309</color>
+    <color name="opalx_accent_red">#DC2626</color>
+    <color name="opalx_text_primary">#0F172A</color>
+    <color name="opalx_text_secondary">#334155</color>
+    <color name="opalx_text_muted">#64748B</color>
+</resources>

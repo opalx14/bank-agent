@@ -1,0 +1,8 @@
+[package]
+name = "opalx-guard"
+version = "0.1.0"
+edition = "2021"
+description = "Deterministic Rust policy & 3-way reconciliation kernel for OpalX GO / Bank Agent"
+
+[lib]
+crate-type = ["cdylib", "rlib"]

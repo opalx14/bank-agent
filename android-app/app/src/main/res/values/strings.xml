@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpalX GO</string>
+    <string name="header_brand">OpalX GO · Mobile App</string>
+    <string name="btn_test_guide">Test Guide</string>
+    <string name="btn_server">Server</string>
+    <string name="step_1_label">1. Tạo Đơn DN</string>
+    <string name="step_2_label">2. Ngân Hàng QR</string>
+    <string name="step_3_label">3. Sổ OpalX Go</string>
+    <string name="step_4_label">4. In HTML</string>
+    <string name="step_1_tip">Bước 1: Chọn Doanh nghiệp &amp; Sản phẩm → Bấm Tạo Mã VietQR</string>
+    <string name="step_2_tip">Bước 2: Nhập STK thật sinh VietQR hoặc bấm Xác nhận Báo Có</string>
+    <string name="step_3_tip">Bước 3: Xem Bằng chứng được lưu theo Hạng mục Doanh nghiệp</string>
+    <string name="step_4_tip">Bước 4: Xem mã HTML Bằng chứng &amp; bấm In / Lưu PDF trên Honor</string>
+    <string name="default_tip">Chọn nhanh 1 trong 4 bước trên để kiểm thử luồng OpalX GO.</string>
+    <string name="error_title">Không kết nối được máy chủ OpalX GO</string>
+    <string name="error_guide">• USB: Chạy adb reverse tcp:5238 tcp:5238 trên Mac và khởi chạy Next.js cổng 5238.\n• Wi-Fi LAN: Đảm bảo Honor &amp; Mac chung Wi-Fi và truy cập được 192.168.1.7:5238.\n• Custom: Nhấn nút Server để nhập link HTTPS / ngrok hoặc IP LAN khác.</string>
+</resources>

@@ -1,0 +1,55 @@
+{
+  "name": "opalx-bank-agent",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack -H 127.0.0.1 -p 5238",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0 -p 5238",
+    "typecheck": "tsc --noEmit",
+    "contracts:build": "forge build --root contracts",
+    "contracts:test": "forge test --root contracts -vv",
+    "fuji:wallet": "bun scripts/deploy-fuji.ts --check-only",
+    "contracts:deploy:fuji": "bun scripts/deploy-fuji.ts",
+    "guard:check": "cargo check --manifest-path crates/opalx-guard/Cargo.toml",
+    "guard:test": "cargo test --manifest-path crates/opalx-guard/Cargo.toml",
+    "test": "bun test tests/unit",
+    "test:e2e": "bun test tests/integration",
+    "eval": "bun eval/run-eval.ts",
+    "graphify:update": "bun scripts/opalx-graphify-sync.ts",
+    "graphify:preflight": "bun scripts/opalx-graphify-preflight.ts"
+  },
+  "dependencies": {
+    "@payos/node": "^2.0.6",
+    "@x402/core": "~2.28.0",
+    "@x402/evm": "~2.28.0",
+    "clsx": "^2.1.1",
+    "fast-xml-parser": "^4.5.0",
+    "lucide-react": "^1.48.0",
+    "next": "16.3.6",
+    "qrcode": "^1.5.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tailwind-merge": "^3.7.0",
+    "viem": "^2.47.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "packageManager": "bun@1.2.18",
+  "ignoreScripts": [
+    "sharp",
+    "unrs-resolver"
+  ],
+  "trustedDependencies": [
+    "sharp",
+    "unrs-resolver"
+  ]
+}

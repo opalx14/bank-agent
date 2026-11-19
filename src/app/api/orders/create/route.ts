@@ -1,12 +1,13 @@
 import { z } from "zod";
 import type { EinvoiceSummary, EnterpriseOrder, MerchantBankConfig } from "@/types";
+import { resolveRequestSession } from "@/core/auth/session-guard";
 import {
   buildOrderQrWithImage,
   ensureOrderQrDescription,
 } from "@/core/bank/vietqr-builder";
 import { resolveEnterpriseCategory } from "@/core/enterprise/catalog";
 import { extractTt78InvoiceSummary } from "@/core/enterprise/einvoice-parser";
-import { getActiveUserSession, getBankConfig, upsertOrder } from "@/core/ledger/store";
+import { getBankConfig, upsertOrder } from "@/core/ledger/store";
 import {
   findBankPartnerRail,
   findVerifiedEnterprise,
@@ -69,7 +70,7 @@ export async function POST(request: Request): Promise<Response> {
   const amountVnd = Math.round(data.amountVnd);
   const verifiedEnt = findVerifiedEnterprise(data.enterpriseId);
   const catalogItem = verifiedEnt ? undefined : resolveEnterpriseCategory(data.enterpriseId);
-  const session = getActiveUserSession();
+  const session = resolveRequestSession(request);
   const sellerName =
     data.sellerName ?? verifiedEnt?.enterpriseName ?? catalogItem?.enterpriseName ?? "California Fitness & Yoga";
   const sellerTaxId = data.sellerTaxId ?? verifiedEnt?.taxId ?? catalogItem?.taxId ?? "0312345678";

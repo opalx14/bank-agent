@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.OpalXGo" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/opalx_bg_surface</item>
+        <item name="android:navigationBarColor">@color/opalx_bg_surface</item>
+        <item name="android:windowBackground">@color/opalx_bg_primary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorAccent">@color/opalx_accent_emerald</item>
+    </style>
+
+    <style name="Theme.OpalXGo.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@color/opalx_bg_surface</item>
+        <item name="android:textColorPrimary">@color/opalx_text_primary</item>
+        <item name="android:textColorSecondary">@color/opalx_text_secondary</item>
+        <item name="colorAccent">@color/opalx_accent_emerald</item>
+    </style>
+</resources>

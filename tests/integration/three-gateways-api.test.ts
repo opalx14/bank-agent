@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { GET as getAccountMode } from "@/app/api/account-mode/route";
+import { POST as postWalletLogin } from "@/app/api/auth/wallet-login/route";
 import { GET as getAgentCard } from "@/app/api/agent-card/route";
 import { POST as settleAvaxFee } from "@/app/api/avax/settle-fee/route";
 import { GET as getBankConfig, POST as postBankConfig } from "@/app/api/bank/config/route";
@@ -56,6 +57,7 @@ function jsonPost(url: string, body: unknown, headers: Record<string, string> = 
     body: JSON.stringify(body),
   });
 }
+const cookieOf = (res: Response) => ({ Cookie: (res.headers.get("set-cookie") ?? "").split(";")[0] });
 
 describe("3-Gateway End-to-End API Integration", () => {
   test("hydrates seeded live Fuji AVAX proof OPX-2026-0001 and advertises pure-AVAX agent card", async () => {
@@ -139,7 +141,10 @@ describe("3-Gateway End-to-End API Integration", () => {
     expect(replayJson.decision.verdict).toBe("DENY");
     expect(replayJson.decision.reasonCode).toBe("MISSING_OR_DUPLICATE_BANK_REF");
 
-    await toggleKillSwitch(jsonPost("http://localhost/api/policy/kill-switch", { action: "pause" }));
+    const bankLoginRes = await postWalletLogin(jsonPost("http://localhost/api/auth/wallet-login", { mode: "LOGIN", provider: "EMAIL", email: "auditor@bank.vn", role: "BANK" }));
+    expect(bankLoginRes.status).toBe(200);
+    const bankAuth = cookieOf(bankLoginRes);
+    await toggleKillSwitch(jsonPost("http://localhost/api/policy/kill-switch", { action: "pause" }, bankAuth));
     const pausedRes = await simulateBank(
       jsonPost("http://localhost/api/sandbox/simulate-bank", {
         orderCode: 20269003,
@@ -148,7 +153,7 @@ describe("3-Gateway End-to-End API Integration", () => {
     );
     expect((await pausedRes.json()).decision.reasonCode).toBe("VAULT_PAUSED");
 
-    await toggleKillSwitch(jsonPost("http://localhost/api/policy/kill-switch", { action: "unpause" }));
+    await toggleKillSwitch(jsonPost("http://localhost/api/policy/kill-switch", { action: "unpause" }, bankAuth));
     const treasuryRes = await getTreasuryStatus(
       new Request("http://localhost/api/treasury/status?live=0"),
     );
@@ -157,9 +162,9 @@ describe("3-Gateway End-to-End API Integration", () => {
     const listRes = await getGuarantees();
     expect((await listRes.json()).guarantees.length).toBeGreaterThanOrEqual(2);
 
-    const sessionOffRes = await postAgentWalletSession(jsonPost("http://localhost/api/wallet/agent-session", { enabled: false }));
+    const sessionOffRes = await postAgentWalletSession(jsonPost("http://localhost/api/wallet/agent-session", { enabled: false }, bankAuth));
     expect((await sessionOffRes.json()).agentEnabled).toBe(false);
-    const sessionOnRes = await postAgentWalletSession(jsonPost("http://localhost/api/wallet/agent-session", { enabled: true }));
+    const sessionOnRes = await postAgentWalletSession(jsonPost("http://localhost/api/wallet/agent-session", { enabled: true }, bankAuth));
     expect((await sessionOnRes.json()).agentEnabled).toBe(true);
     const sessionGet = await (await getAgentWalletSession()).json();
     expect(sessionGet.popupFree).toBe(true);
@@ -168,9 +173,10 @@ describe("3-Gateway End-to-End API Integration", () => {
 
   test("configures custom bank STK, settles via SePay webhook, and renders A4/POS80 print HTML", async () => {
     expect((await (await getBankConfig()).json()).supportedBanks).toHaveLength(10);
+    const bankAuth = cookieOf(await postWalletLogin(jsonPost("http://localhost/api/auth/wallet-login", { mode: "LOGIN", provider: "EMAIL", email: "auditor@bank.vn", role: "BANK" })));
     const cfgSave = await postBankConfig(jsonPost("http://localhost/api/bank/config", {
       bankBin: "970436", accountNo: "001100889900", accountName: "Nguyễn Văn An", webhookProvider: "SEPAY",
-    }));
+    }, bankAuth));
     expect(cfgSave.status).toBe(200);
     expect((await cfgSave.json()).bankConfig.accountName).toBe("NGUYEN VAN AN");
 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { requireApiRole } from "@/core/auth/session-guard";
 import {
   findSupportedVnBank,
   normalizeAccountHolderName,
@@ -36,6 +37,9 @@ export async function GET(): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const guard = requireApiRole(request, ["ENTERPRISE", "BANK"]);
+  if (!guard.ok) return guard.response;
+
   let rawBody: unknown;
   try {
     rawBody = await request.json();

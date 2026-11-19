@@ -1,0 +1,48 @@
+# Cloned external reference repositories (read-only reference, never committed)
+.reference-repos/
+
+# Dependencies & build outputs
+node_modules/
+.next/
+.next-dev/
+out/
+dist/
+build/
+coverage/
+
+# Foundry / Solidity artifacts
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+
+# Rust / WASM build artifacts
+crates/*/target/
+target/
+
+# Graphify generated index (keep curated OPALX_FOLDER_MAP.md tracked!)
+graphify-out/*
+!graphify-out/OPALX_FOLDER_MAP.md
+
+# Local runtime, cache & eval reports
+.opalx/
+reports/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# OS / IDE
+.DS_Store
+*.log
+
+# TypeScript incremental cache
+tsconfig.tsbuildinfo
+
+# Native Android APK shell build outputs
+android-app/.gradle/
+android-app/build/
+android-app/app/build/
+android-app/local.properties
+*.apk
+releases/*.apk

@@ -17,10 +17,10 @@ let tempDir = "";
 let prevLedgerPath: string | undefined;
 let prevOffline: string | undefined;
 
-const jsonPost = (url: string, body: unknown) =>
+const jsonPost = (url: string, body: unknown, headers: Record<string, string> = {}) =>
   new Request(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
 
@@ -94,13 +94,15 @@ describe("Google/Email wallet provisioning, California Fitness catalog & Avalanc
         provider: "GOOGLE",
         email: "demo.gym@opalx.vn",
         displayName: "Minh Anh",
+        role: "ENTERPRISE",
       }),
     );
     expect(loginRes.status).toBe(200);
+    const authHeaders = { Cookie: (loginRes.headers.get("set-cookie") ?? "").split(";")[0] };
     const loginJson = await loginRes.json();
     expect(loginJson.session.walletAddress).toMatch(/^0x[a-fA-F0-9]{40}$/);
 
-    const sessionRes = await getWalletLogin();
+    const sessionRes = await getWalletLogin(new Request("http://localhost/api/auth/wallet-login", { headers: authHeaders }));
     expect((await sessionRes.json()).session.email).toBe("demo.gym@opalx.vn");
 
     const confirmRes = await postWalletLogin(
@@ -108,7 +110,7 @@ describe("Google/Email wallet provisioning, California Fitness catalog & Avalanc
         mode: "CONFIRM_WALLET",
         action: "CREATE_PAYMENT",
         summary: "12-Month Gym Pass 12,000,000 VND",
-      }),
+      }, authHeaders),
     );
     expect(confirmRes.status).toBe(200);
     const confirmJson = await confirmRes.json();
@@ -118,7 +120,7 @@ describe("Google/Email wallet provisioning, California Fitness catalog & Avalanc
       jsonPost("http://localhost/api/bank/config", {
         useCustomQrImage: true,
         customQrImageDataUrl: qrSample,
-      }),
+      }, authHeaders),
     );
     expect(bankRes.status).toBe(200);
     expect((await bankRes.json()).bankConfig.useCustomQrImage).toBe(true);

@@ -125,22 +125,29 @@ export function WalletAuthProvider({ children }: { children: ReactNode }) {
     [performLogin],
   );
 
-  const confirmWithWallet = useCallback(async (action: WalletActionConfirmation["action"], summary: string) => {
-    try {
-      const res = await fetch("/api/auth/wallet-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "CONFIRM_WALLET", action, summary }),
-      });
-      if (!res.ok) return null;
-      const data = (await res.json()) as { session?: UserWalletSession; confirmation?: WalletActionConfirmation };
-      if (data.session) setSession(data.session);
-      if (data.confirmation) setLastConfirmation(data.confirmation);
-      return data.confirmation ?? null;
-    } catch {
-      return null;
-    }
-  }, []);
+  const confirmWithWallet = useCallback(
+    async (action: WalletActionConfirmation["action"], summary: string) => {
+      if (!session) return null;
+      try {
+        const res = await fetch("/api/auth/wallet-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: "CONFIRM_WALLET", action, summary }),
+        });
+        if (!res.ok) return null;
+        const data = (await res.json()) as {
+          session?: UserWalletSession;
+          confirmation?: WalletActionConfirmation;
+        };
+        if (data.session) setSession(data.session);
+        if (data.confirmation) setLastConfirmation(data.confirmation);
+        return data.confirmation ?? null;
+      } catch {
+        return null;
+      }
+    },
+    [session],
+  );
 
   const logout = useCallback(async () => {
     setLoading(true);

@@ -25,9 +25,9 @@ const jetbrainsMono = JetBrains_Mono({
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("opalx-theme")==="dark"?"dark":"light";var r=document.documentElement;r.dataset.theme=t;r.style.colorScheme=t;}catch(e){}})();`;
 
 export const metadata: Metadata = {
-  title: "OpalX GO — VietQR Payments & Avalanche Fuji Guarantees",
+  title: "Bank Agent · OpalX GO — Direct Bank Payments & Avalanche Fuji Guarantees",
   description:
-    "Web3 platform bridging NAPAS 247 & Avalanche Fuji: Enterprises deploy Smart Contracts & service passes, Members pay via VietQR and receive verifiable Guarantee Passes.",
+    "Web3 platform bridging instant bank rails & Avalanche Fuji: Enterprises deploy Smart Contracts & service passes, Members pay directly and receive verifiable Guarantee Passes.",
   manifest: "/manifest.json",
   icons: {
     icon: [

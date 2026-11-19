@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Landmark, Loader2, Mail, Sparkles } from "lucide-react";
 import { BankAgentLogo } from "@/components/shared/BankAgentLogo";
+import { ExternalWalletConnectButton } from "./ExternalWalletConnectButton";
 import { HowWalletWorksSheet } from "./HowWalletWorksSheet";
 import { RoleFanStage } from "./RoleFanStage";
 import { useWalletAuth } from "./WalletAuthProvider";
@@ -120,6 +121,15 @@ export function BankAuditorLoginCard() {
               </span>
             </button>
           </form>
+
+          <div className="mt-4">
+            <ExternalWalletConnectButton
+              role="BANK"
+              rolePositionId={bankPos}
+              onSuccess={() => router.push("/bank")}
+              onError={(msg) => setErrorMsg(msg)}
+            />
+          </div>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs text-[var(--ox-muted)]">
             <HowWalletWorksSheet triggerVariant="link" roleHint="bank" />

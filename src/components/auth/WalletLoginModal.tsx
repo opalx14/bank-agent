@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Building2, Check, Landmark, Loader2, Mail, Sparkles, User, X } from "lucide-react";
 import { PortalSheet } from "@/components/shared/ui-kit";
 import type { PortalRole } from "@/types";
+import { ExternalWalletConnectButton } from "./ExternalWalletConnectButton";
 import { HowWalletWorksSheet } from "./HowWalletWorksSheet";
 import { useWalletAuth } from "./WalletAuthProvider";
 
@@ -24,7 +25,7 @@ const ROLE_OPTIONS: ReadonlyArray<{
   icon: typeof User;
 }> = [
   { role: "CUSTOMER", label: "Personal", desc: "Pay & Passes", route: "/", icon: User },
-  { role: "ENTERPRISE", label: "Enterprise", desc: "Passes & VietQR", route: "/enterprise", icon: Building2 },
+  { role: "ENTERPRISE", label: "Enterprise", desc: "Passes & Bank Rail", route: "/enterprise", icon: Building2 },
   { role: "BANK", label: "Bank", desc: "Fuji Audits", route: "/bank", icon: Landmark },
 ];
 
@@ -175,6 +176,17 @@ export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: 
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           <span>Sign In · Open {activeMeta.label}</span>
         </button>
+
+        <ExternalWalletConnectButton
+          role={role}
+          rolePositionId={role === "BANK" ? "bank-mb" : undefined}
+          compact
+          onSuccess={() => {
+            onClose();
+            router.push(activeMeta.route);
+          }}
+          onError={(msg) => setErrorMsg(msg)}
+        />
 
         <div className="flex justify-center pt-0.5">
           <HowWalletWorksSheet triggerVariant="link" roleHint="customer" />

@@ -38,7 +38,7 @@ export function CheckoutPayerForm({
     : selectedPkg
       ? preferredMethod === "OPALX_DIRECT"
         ? `Pay Direct · ${formatVnd(selectedPkg.amountVnd)}`
-        : `Create VietQR · ${formatVnd(selectedPkg.amountVnd)}`
+        : `Create Payment QR · ${formatVnd(selectedPkg.amountVnd)}`
       : "Select a package to continue";
 
   return (
@@ -104,7 +104,7 @@ export function CheckoutPayerForm({
             <QrCode className="h-4 w-4" />
           </span>
           <div className="min-w-0">
-            <p className="font-semibold text-[var(--ox-ink)]">VietQR Bank App</p>
+            <p className="font-semibold text-[var(--ox-ink)]">Bank App QR</p>
             <p className="truncate text-[11px] text-[var(--ox-muted)]">Scan QR or open banking app</p>
           </div>
         </button>

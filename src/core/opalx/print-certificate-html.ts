@@ -96,7 +96,7 @@ export async function renderGuaranteePrintHtml(params: {
     category: g.categoryLabel ?? params.order?.categoryLabel ?? "Fitness, Gym & Yoga",
     product: g.productName ?? params.order?.productName ?? g.description ?? `Order #${g.orderCode}`,
     payer: g.payerName ?? params.order?.payerName ?? params.order?.buyerName ?? "Customer",
-    channel: `${g.sandbox ? "[SANDBOX]" : "[LIVE BANK]"} · VietQR NAPAS 247`,
+    channel: `${g.sandbox ? "[SANDBOX]" : "[LIVE BANK]"} · Direct Bank A2A`,
     issued: g.issuedAtIso.replace("T", " ").slice(0, 19) + " UTC",
   };
 
@@ -129,7 +129,7 @@ ${pageCss}
   <header class="hdr">
     <div>
       <h1>OPALX GO · GUARANTEE RECONCILIATION CERTIFICATE &amp; AVALANCHE PROOF</h1>
-      <p class="sub">VietQR Payment Attestation · Reconciliation Commitment Hashed on Avalanche Fuji (43113)</p>
+      <p class="sub">Direct Bank Payment Attestation · Reconciliation Commitment Hashed on Avalanche Fuji (43113)</p>
     </div>
     <div class="stamp ${g.revoked ? "revoked" : ""}">${escapeHtml(stampText)} · ${escapeHtml(g.sandbox ? "[SANDBOX]" : "[LIVE BANK]")}</div>
   </header>

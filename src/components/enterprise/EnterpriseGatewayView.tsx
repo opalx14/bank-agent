@@ -22,7 +22,7 @@ const SIDEBAR_ITEMS: ReadonlyArray<{ id: EnterpriseSection; label: string; icon:
   { id: "OVERVIEW", label: "Overview", icon: LayoutDashboard },
   { id: "PACKAGES", label: "Packages & Services", icon: Package },
   { id: "ORDERS", label: "Orders", icon: ClipboardList },
-  { id: "BANK", label: "Bank & VietQR", icon: Landmark },
+  { id: "BANK", label: "Bank & Settlement", icon: Landmark },
   { id: "PROFILE", label: "Enterprise Profile", icon: Settings },
 ];
 
@@ -137,7 +137,7 @@ export function EnterpriseGatewayView() {
         <span className="ox-badge-verified flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"><Building2 className="h-5 w-5" /></span>
         <div>
           <h1 className="text-base font-bold text-[var(--ox-ink)]">Register Enterprise Profile</h1>
-          <p className="text-xs text-[var(--ox-muted)]">Account <span className="font-medium text-[var(--ox-ink)]">{roleSession?.email}</span> has no profile yet. Complete below to publish packages &amp; accept VietQR.</p>
+          <p className="text-xs text-[var(--ox-muted)]">Account <span className="font-medium text-[var(--ox-ink)]">{roleSession?.email}</span> has no profile yet. Complete below to publish packages &amp; accept direct bank payments.</p>
         </div>
       </div>
       {errorMsg && <div role="alert" className="ox-badge-avax flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-medium"><AlertTriangle className="h-4 w-4 shrink-0" /><span>{errorMsg}</span></div>}
@@ -173,7 +173,7 @@ export function EnterpriseGatewayView() {
             <section role="status" className="ox-badge-verified flex items-start justify-between gap-3 rounded-2xl p-4">
               <div className="space-y-1">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold"><Sparkles className="h-3.5 w-3.5" /><span>Enterprise Created</span></span>
-                <p className="text-sm font-semibold text-[var(--ox-ink)]">{justCreatedContract.enterpriseName} is ready to publish packages &amp; accept VietQR.</p>
+                <p className="text-sm font-semibold text-[var(--ox-ink)]">{justCreatedContract.enterpriseName} is ready to publish packages &amp; accept direct bank payments.</p>
                 <p className="font-mono text-[11px] text-[var(--ox-muted)]">Smart Contract: {truncateHex(justCreatedContract.merchantContractAddress, 6)}</p>
               </div>
               <button type="button" onClick={() => setJustCreatedContract(null)} aria-label="Dismiss notice" className="rounded-lg p-1 text-[var(--ox-muted)] hover:text-[var(--ox-ink)]"><X className="h-4 w-4" /></button>
@@ -190,7 +190,7 @@ export function EnterpriseGatewayView() {
                   {[
                     { label: "Guaranteed Revenue", val: kpiStats.guaranteedRevenueVnd, fmt: formatVnd, cls: "text-[var(--ox-ok-ink)]", sub: `${kpiStats.guaranteedCount} / ${kpiStats.totalOrders} orders guaranteed`, Icon: TrendingUp, iconCls: "text-[var(--ox-ok-ink)]" },
                     { label: "Active Packages", val: kpiStats.activePackages, suffix: ` / ${kpiStats.totalPackages} pkgs`, cls: "text-[var(--ox-ink)]", sub: "Manage & add packages →", action: () => selectSection("PACKAGES"), Icon: PackageCheck, iconCls: "text-[var(--ox-info-ink)]" },
-                    { label: "Orders & VietQR", val: kpiStats.totalOrders, suffix: " orders", cls: "text-[var(--ox-ink)]", sub: `${myEnt.bankShortName} · ${myEnt.accountNo}`, Icon: ClipboardList, iconCls: "text-[var(--ox-avax)]" },
+                    { label: "Orders & Payments", val: kpiStats.totalOrders, suffix: " orders", cls: "text-[var(--ox-ink)]", sub: `${myEnt.bankShortName} · ${myEnt.accountNo}`, Icon: ClipboardList, iconCls: "text-[var(--ox-avax)]" },
                   ].map((k) => (
                     <div key={k.label} className="ox-card flex items-center justify-between gap-3 rounded-2xl p-4">
                       <div className="min-w-0">

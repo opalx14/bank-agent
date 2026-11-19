@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Mail, Wallet, X } from "lucide-react";
+import { ExternalWalletConnectButton } from "@/components/auth/ExternalWalletConnectButton";
 import { useWalletAuth } from "@/components/auth/WalletAuthProvider";
 import { truncateHex } from "@/components/shared/formatters";
 import { RadialRing } from "@/components/shared/ui-kit";
@@ -33,10 +34,12 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
 
   useEffect(() => {
     if (!open) return;
+    const isPortalSheetOpen = () => Boolean(document.querySelector('[data-ox-portal-sheet="true"]'));
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape" && !isPortalSheetOpen()) setOpen(false);
     };
     const onPointer = (e: MouseEvent) => {
+      if (isPortalSheetOpen()) return;
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
     };
     window.addEventListener("keydown", onKey);
@@ -125,7 +128,11 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
           <div className="flex items-center justify-between border-b border-[var(--ox-line)] pb-3">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[var(--ox-avax)]" />
-              <span className="text-sm font-semibold text-[var(--ox-ink)]">Embedded Wallet &amp; Smart Contract</span>
+              <span className="text-sm font-semibold text-[var(--ox-ink)]">
+                {session?.provider === "EXTERNAL_WALLET"
+                  ? "External Wallet & Smart Contract"
+                  : "Wallet & Smart Contract"}
+              </span>
             </div>
             <button
               type="button"
@@ -184,6 +191,12 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
                 {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 <span>Use sample account</span>
               </button>
+              <ExternalWalletConnectButton
+                role="CUSTOMER"
+                compact
+                onSuccess={() => setOpen(false)}
+                onError={(msg) => setErrorMsg(msg)}
+              />
             </div>
           )}
         </div>

@@ -16,8 +16,6 @@
     "test": "bun test tests/unit",
     "test:e2e": "bun test tests/integration",
     "eval": "bun eval/run-eval.ts",
-    "graphify:update": "bun scripts/opalx-graphify-sync.ts",
-    "graphify:preflight": "bun scripts/opalx-graphify-preflight.ts",
     "dev:vinext": "vite dev --port 3001",
     "build:vinext": "vite build",
     "start:vinext": "vite preview",

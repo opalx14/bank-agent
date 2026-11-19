@@ -107,7 +107,7 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
     e.preventDefault();
     if (!selectedEnt || !selectedPkg) return;
     const startedAt = performance.now();
-    setFeedback(null); setBusy("create"); showToast("sent", `Creating VietQR · ${selectedEnt.bankShortName}`);
+    setFeedback(null); setBusy("create"); showToast("sent", `Creating Payment QR · ${selectedEnt.bankShortName}`);
     try {
       const resolvedEmail = buyerEmail.trim() || (roleSession?.role === "CUSTOMER" ? roleSession.email : "");
       const resolvedPayer = payerName.trim() || (roleSession?.role === "CUSTOMER" ? roleSession.displayName : "") || "OpalX Customer";
@@ -131,7 +131,7 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
       setFeedback({ kind: "notice", text: `Order #${json.order.orderCode} · ${selectedEnt.bankShortName} ready.` });
       showToast("ok", `Order #${json.order.orderCode} ready`, { txHash, explorerUrl: fujiTxUrl(txHash), latencyMs: Math.round(performance.now() - startedAt) });
       setMobileStep(2); setDesktopTab("QR"); await loadData();
-    } catch (err) { failWith("VietQR creation failed", err instanceof Error ? err.message : "Error creating VietQR"); } finally { setBusy(null); }
+    } catch (err) { failWith("Payment QR creation failed", err instanceof Error ? err.message : "Error creating Payment QR"); } finally { setBusy(null); }
   };
 
   const handleSettle = async (orderCode: number, method?: CheckoutPaymentMethod) => {
@@ -168,7 +168,7 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
         </div>
       )}
       <div className="lg:hidden">
-        <SegmentedTabs ariaLabel="Checkout flow" value={String(mobileStep) as "1" | "2" | "3"} onChange={(k) => setMobileStep(Number(k) as 1 | 2 | 3)} items={[{ key: "1", label: "Select Package" }, { key: "2", label: "VietQR" }, { key: "3", label: "Guarantee", dot: Boolean(activeGuarantee) }]} />
+        <SegmentedTabs ariaLabel="Checkout flow" value={String(mobileStep) as "1" | "2" | "3"} onChange={(k) => setMobileStep(Number(k) as 1 | 2 | 3)} items={[{ key: "1", label: "Select Package" }, { key: "2", label: "Payment QR" }, { key: "3", label: "Guarantee", dot: Boolean(activeGuarantee) }]} />
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
         <div className={`min-w-0 lg:col-span-7 ${mobileStep === 1 ? "block" : "hidden lg:block"}`}>

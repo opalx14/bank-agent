@@ -34,7 +34,7 @@ export default function PosScanPage() {
             <QrCode className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-[var(--ox-ink)] sm:text-xl">VietQR &amp; Guarantee Scanner</h1>
+            <h1 className="text-lg font-bold text-[var(--ox-ink)] sm:text-xl">Payment QR &amp; Guarantee Scanner</h1>
             <div className="mt-1 flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
               <span className="ox-badge-verified rounded-full px-2 py-0.5 font-semibold">NAPAS 247</span>
               <span className="ox-subcard rounded-full px-2 py-0.5 font-semibold text-[var(--ox-muted)]">CRC-16</span>
@@ -82,11 +82,11 @@ export default function PosScanPage() {
       )}
 
       {parsed && (
-        <section aria-label="Decoded VietQR payload" className="ox-card-glow space-y-4 rounded-3xl p-5">
+        <section aria-label="Decoded Payment QR payload" className="ox-card-glow space-y-4 rounded-3xl p-5">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ox-line)] pb-3">
             <div className="flex items-center gap-2">
               <Landmark className="h-4 w-4 text-[var(--ox-ok-ink)]" />
-              <h2 className="text-sm font-bold text-[var(--ox-ink)]">EMVCo VietQR Decoded</h2>
+              <h2 className="text-sm font-bold text-[var(--ox-ink)]">EMVCo Payment QR Decoded</h2>
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">
@@ -95,7 +95,7 @@ export default function PosScanPage() {
                 <span>CRC-16: {parsed.crcValid ? "Valid" : "Invalid"}</span>
               </span>
               <span className="rounded-full border border-[var(--ox-line)] bg-[var(--ox-soft)] px-2.5 py-0.5 font-mono text-[11px] font-semibold text-[var(--ox-muted)]">
-                {parsed.isDynamic ? "Dynamic VietQR" : "Static VietQR"}
+                {parsed.isDynamic ? "Dynamic Payment QR" : "Static Payment QR"}
               </span>
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function PosScanPage() {
 
           {parsed.validFormat && parsed.bankBin && parsed.accountNo && (
             <div className="space-y-2 border-t border-[var(--ox-line)] pt-3">
-              <p className="text-xs font-semibold text-[var(--ox-muted)]">Open Bank App (dl.vietqr.io)</p>
+              <p className="text-xs font-semibold text-[var(--ox-muted)]">Open Mobile Banking App</p>
               <div className="flex flex-wrap gap-2">
                 {QUICK_BANK_APPS.map((b) => (
                   <a

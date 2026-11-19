@@ -112,7 +112,7 @@ export function BankPartnerRailManager({ bankRails, supportedBanks, enterprises,
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-[var(--ox-ink)] sm:text-base">Configured Bank Partner Rails (NAPAS 247 · VietQR)</h2>
+        <h2 className="text-sm font-bold text-[var(--ox-ink)] sm:text-base">Configured Bank Partner Rails (Instant A2A · EMVCo QR)</h2>
         <span className="ox-pill-active rounded-full px-3 py-1 font-mono text-xs font-semibold tabular-nums">{activeCount}/{bankRails.length} rails active</span>
       </div>
       <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">

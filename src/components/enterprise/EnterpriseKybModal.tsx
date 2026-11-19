@@ -171,7 +171,7 @@ export function EnterpriseKybModal({ open = false, inline = false, activeBanks, 
     return (
       <div className="ox-card-glow mx-auto max-w-3xl rounded-3xl p-5 sm:p-7">
         <h2 className="mb-1 text-lg font-bold text-[var(--ox-ink)] sm:text-xl">Business KYB &amp; Smart Contract Setup</h2>
-        <p className="mb-4 text-xs text-[var(--ox-muted)]">Complete 3 steps to deploy a Merchant Vault on Fuji &amp; launch VietQR packages.</p>
+        <p className="mb-4 text-xs text-[var(--ox-muted)]">Complete 3 steps to deploy a Merchant Vault on Fuji &amp; launch guaranteed packages.</p>
         {body}
       </div>
     );

@@ -14,7 +14,7 @@ import { GuaranteeCategoryVault } from "./GuaranteeCategoryVault";
 
 type PortalTab = "CHECKOUT" | "VAULT" | "FUJI";
 const TAB_TITLES: Record<PortalTab, string> = {
-  CHECKOUT: "Buy Passes & VietQR", VAULT: "My Guarantee Passes", FUJI: "Fuji Infrastructure",
+  CHECKOUT: "Buy Passes & Pay", VAULT: "My Guarantee Passes", FUJI: "Fuji Infrastructure",
 };
 
 function OpalxSearchSync({ onSync }: { onSync: () => void }) {

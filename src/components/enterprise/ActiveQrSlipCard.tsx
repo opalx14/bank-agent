@@ -50,7 +50,7 @@ export function ActiveQrSlipCard({
   if (!order) {
     return (
       <div className="ox-card flex min-h-[240px] flex-col items-center justify-center gap-3 rounded-3xl border-dashed p-6 text-center text-sm text-[var(--ox-muted)]">
-        <p>Select a service package and create a payment session to display the VietQR code here.</p>
+        <p>Select a service package and create a payment session to display the bank payment QR code here.</p>
         {onBackToForm && (
           <button type="button" onClick={onBackToForm} className="ox-btn-ghost inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold lg:hidden">
             <ArrowLeft className="h-3.5 w-3.5" />

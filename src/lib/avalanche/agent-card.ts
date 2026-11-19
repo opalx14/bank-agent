@@ -25,7 +25,7 @@ export function buildAgentRegistrationCard(origin: string): AgentRegistrationCar
     type: "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
     name: "OpalX GO — 3-Gateway AVAX Guarantee Agent",
     description:
-      "Vietnamese Enterprise VietQR & Circular 78 XML reconciliation backed by pure-AVAX proofs across EnterpriseGateway, BankGateway, and OpalXGoCore on Avalanche Fuji (43113).",
+      "Direct Bank-to-Chain payment & e-invoice reconciliation backed by pure-AVAX proofs across EnterpriseGateway, BankGateway, and OpalXGoCore on Avalanche Fuji (43113).",
     chainId: AVALANCHE_FUJI_NETWORK.chainId,
     network: AVALANCHE_FUJI_NETWORK.caip2,
     settlementCurrency: "AVAX",

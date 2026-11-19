@@ -13,27 +13,27 @@ export interface HowWalletWorksSheetProps {
 const ROLE_SUBTITLE: Record<NonNullable<HowWalletWorksSheetProps["roleHint"]>, string> = {
   enterprise: "For Enterprises issuing service passes & Merchant KYB commitments.",
   bank: "For Banks auditing NAPAS 247 settlements & PolicyVault Fuji.",
-  customer: "For Members paying directly via VietQR & holding Guarantee Passes.",
+  customer: "For Members paying directly via bank transfer & holding Guarantee Passes.",
 };
 
 const HELP_ROWS = [
   {
     icon: Sparkles,
     badgeCls: "bg-[var(--ox-avax-tint)] text-[var(--ox-avax-ink)]",
-    title: "Passkey P-256 on-device",
-    desc: "No external wallet needed; sign guarantees with 1-tap approval and subsidized Fuji gas.",
+    title: "Embedded Self-Custody or External Wallet",
+    desc: "Sign in instantly with email for an embedded secp256k1 wallet, or connect MetaMask / Core Wallet directly with a zero-gas signature.",
   },
   {
     icon: KeyRound,
     badgeCls: "bg-[var(--ox-info-tint)] text-[var(--ox-info-ink)]",
-    title: "0 PII SHA-256 Commitments",
-    desc: "Device keys sign only SHA-256 hashes & proofs (0 PII on-chain); keep your device or session backup safe.",
+    title: "Export Private Key & Keystore V3 Anytime",
+    desc: "Because your wallet is decentralized, open the Wallet menu anytime to export your raw private key or password-encrypted Web3 Keystore V3 JSON.",
   },
   {
     icon: FlaskConical,
     badgeCls: "bg-[var(--ox-ok-tint)] text-[var(--ox-ok-ink)]",
-    title: "Fuji Testnet & Direct VietQR Rail",
-    desc: "Proofs are recorded on Avalanche Fuji (43113); VND always settles directly via VietQR bank rails with zero custody.",
+    title: "Fuji Testnet & Direct Bank Rail",
+    desc: "Proofs are recorded on Avalanche Fuji (43113) with 0 PII on-chain; fiat settles directly via bank rails with zero custody.",
   },
 ] as const;
 

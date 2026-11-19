@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Building2, ExternalLink, Landmark, LogOut, User } from "lucide-react";
+import { Building2, ExternalLink, Landmark, LogOut, ShieldCheck, User } from "lucide-react";
+import { ExportWalletModal } from "@/components/auth/ExportWalletModal";
 import { HowWalletWorksSheet } from "@/components/auth/HowWalletWorksSheet";
 import { useWalletAuth } from "@/components/auth/WalletAuthProvider";
 import { truncateHex } from "@/components/shared/formatters";
@@ -41,9 +42,15 @@ export function WalletSessionPanel({
   onClose,
 }: WalletSessionPanelProps) {
   const router = useRouter();
-  const { loginWithRole, logout } = useWalletAuth();
+  const { switchRole, logout } = useWalletAuth();
   const { activeKind, setActiveKind } = useAccountMode();
   const isLiveBank = activeKind === "LIVE_DIRECT_ACCOUNT";
+  const isExternalWallet = session.provider === "EXTERNAL_WALLET";
+  const providerBadgeLabel = isExternalWallet
+    ? session.walletConnectorName || "Web3 Wallet"
+    : session.provider === "GOOGLE"
+      ? "Google"
+      : "Email";
   const roleBadge = roleSession?.role ? ROLE_BADGE[roleSession.role] : null;
   const parsedBalance = walletAvaxBalance !== undefined ? Number(walletAvaxBalance) : NaN;
 
@@ -58,13 +65,7 @@ export function WalletSessionPanel({
             : "bank-mb"
           : undefined;
 
-    await loginWithRole({
-      role: targetRole,
-      provider: session.provider,
-      email: session.email,
-      displayName: session.displayName,
-      ...(rolePositionId ? { rolePositionId } : {}),
-    });
+    await switchRole(targetRole, rolePositionId);
     onClose();
     router.push(route);
   };
@@ -81,18 +82,23 @@ export function WalletSessionPanel({
               </span>
             ) : null}
             <span className="rounded-md border border-[var(--ox-line)] bg-[var(--ox-surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--ox-muted)]">
-              {session.provider === "GOOGLE" ? "Google" : "Email"}
+              {providerBadgeLabel}
             </span>
           </div>
         </div>
         <p className="mt-1 truncate text-[var(--ox-muted)]">
-          Email: <span className="font-medium text-[var(--ox-ink)]">{session.email}</span>
+          {isExternalWallet ? "Signer" : "Email"}:{" "}
+          <span className="font-medium text-[var(--ox-ink)]">
+            {isExternalWallet ? truncateHex(session.walletAddress, 6) : session.email}
+          </span>
         </p>
       </div>
 
       <dl className="ox-subcard divide-y divide-[var(--ox-line)] rounded-xl px-3 font-mono">
         <div className="flex items-center justify-between py-2">
-          <dt className="font-sans text-[var(--ox-muted)]">Embedded Wallet</dt>
+          <dt className="font-sans text-[var(--ox-muted)]">
+            {isExternalWallet ? "External Wallet" : "Embedded Wallet"}
+          </dt>
           <dd>
             <a
               href={`https://testnet.snowtrace.io/address/${session.walletAddress}`}
@@ -163,6 +169,15 @@ export function WalletSessionPanel({
           <span>{isLiveBank ? "[LIVE BANK]" : "[SANDBOX]"}</span>
         </button>
       </div>
+
+      {isExternalWallet ? (
+        <div className="ox-subcard flex items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-medium text-[var(--ox-ok-ink)]">
+          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-[var(--ox-ok)]" />
+          <span className="truncate">Self-custodial keys managed in {providerBadgeLabel}</span>
+        </div>
+      ) : (
+        <ExportWalletModal walletAddress={session.walletAddress} />
+      )}
 
       <HowWalletWorksSheet triggerVariant="compact" />
 

@@ -134,7 +134,7 @@ export function EnterpriseKybSteps(p: KybStepFormProps) {
     return (
       <section className="ox-subcard space-y-3.5 rounded-2xl p-4 sm:p-5">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-bold text-[var(--ox-ink)]">Step 2 — VietQR Settlement Account</h3>
+          <h3 className="text-sm font-bold text-[var(--ox-ink)]">Step 2 — Direct Bank Settlement Account</h3>
           <span className="ox-badge-info rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold">NAPAS 247</span>
         </div>
         <label className="block space-y-1.5">
@@ -153,7 +153,7 @@ export function EnterpriseKybSteps(p: KybStepFormProps) {
             <span className="font-semibold text-[var(--ox-ink)]">Account Holder Name</span>
             <input value={p.accountName} onChange={(e) => p.setAccountName(e.target.value)} placeholder="e.g. GOLDEN LOTUS CORP" className="ox-input min-h-[42px] w-full rounded-xl px-3.5 py-2 uppercase" />
             {p.accountName.trim() && normalizedHolder !== p.accountName.trim().toUpperCase() && (
-              <span className="block font-mono text-[10px] text-[var(--ox-info-ink)]">VietQR Normalized: {normalizedHolder}</span>
+              <span className="block font-mono text-[10px] text-[var(--ox-info-ink)]">Rail Normalized: {normalizedHolder}</span>
             )}
           </label>
         </div>

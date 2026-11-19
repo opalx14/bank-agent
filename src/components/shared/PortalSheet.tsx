@@ -30,7 +30,8 @@ export function PortalSheet({
       role="dialog"
       aria-modal="true"
       aria-label={title ?? "Dialog"}
-      className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+      data-ox-portal-sheet="true"
+      className="fixed inset-0 z-[70] flex items-end justify-center p-0 sm:items-center sm:p-4"
     >
       <button
         type="button"

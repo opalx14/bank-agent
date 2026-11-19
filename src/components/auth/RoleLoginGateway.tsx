@@ -7,6 +7,7 @@ import { ArrowRight, Building2, Loader2, Mail, ShoppingBag, Sparkles } from "luc
 import { BankAgentLogo } from "@/components/shared/BankAgentLogo";
 import type { PortalRole } from "@/types";
 import { BankAuditorLoginCard } from "./BankAuditorLoginCard";
+import { ExternalWalletConnectButton } from "./ExternalWalletConnectButton";
 import { HowWalletWorksSheet } from "./HowWalletWorksSheet";
 import { RoleFanStage } from "./RoleFanStage";
 import { useWalletAuth } from "./WalletAuthProvider";
@@ -80,14 +81,14 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
 
           <h1 id="opalx-gateway-title" className="mt-6 text-[clamp(30px,5vw,42px)] leading-[1.08] font-extrabold tracking-[-0.035em] text-[var(--ox-ink)]">
             {isEnterprise ? (
-              <>Enterprise VietQR.<span className="block text-[var(--ox-avax)]">Instant Audits.</span></>
+              <>Enterprise Rails.<span className="block text-[var(--ox-avax)]">Instant Audits.</span></>
             ) : (
-              <>VietQR Payments.<span className="block text-[var(--ox-ok-ink)]">Instant Proofs.</span></>
+              <>Bank Payments.<span className="block text-[var(--ox-ok-ink)]">Instant Proofs.</span></>
             )}
           </h1>
           <p className="mt-2.5 text-sm leading-relaxed text-[var(--ox-muted)]">
             {isEnterprise
-              ? "Issue service passes, receive direct bank VietQR, and mint Fuji guarantee proofs."
+              ? "Issue service passes, receive direct bank transfers, and mint Fuji guarantee proofs."
               : "Pick a role and enter your email for a zero-popup embedded wallet and guarantee passes."}
           </p>
 
@@ -157,6 +158,14 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
               </span>
             </button>
           </form>
+
+          <div className="mt-4">
+            <ExternalWalletConnectButton
+              role={selectedRole}
+              onSuccess={() => router.push(isEnterprise ? "/enterprise" : "/")}
+              onError={(msg) => setErrorMsg(msg)}
+            />
+          </div>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs text-[var(--ox-muted)]">
             {!isEnterprise ? (

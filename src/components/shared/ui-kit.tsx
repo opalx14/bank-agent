@@ -74,7 +74,7 @@ export function SegmentedTabs<K extends string>({
 export type GuaranteeStepPhase = "idle" | "qr" | "verifying" | "guaranteed";
 
 const STEP_META = [
-  { label: "1. Create VietQR", icon: QrCode },
+  { label: "1. Payment QR", icon: QrCode },
   { label: "2. WASM Policy", icon: Cpu },
   { label: "3. Fuji Proof", icon: ShieldCheck },
 ] as const;

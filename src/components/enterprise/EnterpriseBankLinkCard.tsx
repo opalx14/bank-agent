@@ -70,7 +70,7 @@ export function EnterpriseBankLinkCard({ enterprise, activeBanks, onUpdated }: E
       });
       const json = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) throw new Error(json.error ?? `Save failed (${res.status})`);
-      setStatusMsg(`Updated VietQR receiving account for ${enterprise.enterpriseName}.`);
+      setStatusMsg(`Updated receiving bank account for ${enterprise.enterpriseName}.`);
       await onUpdated();
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Unable to update bank account.");
@@ -135,7 +135,7 @@ export function EnterpriseBankLinkCard({ enterprise, activeBanks, onUpdated }: E
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Landmark className="h-4 w-4 text-[var(--ox-info-ink)]" />
-            <h3 className="text-sm font-bold text-[var(--ox-ink)]">VietQR Settlement Account</h3>
+            <h3 className="text-sm font-bold text-[var(--ox-ink)]">Bank Settlement Account</h3>
           </div>
           <span className="ox-badge-info rounded-md px-2 py-0.5 font-mono text-[10px] font-semibold">NAPAS 247</span>
         </div>
@@ -161,7 +161,7 @@ export function EnterpriseBankLinkCard({ enterprise, activeBanks, onUpdated }: E
             <span className="font-semibold text-[var(--ox-ink)]">Account Holder Name</span>
             <input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder="e.g. CALIFORNIA FITNESS LLC" className="ox-input min-h-[42px] w-full rounded-xl px-3 py-2 uppercase" required />
             {accountName.trim() && normalizedHolderPreview !== accountName.trim().toUpperCase() && (
-              <span className="block font-mono text-[10px] text-[var(--ox-info-ink)]">VietQR Normalized: {normalizedHolderPreview}</span>
+              <span className="block font-mono text-[10px] text-[var(--ox-info-ink)]">Rail Normalized: {normalizedHolderPreview}</span>
             )}
           </label>
         </div>
@@ -181,7 +181,7 @@ export function EnterpriseBankLinkCard({ enterprise, activeBanks, onUpdated }: E
 
         <button type="submit" disabled={saving || activeBanks.length === 0} className="ox-btn-primary inline-flex min-h-[42px] w-full items-center justify-center gap-2 rounded-xl px-4 py-2 disabled:opacity-60">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          <span>Save VietQR Account</span>
+          <span>Save Bank Account</span>
         </button>
       </form>
     </div>

@@ -2,7 +2,7 @@
   "id": "/",
   "name": "OpalX GO — Bank Agent",
   "short_name": "OpalX GO",
-  "description": "Enterprise VietQR-to-Avalanche Guarantee & Non-Custodial Policy Agent",
+  "description": "Enterprise Bank-to-Avalanche Guarantee & Non-Custodial Policy Agent",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -38,12 +38,12 @@
   "shortcuts": [
     {
       "name": "Enterprise",
-      "short_name": "VietQR",
+      "short_name": "Pay QR",
       "url": "/enterprise",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Scan VietQR",
+      "name": "Scan Payment QR",
       "short_name": "Scan QR",
       "url": "/scan",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]

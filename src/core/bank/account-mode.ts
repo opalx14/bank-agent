@@ -31,7 +31,7 @@ export const DEFAULT_DEMO_PROFILE: MerchantAccountProfile = {
   sellerName: "OpalX Merchant Demo",
   sellerTaxId: "0316890123",
   sellerEnterpriseAddress: DEFAULT_ENTERPRISE_ADDRESS,
-  bankName: "MB Bank (Demo VietQR BIN 970422)",
+  bankName: "MB Bank (Demo BIN 970422)",
   bankBin: "970422",
   maskedBankAccount: "0312***6789 (Demo)",
   settlementRail: "Sandbox Bank Simulator + Rust Policy Kernel + Avalanche Fuji AVAX",

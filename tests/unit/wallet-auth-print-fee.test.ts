@@ -1,8 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createDecipheriv, pbkdf2Sync } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { verifyMessage } from "viem";
+import { keccak256, verifyMessage } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+import { POST as postWalletExport } from "@/app/api/auth/wallet-export/route";
 import { GET as getWalletLogin, POST as postWalletLogin } from "@/app/api/auth/wallet-login/route";
 import { POST as postBankConfig } from "@/app/api/bank/config/route";
 import { GET as getPrintHtml } from "@/app/api/guarantees/[id]/print-html/route";
@@ -177,5 +180,156 @@ describe("Google/Email wallet provisioning, California Fitness catalog & Avalanc
     expect(html).toContain("GUARANTEE RECONCILIATION CERTIFICATE");
     expect(html).toContain("California Fitness &amp; Yoga");
     expect(html).toContain("0.00056 AVAX");
+  });
+
+  test("authenticates external EVM wallet via signed challenge, rejects tampering, and supports SWITCH_ROLE", async () => {
+    const extKey = generatePrivateKey();
+    const extAccount = privateKeyToAccount(extKey);
+    const otherAccount = privateKeyToAccount(generatePrivateKey());
+
+    const chRes = await postWalletLogin(
+      jsonPost("http://localhost/api/auth/wallet-login", {
+        mode: "EXTERNAL_CHALLENGE",
+        walletAddress: extAccount.address,
+        role: "ENTERPRISE",
+      }),
+    );
+    expect(chRes.status).toBe(200);
+    const ch = (await chRes.json()) as {
+      walletAddress: string;
+      message: string;
+      challengeToken: string;
+    };
+    expect(ch.walletAddress).toBe(extAccount.address);
+    expect(ch.message).toContain("Chain ID: 43113");
+
+    const realSig = await extAccount.signMessage({ message: ch.message });
+
+    // Reject wrong signer
+    const wrongSig = await otherAccount.signMessage({ message: ch.message });
+    const badSigRes = await postWalletLogin(
+      jsonPost("http://localhost/api/auth/wallet-login", {
+        mode: "EXTERNAL_VERIFY",
+        walletAddress: extAccount.address,
+        signature: wrongSig,
+        message: ch.message,
+        challengeToken: ch.challengeToken,
+        role: "ENTERPRISE",
+      }),
+    );
+    expect(badSigRes.status).toBe(401);
+
+    // Reject tampered message
+    const tamperedRes = await postWalletLogin(
+      jsonPost("http://localhost/api/auth/wallet-login", {
+        mode: "EXTERNAL_VERIFY",
+        walletAddress: extAccount.address,
+        signature: realSig,
+        message: `${ch.message}\nExtra: tampered`,
+        challengeToken: ch.challengeToken,
+        role: "ENTERPRISE",
+      }),
+    );
+    expect(tamperedRes.status).toBe(401);
+
+    // Accept valid signature
+    const okRes = await postWalletLogin(
+      jsonPost("http://localhost/api/auth/wallet-login", {
+        mode: "EXTERNAL_VERIFY",
+        walletAddress: extAccount.address,
+        signature: realSig,
+        message: ch.message,
+        challengeToken: ch.challengeToken,
+        role: "ENTERPRISE",
+        connectorName: "Core Wallet",
+      }),
+    );
+    expect(okRes.status).toBe(200);
+    const extCookie = { Cookie: (okRes.headers.get("set-cookie") ?? "").split(";")[0] };
+    const okJson = await okRes.json();
+    expect(okJson.session.provider).toBe("EXTERNAL_WALLET");
+    expect(okJson.session.walletAddress).toBe(extAccount.address);
+    expect(okJson.session.walletConnectorName).toBe("Core Wallet");
+    expect(okJson.session.exportable).toBe(false);
+
+    // External wallet cannot call embedded export endpoint
+    const blockedExport = await postWalletExport(
+      jsonPost("http://localhost/api/auth/wallet-export", { acknowledgedRisk: true }, extCookie),
+    );
+    expect(blockedExport.status).toBe(400);
+    expect((await blockedExport.json()).error).toBe("EXTERNAL_WALLET_SELF_CUSTODIAL");
+
+    // External wallet switches role cleanly without losing its address
+    const switchRes = await postWalletLogin(
+      jsonPost("http://localhost/api/auth/wallet-login", { mode: "SWITCH_ROLE", role: "CUSTOMER" }, extCookie),
+    );
+    expect(switchRes.status).toBe(200);
+    const switchJson = await switchRes.json();
+    expect(switchJson.session.role).toBe("CUSTOMER");
+    expect(switchJson.session.provider).toBe("EXTERNAL_WALLET");
+    expect(switchJson.session.walletAddress).toBe(extAccount.address);
+  });
+
+  test("exports authenticated embedded wallet private key and decryptable Web3 Keystore V3 JSON", async () => {
+    // Anonymous export rejected
+    const anon = await postWalletExport(
+      jsonPost("http://localhost/api/auth/wallet-export", { acknowledgedRisk: true }),
+    );
+    expect(anon.status).toBe(401);
+
+    // Sign in with Email embedded wallet
+    const loginRes = await postWalletLogin(
+      jsonPost("http://localhost/api/auth/wallet-login", {
+        mode: "LOGIN",
+        provider: "EMAIL",
+        email: "self.custody@opalx.vn",
+        role: "CUSTOMER",
+      }),
+    );
+    expect(loginRes.status).toBe(200);
+    const authHeaders = { Cookie: (loginRes.headers.get("set-cookie") ?? "").split(";")[0] };
+    const { session } = await loginRes.json();
+    expect(session.exportable).toBe(true);
+
+    // Reject missing acknowledgment or short passphrase
+    const noAck = await postWalletExport(
+      jsonPost("http://localhost/api/auth/wallet-export", { acknowledgedRisk: false }, authHeaders),
+    );
+    expect(noAck.status).toBe(400);
+
+    const shortPass = await postWalletExport(
+      jsonPost("http://localhost/api/auth/wallet-export", { acknowledgedRisk: true, keystorePassphrase: "short" }, authHeaders),
+    );
+    expect(shortPass.status).toBe(400);
+
+    // Export with valid >=8 char passphrase and verify Web3 V3 Keystore decrypts to exact private key
+    const pass = "OpalX-SelfCustody-2026!";
+    const expRes = await postWalletExport(
+      jsonPost(
+        "http://localhost/api/auth/wallet-export",
+        { acknowledgedRisk: true, keystorePassphrase: pass },
+        authHeaders,
+      ),
+    );
+    expect(expRes.status).toBe(200);
+    expect(expRes.headers.get("cache-control")).toContain("no-store");
+    const expJson = await expRes.json();
+    expect(expJson.walletAddress).toBe(session.walletAddress);
+    expect(expJson.privateKey).toMatch(/^0x[a-f0-9]{64}$/);
+    expect(privateKeyToAccount(expJson.privateKey).address).toBe(session.walletAddress);
+
+    // Full Web3 Secret Storage V3 round-trip verification (MAC + AES-128-CTR decrypt)
+    const ks = expJson.keystoreV3;
+    expect(ks.version).toBe(3);
+    expect(ks.address).toBe(session.walletAddress.slice(2).toLowerCase());
+    const salt = Buffer.from(ks.crypto.kdfparams.salt, "hex");
+    const iv = Buffer.from(ks.crypto.cipherparams.iv, "hex");
+    const ct = Buffer.from(ks.crypto.ciphertext, "hex");
+    const dk = pbkdf2Sync(Buffer.from(pass, "utf8"), salt, ks.crypto.kdfparams.c, ks.crypto.kdfparams.dklen, "sha256");
+    const expectedMac = keccak256(new Uint8Array(Buffer.concat([dk.subarray(16, 32), ct]))).slice(2);
+    expect(ks.crypto.mac).toBe(expectedMac);
+    const decipher = createDecipheriv("aes-128-ctr", dk.subarray(0, 16), iv);
+    const decryptedKey = `0x${Buffer.concat([decipher.update(ct), decipher.final()]).toString("hex")}`;
+    expect(decryptedKey).toBe(expJson.privateKey);
   });
 });

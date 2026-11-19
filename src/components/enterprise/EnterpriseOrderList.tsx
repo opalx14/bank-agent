@@ -69,7 +69,7 @@ function OrderRows({
                       : "border border-[var(--ox-line)] bg-[var(--ox-soft)] text-[var(--ox-muted)]"
                   }`}
                 >
-                  {isOpalxDirect ? "OpalX GO" : "VietQR Bank"}
+                  {isOpalxDirect ? "OpalX GO" : "Bank Transfer"}
                 </span>
               </div>
 

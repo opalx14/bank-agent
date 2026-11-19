@@ -109,7 +109,7 @@ export function QrCameraScanner({ onDecoded }: QrCameraScannerProps) {
             <ScanLine className="h-4 w-4" />
           </span>
           <div>
-            <h2 className="text-sm font-bold text-[var(--ox-ink)]">VietQR &amp; Guarantee Scanner</h2>
+            <h2 className="text-sm font-bold text-[var(--ox-ink)]">Payment QR &amp; Guarantee Scanner</h2>
             <span className="font-mono text-[11px] text-[var(--ox-muted)]">EMVCo · BarcodeDetector</span>
           </div>
         </div>
@@ -138,7 +138,7 @@ export function QrCameraScanner({ onDecoded }: QrCameraScannerProps) {
               ) : (
                 <span className="h-2 w-2 shrink-0 rounded-full bg-[#3dd6c3] motion-safe:animate-ping" aria-hidden="true" />
               )}
-              <span className="truncate">{mode === "locked" ? "Frame locked" : "Point camera at a VietQR or Guarantee QR code"}</span>
+              <span className="truncate">{mode === "locked" ? "Frame locked" : "Point camera at a Payment QR or Guarantee QR code"}</span>
             </span>
 
             <div className="flex shrink-0 items-center gap-1.5">
@@ -167,14 +167,14 @@ export function QrCameraScanner({ onDecoded }: QrCameraScannerProps) {
       {errorMsg && <p className="ox-badge-warn rounded-2xl px-3.5 py-2.5 text-xs font-medium">{errorMsg}</p>}
 
       <div className="flex flex-col gap-2 sm:flex-row">
-        <label htmlFor="manual-vietqr-input" className="sr-only">EMVCo VietQR payload or guarantee code</label>
-        <input id="manual-vietqr-input" type="text" value={manualText} onChange={(e) => setManualText(e.target.value)} placeholder="Paste EMVCo VietQR payload or OPX-... code" className="ox-input min-h-[44px] flex-1 rounded-xl px-3.5 py-2 font-mono text-xs" />
+        <label htmlFor="manual-vietqr-input" className="sr-only">EMVCo Payment QR payload or guarantee code</label>
+        <input id="manual-vietqr-input" type="text" value={manualText} onChange={(e) => setManualText(e.target.value)} placeholder="Paste EMVCo Payment QR payload or OPX-... code" className="ox-input min-h-[44px] flex-1 rounded-xl px-3.5 py-2 font-mono text-xs" />
         <button type="button" onClick={handleDecodeManual} className="ox-btn-primary min-h-[44px] rounded-xl px-4 py-2 text-xs whitespace-nowrap">
           Decode QR
         </button>
         <button type="button" onClick={handleLoadSample} className="ox-btn-ghost ox-press inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap">
           <Sparkles className="h-3.5 w-3.5 text-[var(--ox-avax)]" />
-          <span>Load Sample VietQR</span>
+          <span>Load Sample QR</span>
         </button>
       </div>
     </div>

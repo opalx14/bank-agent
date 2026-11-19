@@ -19,9 +19,31 @@ contracts/broadcast/
 crates/*/target/
 target/
 
-# Graphify generated index (keep curated OPALX_FOLDER_MAP.md tracked!)
-graphify-out/*
-!graphify-out/OPALX_FOLDER_MAP.md
+# Graphify local knowledge graph, config & scripts (keep locally on disk, never push to GitHub)
+graphify-out/
+.graphifyignore
+scripts/opalx-graphify-*.ts
+
+# Local AI agent rules, plans, skills, specs & internal docs (local-only, never push to GitHub)
+.agents/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+PLAN.md
+TODO.md
+NOTES.md
+plan/
+plans/
+docs/SOURCE_MAP.md
+*.local.md
+
+# Demo video project, HyperFrames renders & raw media assets (keep locally, never push to GitHub)
+demo-video/
+.hyperframes/
+*.mp4
+*.mov
+*.webm
+*.mkv
 
 # Local runtime, cache & eval reports
 .opalx/

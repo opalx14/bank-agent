@@ -25,7 +25,7 @@ const ENTERPRISE_NAV: ReadonlyArray<{ href: string; label: string; ent: Enterpri
   { href: "/enterprise#overview", label: "Overview", ent: "OVERVIEW" },
   { href: "/enterprise#packages", label: "Packages", ent: "PACKAGES" },
   { href: "/enterprise#orders", label: "Orders", ent: "ORDERS" },
-  { href: "/enterprise#bank", label: "Bank & VietQR", ent: "BANK" },
+  { href: "/enterprise#bank", label: "Bank & Settlement", ent: "BANK" },
   { href: "/enterprise#profile", label: "Profile", ent: "PROFILE" },
 ];
 

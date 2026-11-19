@@ -111,7 +111,7 @@ export function BankGatewayView() {
                 </span>
               </div>
               <h1 className="text-xl font-bold tracking-tight text-[var(--ox-ink)] sm:text-2xl">
-                OpalX Bank — VietQR Bank Network &amp; Treasury Reconciliation
+                OpalX Bank — Instant Bank Network &amp; Treasury Reconciliation
               </h1>
               <p className="max-w-3xl text-sm text-[var(--ox-muted)]">
                 {bankRails.length || 6} Vietnam banks connected via NAPAS 247 &amp;{" "}

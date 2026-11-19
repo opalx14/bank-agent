@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { GuaranteeVerifyCard } from "@/components/verify/GuaranteeVerifyCard";
-import { findGuarantee } from "@/core/ledger/store";
-import { verifyGuaranteeOnFuji } from "@/lib/avalanche/reader";
+import { GuaranteeVerifyCard } from "@/components/verify/verify.guarantee-card";
+import { findGuarantee } from "@/core/ledger/ledger.store";
+import { verifyGuaranteeOnFuji } from "@/lib/avalanche/avalanche.reader";
 
 export const dynamic = "force-dynamic";
 

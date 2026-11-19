@@ -16,7 +16,7 @@
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-bankagent.opalx14.com-0F62FE?style=for-the-badge&logo=cloudflare&logoColor=white)](https://bankagent.opalx14.com)
 [![Rust WASM Kernel](https://img.shields.io/badge/Policy%20Kernel-Rust%20WASM-DEA584?style=for-the-badge&logo=rust&logoColor=black)](crates/opalx-guard)
 [![Cloudflare Workers](https://img.shields.io/badge/Edge%20Runtime-Cloudflare%20Workers-F38020?style=for-the-badge&logo=cloudflareworkers&logoColor=white)](cloudflare.config.ts)
-[![Adversarial Eval](https://img.shields.io/badge/Adversarial%20Eval-40%2F40%20Passed-16A34A?style=for-the-badge)](eval/run-eval.ts)
+[![Adversarial Eval](https://img.shields.io/badge/Adversarial%20Eval-40%2F40%20Passed-16A34A?style=for-the-badge)](eval/eval.runner.ts)
 [![Zero PII On-Chain](https://img.shields.io/badge/Privacy-0%20PII%20On--Chain-6D28D9?style=for-the-badge)](#3-party-non-custodial-architecture--dispute-protection)
 
 </div>
@@ -136,9 +136,49 @@ Bank Agent supports both **Web2-speed onboarding with real self-custody escape h
 | :--- | :--- |
 | **Web App & UI** | Next.js `16.3.6` (App Router), React `19.3.1`, Tailwind CSS v4, `lucide-react`, `qrcode`, `zod` |
 | **Edge Deployment** | Cloudflare Workers (`vinext` + `@cloudflare/vite-plugin`), Cloudflare KV (`OPALX_LEDGER_KV`), static precompiled `opalx_guard.wasm` |
-| **Deterministic Policy Kernel** | Rust (`crates/opalx-guard`) compiled to WebAssembly (`opalx_guard.wasm`) + TypeScript bridge (`src/core/opalx/policy-bridge.ts`) |
+| **Deterministic Policy Kernel** | Rust (`crates/opalx-guard`) compiled to WebAssembly (`opalx_guard.wasm`) + TypeScript bridge (`src/core/opalx/opalx.policy-bridge.ts`) |
 | **Blockchain & Cryptography** | Solidity `^0.8.24` + Foundry (`forge`), Avalanche Fuji C-Chain (`43113`), `viem`, `@x402/core`, `@x402/evm` |
 | **Instant Bank Rail & E-Invoice** | VietQR EMVCo (`CRC-16/CCITT-FALSE`, `dl.vietqr.io`), PayOS (`@payos/node`, `HMAC-SHA256`), SePay webhooks, Circular 78 XML parser (`fast-xml-parser`) |
+
+---
+
+## Repository Structure
+
+Source files follow a domain-prefixed `<domain>.<name>.<ext>` convention aligned with 3-party separation:
+
+```text
+├── contracts/src/                 # Avalanche Fuji (43113) Solidity ^0.8.24 gateways
+│   ├── enterprise/EnterpriseGateway.sol
+│   ├── bank/BankGateway.sol
+│   ├── opalx/OpalXGoCore.sol
+│   └── interfaces/IPortalTypes.sol
+├── crates/opalx-guard/            # Rust WASM deterministic policy kernel (opalx_guard.wasm)
+├── src/
+│   ├── app/                       # Next.js App Router pages & REST API route handlers
+│   ├── components/                # UI grouped & prefixed by domain (<domain>.<name>.tsx)
+│   │   ├── auth/                  # auth.wallet-provider.tsx, auth.wallet-login-modal.tsx, auth.export-wallet-modal.tsx, ...
+│   │   ├── bank/                  # bank.gateway-view.tsx, bank.partner-rail-manager.tsx, bank.settlement-console.tsx, ...
+│   │   ├── enterprise/            # enterprise.gateway-view.tsx, enterprise.kyb-modal.tsx, enterprise.thermal-slip.tsx, ...
+│   │   ├── opalx/                 # opalx.core-view.tsx, opalx.avalanche-verifier.tsx, opalx.guarantee-vault.tsx, ...
+│   │   ├── layout/                # layout.navbar.tsx, layout.mobile-bottom-nav.tsx, layout.theme-provider.tsx, ...
+│   │   ├── roadmap/               # roadmap.project-view.tsx
+│   │   ├── verify/                # verify.guarantee-card.tsx, verify.printable-certificate.tsx
+│   │   └── shared/                # shared.ui-kit.tsx, shared.guarantee-pass.tsx, shared.onchain-proof-badge.tsx, ...
+│   ├── core/                      # Domain business logic (<domain>.<name>.ts)
+│   │   ├── auth/                  # auth.wallet.ts, auth.session-guard.ts
+│   │   ├── bank/                  # bank.qr-builder.ts, bank.qr-parser.ts, bank.payos-webhook.ts, bank.sepay-webhook.ts, bank.account-mode.ts
+│   │   ├── enterprise/            # enterprise.catalog.ts, enterprise.einvoice-parser.ts, enterprise.einvoice-samples.ts
+│   │   ├── ledger/                # ledger.store.ts, ledger.storage-adapter.ts, ledger.seed.ts, ledger.fuji-proofs.json
+│   │   ├── opalx/                 # opalx.policy-bridge.ts, opalx.reconcile.ts, opalx.treasury.ts, opalx.print-fee.ts, opalx.print-certificate.ts, opalx.roadmap-data.ts
+│   │   └── registry/              # registry.portal.ts
+│   ├── lib/avalanche/             # avalanche.{network,abis,signer,broadcaster,reader,agent-card,agent-wallet,browser-wallet}.ts
+│   ├── styles/                    # styles.tailwind.css, styles.pass-card.css
+│   └── types/                     # index.ts + types.{auth,bank,enterprise,guarantee,roadmap}.ts
+├── worker/                        # Cloudflare Workers + vinext runtime entrypoint
+├── scripts/                       # fuji.deploy.ts, fuji.seed-proofs.ts
+├── eval/                          # eval.cases.ts, eval.runner.ts (40-case policy evaluation suite)
+└── tests/                         # tests/unit/unit.*.test.ts & tests/integration/integration.*.test.ts
+```
 
 ---
 

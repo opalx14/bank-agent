@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { requireApiRole } from "@/core/auth/session-guard";
-import { getLiveAvaxTreasurySnapshot } from "@/core/opalx/treasury-engine";
-import { setVaultPauseState } from "@/core/ledger/store";
-import { broadcastCorePauseState } from "@/lib/avalanche/broadcaster";
-import { getGatewayAddresses } from "@/lib/avalanche/network";
+import { requireApiRole } from "@/core/auth/auth.session-guard";
+import { getLiveAvaxTreasurySnapshot } from "@/core/opalx/opalx.treasury";
+import { setVaultPauseState } from "@/core/ledger/ledger.store";
+import { broadcastCorePauseState } from "@/lib/avalanche/avalanche.broadcaster";
+import { getGatewayAddresses } from "@/lib/avalanche/avalanche.network";
 
 const killSwitchSchema = z
   .object({

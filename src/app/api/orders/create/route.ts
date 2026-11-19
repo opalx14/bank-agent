@@ -1,19 +1,19 @@
 import { z } from "zod";
 import type { EinvoiceSummary, EnterpriseOrder, MerchantBankConfig } from "@/types";
-import { resolveRequestSession } from "@/core/auth/session-guard";
+import { resolveRequestSession } from "@/core/auth/auth.session-guard";
 import {
   buildOrderQrWithImage,
   ensureOrderQrDescription,
-} from "@/core/bank/vietqr-builder";
-import { resolveEnterpriseCategory } from "@/core/enterprise/catalog";
-import { extractTt78InvoiceSummary } from "@/core/enterprise/einvoice-parser";
-import { getBankConfig, upsertOrder } from "@/core/ledger/store";
+} from "@/core/bank/bank.qr-builder";
+import { resolveEnterpriseCategory } from "@/core/enterprise/enterprise.catalog";
+import { extractTt78InvoiceSummary } from "@/core/enterprise/enterprise.einvoice-parser";
+import { getBankConfig, upsertOrder } from "@/core/ledger/ledger.store";
 import {
   findBankPartnerRail,
   findVerifiedEnterprise,
-} from "@/core/registry/portal-registry";
-import { broadcastOrderRegistration } from "@/lib/avalanche/broadcaster";
-import { computeCommitmentHash } from "@/lib/avalanche/signer";
+} from "@/core/registry/registry.portal";
+import { broadcastOrderRegistration } from "@/lib/avalanche/avalanche.broadcaster";
+import { computeCommitmentHash } from "@/lib/avalanche/avalanche.signer";
 
 const createOrderSchema = z.object({
   orderCode: z.number().int().positive().optional(),

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { attachFeeTxToGuarantee, findGuarantee } from "@/core/ledger/store";
-import { broadcastVerificationFeeAvax } from "@/lib/avalanche/broadcaster";
-import { AVALANCHE_FUJI_NETWORK, getGatewayAddresses } from "@/lib/avalanche/network";
+import { attachFeeTxToGuarantee, findGuarantee } from "@/core/ledger/ledger.store";
+import { broadcastVerificationFeeAvax } from "@/lib/avalanche/avalanche.broadcaster";
+import { AVALANCHE_FUJI_NETWORK, getGatewayAddresses } from "@/lib/avalanche/avalanche.network";
 
 const feeSchema = z.object({
   guaranteeId: z.string().trim().min(3),

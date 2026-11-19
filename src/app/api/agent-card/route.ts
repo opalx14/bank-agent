@@ -1,4 +1,4 @@
-import { buildAgentRegistrationCard } from "@/lib/avalanche/agent-card";
+import { buildAgentRegistrationCard } from "@/lib/avalanche/avalanche.agent-card";
 
 export async function GET(request: Request): Promise<Response> {
   const origin = new URL(request.url).origin;

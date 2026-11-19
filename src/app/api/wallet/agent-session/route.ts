@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { requireApiRole } from "@/core/auth/session-guard";
-import { getAgentWalletStatus, setAgentSignerEnabled } from "@/lib/avalanche/agent-wallet";
-import { readWalletAvaxBalance } from "@/lib/avalanche/reader";
+import { requireApiRole } from "@/core/auth/auth.session-guard";
+import { getAgentWalletStatus, setAgentSignerEnabled } from "@/lib/avalanche/avalanche.agent-wallet";
+import { readWalletAvaxBalance } from "@/lib/avalanche/avalanche.reader";
 
 const toggleSchema = z.object({
   enabled: z.boolean(),

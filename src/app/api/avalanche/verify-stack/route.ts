@@ -1,4 +1,4 @@
-import { evaluateThreeWayPolicy } from "@/core/opalx/policy-bridge";
+import { evaluateThreeWayPolicy } from "@/core/opalx/opalx.policy-bridge";
 import {
   AVALANCHE_FUJI_NETWORK,
   SNOWTRACE_BASE_URL,
@@ -7,8 +7,8 @@ import {
   getFujiRpcUrl,
   getGatewayAddresses,
   isNonZeroAddress,
-} from "@/lib/avalanche/network";
-import { readPortalContractsTelemetry, verifyGuaranteeOnFuji } from "@/lib/avalanche/reader";
+} from "@/lib/avalanche/avalanche.network";
+import { readPortalContractsTelemetry, verifyGuaranteeOnFuji } from "@/lib/avalanche/avalanche.reader";
 import type { AvalancheStackVerification, AvalancheTechPillar } from "@/types";
 
 const FALLBACK_GATEWAYS = {

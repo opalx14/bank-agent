@@ -4,15 +4,15 @@ import {
   buildSessionClearCookieHeader,
   buildSessionSetCookieHeader,
   resolveRequestSession,
-} from "@/core/auth/session-guard";
+} from "@/core/auth/auth.session-guard";
 import {
   buildExternalWalletSession,
   createExternalWalletChallenge,
   deriveEmbeddedUserWallet,
   signUserWalletAction,
   verifyExternalWalletChallenge,
-} from "@/core/auth/wallet-auth";
-import { saveActiveUserSession } from "@/core/ledger/store";
+} from "@/core/auth/auth.wallet";
+import { saveActiveUserSession } from "@/core/ledger/ledger.store";
 import type { WalletActionConfirmation } from "@/types";
 
 const authActionSchema = z.discriminatedUnion("mode", [

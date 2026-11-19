@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { canMutateEnterprise, requireApiRole } from "@/core/auth/session-guard";
+import { canMutateEnterprise, requireApiRole } from "@/core/auth/auth.session-guard";
 import {
   addEnterprisePackage,
   deleteEnterprisePackage,
@@ -10,7 +10,7 @@ import {
   toggleEnterprisePackage,
   updateEnterpriseBankLink,
   updateEnterpriseProfile,
-} from "@/core/registry/portal-registry";
+} from "@/core/registry/registry.portal";
 
 const evmAddrSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/, "INVALID_EVM_ADDRESS");
 const accountNoSchema = z.string().trim().regex(/^[a-zA-Z0-9]{5,24}$/, "INVALID_ACCOUNT_NO");

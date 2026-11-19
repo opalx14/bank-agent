@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { PrintableCertificateClient } from "@/components/verify/PrintableCertificateClient";
-import { findGuarantee, findOrder } from "@/core/ledger/store";
-import { renderGuaranteePrintHtml } from "@/core/opalx/print-certificate-html";
+import { PrintableCertificateClient } from "@/components/verify/verify.printable-certificate";
+import { findGuarantee, findOrder } from "@/core/ledger/ledger.store";
+import { renderGuaranteePrintHtml } from "@/core/opalx/opalx.print-certificate";
 
 export const dynamic = "force-dynamic";
 

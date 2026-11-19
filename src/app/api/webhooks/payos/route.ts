@@ -1,7 +1,7 @@
 import type { PayosWebhookPayload } from "@/types";
-import { verifyPayosWebhookSignature } from "@/core/bank/payos-webhook";
-import { findOrder } from "@/core/ledger/store";
-import { reconcileAndBroadcastProofs } from "@/core/opalx/reconcile-service";
+import { verifyPayosWebhookSignature } from "@/core/bank/bank.payos-webhook";
+import { findOrder } from "@/core/ledger/ledger.store";
+import { reconcileAndBroadcastProofs } from "@/core/opalx/opalx.reconcile";
 
 export async function POST(request: Request): Promise<Response> {
   let payload: PayosWebhookPayload;

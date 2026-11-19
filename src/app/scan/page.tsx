@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2, ExternalLink, FileCheck2, Landmark, Printer, QrCode, ShieldAlert, ShieldCheck } from "lucide-react";
-import { parseEmvVietQrPayload } from "@/core/bank/vietqr-parser";
-import { buildVietQrFallbackDeeplink, formatVnd } from "@/components/shared/formatters";
-import { QrCameraScanner } from "@/components/enterprise/QrCameraScanner";
+import { parseEmvVietQrPayload } from "@/core/bank/bank.qr-parser";
+import { buildVietQrFallbackDeeplink, formatVnd } from "@/components/shared/shared.formatters";
+import { QrCameraScanner } from "@/components/enterprise/enterprise.qr-scanner";
 
 const QUICK_BANK_APPS = [
   { id: "mb", label: "MB Bank" },

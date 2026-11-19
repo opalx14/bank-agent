@@ -1,5 +1,5 @@
-import { findGuarantee, findOrder } from "@/core/ledger/store";
-import { renderGuaranteePrintHtml, type PrintPaperSize } from "@/core/opalx/print-certificate-html";
+import { findGuarantee, findOrder } from "@/core/ledger/ledger.store";
+import { renderGuaranteePrintHtml, type PrintPaperSize } from "@/core/opalx/opalx.print-certificate";
 
 export async function GET(
   request: Request,

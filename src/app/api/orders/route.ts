@@ -1,4 +1,4 @@
-import { readLedger } from "@/core/ledger/store";
+import { readLedger } from "@/core/ledger/ledger.store";
 
 export async function GET(): Promise<Response> {
   const ledger = readLedger();

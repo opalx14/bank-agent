@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { resolveRequestSession } from "@/core/auth/session-guard";
-import { exportEmbeddedUserWallet } from "@/core/auth/wallet-auth";
+import { resolveRequestSession } from "@/core/auth/auth.session-guard";
+import { exportEmbeddedUserWallet } from "@/core/auth/auth.wallet";
 
 const exportRequestSchema = z.object({
   acknowledgedRisk: z.literal(true),

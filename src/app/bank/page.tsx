@@ -1,4 +1,4 @@
-import { BankGatewayView } from "@/components/bank/BankGatewayView";
+import { BankGatewayView } from "@/components/bank/bank.gateway-view";
 
 export const dynamic = "force-dynamic";
 

@@ -2,9 +2,9 @@ import type { SepayWebhookPayload } from "@/types";
 import {
   resolveSepayOrderCode,
   verifySepayAuthHeader,
-} from "@/core/bank/sepay-webhook";
-import { findOrder } from "@/core/ledger/store";
-import { reconcileAndBroadcastProofs } from "@/core/opalx/reconcile-service";
+} from "@/core/bank/bank.sepay-webhook";
+import { findOrder } from "@/core/ledger/ledger.store";
+import { reconcileAndBroadcastProofs } from "@/core/opalx/opalx.reconcile";
 
 export async function POST(request: Request): Promise<Response> {
   let payload: SepayWebhookPayload;

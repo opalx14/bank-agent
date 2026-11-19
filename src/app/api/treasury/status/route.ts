@@ -1,5 +1,5 @@
-import { getLiveAvaxTreasurySnapshot } from "@/core/opalx/treasury-engine";
-import { getFujiNetworkTelemetry } from "@/lib/avalanche/network";
+import { getLiveAvaxTreasurySnapshot } from "@/core/opalx/opalx.treasury";
+import { getFujiNetworkTelemetry } from "@/lib/avalanche/avalanche.network";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);

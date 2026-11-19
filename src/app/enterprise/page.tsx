@@ -1,4 +1,4 @@
-import { EnterpriseGatewayView } from "@/components/enterprise/EnterpriseGatewayView";
+import { EnterpriseGatewayView } from "@/components/enterprise/enterprise.gateway-view";
 
 export const dynamic = "force-dynamic";
 

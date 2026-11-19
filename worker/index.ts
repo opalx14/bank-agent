@@ -4,12 +4,12 @@ import {
   flushWorkerLedgerToKv,
   hydrateWorkerLedgerFromKv,
   type CloudflareKvLike,
-} from "../src/core/ledger/storage-adapter";
-import { registerPrecompiledGuardWasm } from "../src/core/opalx/policy-bridge";
+} from "../src/core/ledger/ledger.storage-adapter";
+import { registerPrecompiledGuardWasm } from "../src/core/opalx/opalx.policy-bridge";
 import {
   flushWorkerAgentFlagToKv,
   hydrateWorkerAgentFlagFromKv,
-} from "../src/lib/avalanche/agent-wallet";
+} from "../src/lib/avalanche/avalanche.agent-wallet";
 
 interface BankAgentWorkerEnv {
   ASSETS?: { fetch(request: Request): Promise<Response> };

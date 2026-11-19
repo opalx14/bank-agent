@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { requireApiRole } from "@/core/auth/session-guard";
-import { SUPPORTED_VN_BANKS } from "@/core/enterprise/catalog";
+import { requireApiRole } from "@/core/auth/auth.session-guard";
+import { SUPPORTED_VN_BANKS } from "@/core/enterprise/enterprise.catalog";
 import {
   listBankPartnerRails,
   toggleBankPartnerRail,
   upsertBankPartnerRail,
-} from "@/core/registry/portal-registry";
+} from "@/core/registry/registry.portal";
 
 const upsertRailSchema = z.object({
   action: z.literal("UPSERT_RAIL"),

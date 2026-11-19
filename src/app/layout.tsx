@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
-import { WalletAuthProvider } from "@/components/auth/WalletAuthProvider";
-import { AccountModeProvider } from "@/components/layout/AccountModeProvider";
-import { AppNavbar } from "@/components/layout/AppNavbar";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import "@/styles/tailwind.css";
+import { WalletAuthProvider } from "@/components/auth/auth.wallet-provider";
+import { AccountModeProvider } from "@/components/layout/layout.account-mode-provider";
+import { AppNavbar } from "@/components/layout/layout.navbar";
+import { MobileBottomNav } from "@/components/layout/layout.mobile-bottom-nav";
+import { ThemeProvider } from "@/components/layout/layout.theme-provider";
+import "@/styles/styles.tailwind.css";
 
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ["400", "500", "600", "700"],

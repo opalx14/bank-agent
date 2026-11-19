@@ -1,4 +1,4 @@
-import { OpalxCoreView } from "@/components/opalx/OpalxCoreView";
+import { OpalxCoreView } from "@/components/opalx/opalx.core-view";
 
 export const dynamic = "force-dynamic";
 

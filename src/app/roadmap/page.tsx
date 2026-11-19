@@ -1,6 +1,6 @@
-import { AvalancheTechVerifier } from "@/components/opalx/AvalancheTechVerifier";
-import { ProjectRoadmapView } from "@/components/roadmap/ProjectRoadmapView";
-import { OPALX_PROJECT_ROADMAP } from "@/core/opalx/roadmap-data";
+import { AvalancheTechVerifier } from "@/components/opalx/opalx.avalanche-verifier";
+import { ProjectRoadmapView } from "@/components/roadmap/roadmap.project-view";
+import { OPALX_PROJECT_ROADMAP } from "@/core/opalx/opalx.roadmap-data";
 
 export default function RoadmapPage() {
   return (

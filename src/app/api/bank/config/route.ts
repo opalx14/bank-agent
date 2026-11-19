@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { requireApiRole } from "@/core/auth/session-guard";
+import { requireApiRole } from "@/core/auth/auth.session-guard";
 import {
   findSupportedVnBank,
   normalizeAccountHolderName,
   SUPPORTED_VN_BANKS,
-} from "@/core/enterprise/catalog";
-import { getBankConfig, saveBankConfig } from "@/core/ledger/store";
+} from "@/core/enterprise/enterprise.catalog";
+import { getBankConfig, saveBankConfig } from "@/core/ledger/ledger.store";
 
 const bankConfigSchema = z.object({
   bankBin: z.string().trim().regex(/^\d{6}$/, "BANK_BIN_MUST_BE_6_DIGITS").optional(),

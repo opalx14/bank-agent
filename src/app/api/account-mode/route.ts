@@ -1,6 +1,6 @@
-import { resolveAccountClassification } from "@/core/bank/account-mode";
-import { getLedgerStorageInfo } from "@/core/ledger/storage-adapter";
-import { readWalletAvaxBalance } from "@/lib/avalanche/reader";
+import { resolveAccountClassification } from "@/core/bank/bank.account-mode";
+import { getLedgerStorageInfo } from "@/core/ledger/ledger.storage-adapter";
+import { readWalletAvaxBalance } from "@/lib/avalanche/avalanche.reader";
 
 export async function GET(): Promise<Response> {
   const classification = resolveAccountClassification();

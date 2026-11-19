@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { resolveRequestSession } from "@/core/auth/session-guard";
-import { signUserWalletAction } from "@/core/auth/wallet-auth";
-import { findGuarantee, mutateLedger } from "@/core/ledger/store";
+import { resolveRequestSession } from "@/core/auth/auth.session-guard";
+import { signUserWalletAction } from "@/core/auth/auth.wallet";
+import { findGuarantee, mutateLedger } from "@/core/ledger/ledger.store";
 import type { GuaranteeCertificate, GuaranteeRightClaim, GuaranteeRightKind } from "@/types";
 
 const claimRightSchema = z.object({

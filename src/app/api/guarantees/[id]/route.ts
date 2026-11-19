@@ -1,5 +1,5 @@
-import { findGuarantee } from "@/core/ledger/store";
-import { verifyGuaranteeOnFuji } from "@/lib/avalanche/reader";
+import { findGuarantee } from "@/core/ledger/ledger.store";
+import { verifyGuaranteeOnFuji } from "@/lib/avalanche/avalanche.reader";
 
 export async function GET(
   _request: Request,

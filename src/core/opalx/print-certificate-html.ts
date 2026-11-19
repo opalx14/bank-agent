@@ -14,12 +14,12 @@ function escapeHtml(raw: unknown): string {
 }
 
 function formatVnd(amount: number): string {
-  if (!Number.isFinite(amount)) return "0 ₫";
-  return `${new Intl.NumberFormat("vi-VN").format(Math.round(amount))} ₫`;
+  if (!Number.isFinite(amount)) return "0 VND";
+  return `${new Intl.NumberFormat("en-US").format(Math.round(amount))} VND`;
 }
 
 function shortHex(hex?: string, edge = 10): string {
-  if (!hex) return "Chờ ghi nhận";
+  if (!hex) return "Pending";
   if (hex.length <= edge * 2 + 4) return hex;
   return `${hex.slice(0, edge + 2)}...${hex.slice(-edge)}`;
 }
@@ -32,13 +32,13 @@ function buildRowsHtml(
     ? `${shortHex(g.confirmedByWallet, 6)} · Contract ${shortHex(g.merchantContractAddress, 5)}`
     : shortHex(g.enterpriseAddress, 6);
   const rows: Array<[string, string, string?]> = [
-    ["Mã Hóa Đơn Đối Chiếu", `${g.guaranteeId} (Đơn #${g.orderCode})`, "mono"],
-    ["Đơn vị & Hạng mục", `${meta.enterprise} · ${meta.category}`, ""],
-    ["Gói dịch vụ / Sản phẩm", meta.product, ""],
-    ["Người giao dịch / Kênh", `${meta.payer} · ${meta.channel}`, ""],
-    ["Ví & Hợp đồng xác nhận", walletLabel, "mono"],
-    ["Số tiền thanh toán", `${formatVnd(g.amountVnd)} (FT: ${g.maskedBankRef})`, "amount"],
-    ["Thời gian ghi nhận (UTC)", meta.issued, "mono"],
+    ["Reconciliation Certificate ID", `${g.guaranteeId} (Order #${g.orderCode})`, "mono"],
+    ["Enterprise & Category", `${meta.enterprise} · ${meta.category}`, ""],
+    ["Package / Product", meta.product, ""],
+    ["Payer / Channel", `${meta.payer} · ${meta.channel}`, ""],
+    ["Verified Wallet & Contract", walletLabel, "mono"],
+    ["Payment Amount", `${formatVnd(g.amountVnd)} (FT: ${g.maskedBankRef})`, "amount"],
+    ["Issued At (UTC)", meta.issued, "mono"],
   ];
   return rows
     .map(([label, val, cls]) => `<tr><th>${escapeHtml(label)}</th><td class="${cls ?? ""}">${escapeHtml(val)}</td></tr>`)
@@ -53,22 +53,22 @@ function buildFeeAndHashHtml(g: GuaranteeCertificate, verifyUrl: string, qrDataU
   const txHash = g.lastPrintTxHash ?? g.proofBundle.feeSettlementTxHash ?? g.proofBundle.guaranteeTxHash;
   const docHash = g.lastPrintHash ?? g.orderCommitment;
   const rows: Array<[string, string]> = [
-    ["Lần xuất bản in thứ", `#${printCount} (Lũy kế: ${fee.cumulativeFeeAvax} AVAX ≈ ${formatVnd(fee.cumulativeFeeVnd)})`],
-    ["Phí giao thức OpalX / lần in", `${fee.protocolFeePerPrintAvax} AVAX (≈ ${formatVnd(fee.protocolFeePerPrintVnd)})`],
-    ["Phí mạng Avalanche (Gas) ước tính", `~${fee.estimatedGasPerPrintAvax} AVAX (≈ ${formatVnd(fee.estimatedGasPerPrintVnd)})`],
-    ["Tổng chi phí mỗi lần in & hash", `~${fee.totalFeePerPrintAvax} AVAX (≈ ${formatVnd(fee.totalFeePerPrintVnd)})`],
-    ["Mã Hash Đối Chiếu (Fuji 43113)", isPos ? shortHex(docHash, 6) : docHash],
-    ["Tx Hash trên Avalanche", isPos ? shortHex(txHash, 6) : txHash],
+    ["Print Edition", `#${printCount} (Cumulative: ${fee.cumulativeFeeAvax} AVAX ≈ ${formatVnd(fee.cumulativeFeeVnd)})`],
+    ["OpalX Protocol Fee / Print", `${fee.protocolFeePerPrintAvax} AVAX (≈ ${formatVnd(fee.protocolFeePerPrintVnd)})`],
+    ["Estimated Avalanche Gas Fee", `~${fee.estimatedGasPerPrintAvax} AVAX (≈ ${formatVnd(fee.estimatedGasPerPrintVnd)})`],
+    ["Total Cost per Print & Hash", `~${fee.totalFeePerPrintAvax} AVAX (≈ ${formatVnd(fee.totalFeePerPrintVnd)})`],
+    ["Reconciliation Hash (Fuji 43113)", isPos ? shortHex(docHash, 6) : docHash],
+    ["Avalanche Tx Hash", isPos ? shortHex(txHash, 6) : txHash],
   ];
   const items = rows.map(([k, v]) => `<li><span>${escapeHtml(k)}</span><code>${escapeHtml(v)}</code></li>`).join("");
   return `<section class="verify-box">
     <div class="qr-col">
-      <img src="${qrDataUrl}" alt="QR kiểm chứng ${escapeHtml(g.guaranteeId)}" width="${qrSize}" height="${qrSize}" />
-      <p class="qr-cap">Quét kiểm chứng Avalanche</p>
+      <img src="${qrDataUrl}" alt="Verification QR ${escapeHtml(g.guaranteeId)}" width="${qrSize}" height="${qrSize}" />
+      <p class="qr-cap">Scan to Verify on Avalanche</p>
       <p class="qr-url">${escapeHtml(verifyUrl)}</p>
     </div>
     <div class="proof-col">
-      <h3>Hash Avalanche &amp; Phí Xuất Bản In (${escapeHtml(g.proofBundle.mode)})</h3>
+      <h3>Avalanche Hash &amp; Print Fee (${escapeHtml(g.proofBundle.mode)})</h3>
       <ul class="proof-list">${items}</ul>
     </div>
   </section>`;
@@ -93,20 +93,20 @@ export async function renderGuaranteePrintHtml(params: {
 
   const meta = {
     enterprise: g.enterpriseName ?? params.order?.sellerName ?? "California Fitness & Yoga",
-    category: g.categoryLabel ?? params.order?.categoryLabel ?? "Phòng Tập Gym & Yoga",
-    product: g.productName ?? params.order?.productName ?? g.description ?? `Đơn #${g.orderCode}`,
-    payer: g.payerName ?? params.order?.payerName ?? params.order?.buyerName ?? "Khách hàng",
+    category: g.categoryLabel ?? params.order?.categoryLabel ?? "Fitness, Gym & Yoga",
+    product: g.productName ?? params.order?.productName ?? g.description ?? `Order #${g.orderCode}`,
+    payer: g.payerName ?? params.order?.payerName ?? params.order?.buyerName ?? "Customer",
     channel: `${g.sandbox ? "[SANDBOX]" : "[LIVE BANK]"} · VietQR NAPAS 247`,
     issued: g.issuedAtIso.replace("T", " ").slice(0, 19) + " UTC",
   };
 
-  const stampText = g.revoked ? "ĐÃ THU HỒI" : "ĐÃ HASH AVALANCHE";
+  const stampText = g.revoked ? "REVOKED" : "AVALANCHE HASHED";
   const pageCss = paper === "pos58" ? POS58_CSS : paper === "pos80" ? POS80_CSS : A4_CSS;
   const autoScript = params.autoPrint ? '<script>window.addEventListener("load",()=>setTimeout(()=>window.print(),250));</script>' : "";
 
-  return `<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8" />
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hóa Đơn Đối Chiếu ${escapeHtml(g.guaranteeId)} · OpalX GO</title>
+<title>Reconciliation Statement ${escapeHtml(g.guaranteeId)} · OpalX GO</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;line-height:1.45;}
@@ -124,19 +124,19 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172
 ${pageCss}
 @media print{body{background:#fff;padding:0;}.sheet{border-color:#0f172a;}.no-print{display:none!important;}}
 </style></head><body>
-<div class="no-print no-print-bar"><button class="print-btn" type="button" onclick="window.print()">In Hóa Đơn Đối Chiếu</button></div>
+<div class="no-print no-print-bar"><button class="print-btn" type="button" onclick="window.print()">Print Reconciliation Statement</button></div>
 <main class="sheet">
   <header class="hdr">
     <div>
-      <h1>OPALX GO · HÓA ĐƠN ĐỐI CHIẾU &amp; BẢO CHỨNG AVALANCHE</h1>
-      <p class="sub">Chứng thực thanh toán VietQR · Băm mã đối chiếu lên Avalanche Fuji (43113)</p>
+      <h1>OPALX GO · GUARANTEE RECONCILIATION CERTIFICATE &amp; AVALANCHE PROOF</h1>
+      <p class="sub">VietQR Payment Attestation · Reconciliation Commitment Hashed on Avalanche Fuji (43113)</p>
     </div>
     <div class="stamp ${g.revoked ? "revoked" : ""}">${escapeHtml(stampText)} · ${escapeHtml(g.sandbox ? "[SANDBOX]" : "[LIVE BANK]")}</div>
   </header>
   <table class="tbl"><tbody>${buildRowsHtml(g, meta)}</tbody></table>
   ${buildFeeAndHashHtml(g, verifyUrl, qrDataUrl, paper)}
   <footer class="ftr">
-    <span>0 PII on-chain · Phí giao thức cố định 0.00001 AVAX/lần in</span>
+    <span>0 PII on-chain · Fixed protocol fee 0.00001 AVAX/print</span>
     <span>OpalX GO · ${escapeHtml(paper.toUpperCase())}</span>
   </footer>
 </main>${autoScript}</body></html>`;

@@ -59,13 +59,13 @@ export function OpalxGuaranteePass({
   enterpriseName,
   packageName,
   amountVnd,
-  guaranteeId = "OPX-CHỜ-CẤP",
-  holderLabel = "Chủ thẻ OpalX",
+  guaranteeId = "OPX-PENDING",
+  holderLabel = "OpalX Cardholder",
   bankLabel = "NAPAS 247",
   statusLabel,
   solidState = false,
   stamped = false,
-  stampTitle = "BẢO CHỨNG",
+  stampTitle = "VERIFIED",
   stampSub = "FUJI 43113",
   scanning = false,
   typing = false,
@@ -120,15 +120,15 @@ export function OpalxGuaranteePass({
 
         <div className="ox-sec-fields">
           <div className="ox-sec-field">
-            <span className="ox-sec-mono ox-sec-fk">MÃ CHỨNG CHỈ</span>
+            <span className="ox-sec-mono ox-sec-fk">CARD ID</span>
             <span className="ox-sec-mono ox-sec-fv">{guaranteeId}</span>
           </div>
           <div className="ox-sec-field">
-            <span className="ox-sec-mono ox-sec-fk">CHỦ THẺ</span>
+            <span className="ox-sec-mono ox-sec-fk">HOLDER</span>
             <span className="ox-sec-fv">{holderLabel}</span>
           </div>
           <div className="ox-sec-field">
-            <span className="ox-sec-mono ox-sec-fk">KÊNH ĐỐI SOÁT</span>
+            <span className="ox-sec-mono ox-sec-fk">SETTLEMENT RAIL</span>
             <span className="ox-sec-mono ox-sec-fv">{bankLabel}</span>
           </div>
         </div>

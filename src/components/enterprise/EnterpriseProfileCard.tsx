@@ -35,7 +35,7 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
     setErrorMsg(null);
     setStatusMsg(null);
     if (enterpriseName.trim().length < 2) {
-      setErrorMsg("Tên doanh nghiệp cần ít nhất 2 ký tự.");
+      setErrorMsg("Enterprise name must be at least 2 characters.");
       return;
     }
 
@@ -54,11 +54,11 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
         }),
       });
       const json = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) throw new Error(json.error ?? `Lỗi cập nhật (${res.status})`);
-      setStatusMsg("Đã lưu hồ sơ doanh nghiệp & hình ảnh thương hiệu.");
+      if (!res.ok) throw new Error(json.error ?? `Update failed (${res.status})`);
+      setStatusMsg("Enterprise profile & brand details saved.");
       await onUpdated();
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Không thể lưu hồ sơ.");
+      setErrorMsg(err instanceof Error ? err.message : "Unable to save profile.");
     } finally {
       setSaving(false);
     }
@@ -75,14 +75,14 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
     <section className="ox-card rounded-2xl p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--ox-line)] pb-4">
         <div>
-          <h2 className="text-base font-bold text-[var(--ox-ink)]">Hồ sơ Doanh nghiệp &amp; Thương hiệu</h2>
+          <h2 className="text-base font-bold text-[var(--ox-ink)]">Enterprise Profile &amp; Brand</h2>
           <p className="mt-1 text-xs text-[var(--ox-muted)]">
-            Cập nhật tên, mô tả, logo hiển thị trên trang thanh toán và thông tin xác thực.
+            Update name, description, checkout logo, and verification details.
           </p>
         </div>
         <span className="ox-badge-verified inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold">
           <ShieldCheck className="h-3.5 w-3.5" />
-          <span>Đã xác thực KYB</span>
+          <span>KYB Verified</span>
         </span>
       </div>
 
@@ -96,11 +96,11 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
             )}
           </div>
           <div className="space-y-1.5">
-            <p className="font-semibold text-[var(--ox-ink)]">Logo / Ảnh đại diện Doanh nghiệp</p>
+            <p className="font-semibold text-[var(--ox-ink)]">Enterprise Logo / Avatar</p>
             <div className="flex flex-wrap items-center gap-2">
               <label className="ox-btn-ghost inline-flex min-h-[34px] cursor-pointer items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium">
                 <ImagePlus className="h-3.5 w-3.5 text-[var(--ox-ok-ink)]" />
-                <span>{logoImageUrl ? "Thay logo" : "Tải logo lên"}</span>
+                <span>{logoImageUrl ? "Change Logo" : "Upload Logo"}</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -110,7 +110,7 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
                     if (!file) return;
                     void compressImageFileToDataUrl(file, 400)
                       .then((url) => { setLogoImageUrl(url); setErrorMsg(null); })
-                      .catch((err) => setErrorMsg(err instanceof Error ? err.message : "Không thể xử lý ảnh."));
+                      .catch((err) => setErrorMsg(err instanceof Error ? err.message : "Unable to process image."));
                   }}
                 />
               </label>
@@ -121,7 +121,7 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
                   className="ox-btn-ghost inline-flex min-h-[34px] items-center gap-1 rounded-xl px-2.5 py-1 text-[var(--ox-muted)] hover:text-[var(--ox-avax-ink)]"
                 >
                   <X className="h-3.5 w-3.5" />
-                  <span>Xóa</span>
+                  <span>Remove</span>
                 </button>
               ) : null}
             </div>
@@ -130,22 +130,22 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className="block space-y-1.5">
-            <span className="font-medium text-[var(--ox-muted)]">Tên doanh nghiệp</span>
+            <span className="font-medium text-[var(--ox-muted)]">Enterprise Name</span>
             <input value={enterpriseName} onChange={(e) => setEnterpriseName(e.target.value)} className="ox-input min-h-[42px] w-full rounded-xl px-3.5 py-2 text-sm" required />
           </label>
           <label className="block space-y-1.5">
-            <span className="font-medium text-[var(--ox-muted)]">Lĩnh vực hoạt động</span>
+            <span className="font-medium text-[var(--ox-muted)]">Business Category</span>
             <input value={categoryLabel} onChange={(e) => setCategoryLabel(e.target.value)} className="ox-input min-h-[42px] w-full rounded-xl px-3.5 py-2 text-sm" required />
           </label>
         </div>
 
         <label className="block space-y-1.5">
-          <span className="font-medium text-[var(--ox-muted)]">Giới thiệu ngắn (tùy chọn)</span>
+          <span className="font-medium text-[var(--ox-muted)]">Short Description (optional)</span>
           <textarea
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Mô tả dịch vụ, địa chỉ cơ sở hoặc cam kết bảo chứng với khách hàng..."
+            placeholder="Describe services, branch locations, or customer guarantee commitments..."
             maxLength={400}
             className="ox-input w-full rounded-xl px-3.5 py-2.5 text-sm placeholder:text-[var(--ox-muted)]"
           />
@@ -165,14 +165,14 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
         <div className="flex justify-end">
           <button type="submit" disabled={saving} className="ox-btn-primary inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold disabled:opacity-60">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            <span>Lưu hồ sơ</span>
+            <span>Save Profile</span>
           </button>
         </div>
       </form>
 
       <div className="mt-6 grid grid-cols-1 gap-3 border-t border-[var(--ox-line)] pt-4 text-xs sm:grid-cols-2">
         <div className="ox-subcard rounded-xl p-3">
-          <p className="text-[11px] text-[var(--ox-muted)]">Mã số thuế (KYB)</p>
+          <p className="text-[11px] text-[var(--ox-muted)]">Tax ID (KYB)</p>
           <p className="mt-1 font-mono font-semibold text-[var(--ox-ink)] tabular-nums">{enterprise.taxId}</p>
         </div>
         <div className="ox-subcard rounded-xl p-3">
@@ -180,10 +180,10 @@ export function EnterpriseProfileCard({ enterprise, onUpdated }: EnterpriseProfi
           <div className="mt-1 flex items-center justify-between gap-2">
             <span className="truncate font-mono font-semibold text-[var(--ox-ink)]">{truncateHex(enterprise.merchantContractAddress, 6)}</span>
             <div className="flex items-center gap-1">
-              <button type="button" onClick={handleCopyContract} aria-label="Sao chép Contract" className="rounded-md p-1 text-[var(--ox-muted)] hover:bg-[var(--ox-surface)] hover:text-[var(--ox-ink)]">
+              <button type="button" onClick={handleCopyContract} aria-label="Copy Contract Address" className="rounded-md p-1 text-[var(--ox-muted)] hover:bg-[var(--ox-surface)] hover:text-[var(--ox-ink)]">
                 {copied ? <Check className="h-3.5 w-3.5 text-[var(--ox-ok-ink)]" /> : <Copy className="h-3.5 w-3.5" />}
               </button>
-              <a href={`https://testnet.snowtrace.io/address/${enterprise.merchantContractAddress}`} target="_blank" rel="noreferrer" aria-label="Mở Snowtrace" className="rounded-md p-1 text-[var(--ox-muted)] hover:bg-[var(--ox-surface)] hover:text-[var(--ox-ink)]">
+              <a href={`https://testnet.snowtrace.io/address/${enterprise.merchantContractAddress}`} target="_blank" rel="noreferrer" aria-label="Open on Snowtrace" className="rounded-md p-1 text-[var(--ox-muted)] hover:bg-[var(--ox-surface)] hover:text-[var(--ox-ink)]">
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>

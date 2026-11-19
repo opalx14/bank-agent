@@ -63,7 +63,7 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
     try {
       const entRes = await fetch("/api/enterprises", { cache: "no-store" });
       if (entRes.ok) setEnterprises(sortEnterprises(((await entRes.json()) as { enterprises?: VerifiedEnterpriseProfile[] }).enterprises ?? []));
-    } catch { setFeedback({ kind: "error", text: "Không tải được danh sách đối tác hoặc gói dịch vụ." }); }
+    } catch { setFeedback({ kind: "error", text: "Unable to load partners or service packages." }); }
   }, []);
 
   useEffect(() => { void loadData(); }, [loadData]);
@@ -107,10 +107,10 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
     e.preventDefault();
     if (!selectedEnt || !selectedPkg) return;
     const startedAt = performance.now();
-    setFeedback(null); setBusy("create"); showToast("sent", `Tạo VietQR · ${selectedEnt.bankShortName}`);
+    setFeedback(null); setBusy("create"); showToast("sent", `Creating VietQR · ${selectedEnt.bankShortName}`);
     try {
       const resolvedEmail = buyerEmail.trim() || (roleSession?.role === "CUSTOMER" ? roleSession.email : "");
-      const resolvedPayer = payerName.trim() || (roleSession?.role === "CUSTOMER" ? roleSession.displayName : "") || "Khách hàng OpalX";
+      const resolvedPayer = payerName.trim() || (roleSession?.role === "CUSTOMER" ? roleSession.displayName : "") || "OpalX Customer";
       const conf = await confirmWithWallet("CREATE_PAYMENT", `${selectedEnt.enterpriseName} · ${selectedPkg.label} · ${selectedPkg.amountVnd} VND`);
       const invoiceXml = requireInvoiceXml ? buildSampleTt78Xml({ amountVnd: selectedPkg.amountVnd, sellerTaxId: selectedEnt.taxId, sellerName: selectedEnt.enterpriseName }) : undefined;
       const payload = {
@@ -125,39 +125,39 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
       };
       const res = await fetch("/api/orders/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const json = (await res.json().catch(() => ({}))) as { error?: string; order?: EnterpriseOrder };
-      if (!res.ok || !json.order) throw new Error(json.error ?? `Tạo đơn thất bại (${res.status})`);
+      if (!res.ok || !json.order) throw new Error(json.error ?? `Order creation failed (${res.status})`);
       const txHash = json.order.enterpriseTxHash;
       setActiveOrder(json.order); setActiveGuarantee(null);
-      setFeedback({ kind: "notice", text: `Đơn #${json.order.orderCode} · ${selectedEnt.bankShortName} sẵn sàng.` });
-      showToast("ok", `Đơn #${json.order.orderCode} sẵn sàng`, { txHash, explorerUrl: fujiTxUrl(txHash), latencyMs: Math.round(performance.now() - startedAt) });
+      setFeedback({ kind: "notice", text: `Order #${json.order.orderCode} · ${selectedEnt.bankShortName} ready.` });
+      showToast("ok", `Order #${json.order.orderCode} ready`, { txHash, explorerUrl: fujiTxUrl(txHash), latencyMs: Math.round(performance.now() - startedAt) });
       setMobileStep(2); setDesktopTab("QR"); await loadData();
-    } catch (err) { failWith("Tạo VietQR thất bại", err instanceof Error ? err.message : "Lỗi tạo mã VietQR"); } finally { setBusy(null); }
+    } catch (err) { failWith("VietQR creation failed", err instanceof Error ? err.message : "Error creating VietQR"); } finally { setBusy(null); }
   };
 
   const handleSettle = async (orderCode: number, method?: CheckoutPaymentMethod) => {
     const startedAt = performance.now();
-    setFeedback(null); setBusy("settle"); showToast("sent", `Đối soát đơn #${orderCode}`);
+    setFeedback(null); setBusy("settle"); showToast("sent", `Reconciling order #${orderCode}`);
     try {
-      await confirmWithWallet("CONFIRM_RECONCILE", `Thanh toán (${method ?? preferredMethod}) & bảo chứng #${orderCode}`);
+      await confirmWithWallet("CONFIRM_RECONCILE", `Payment (${method ?? preferredMethod}) & guarantee #${orderCode}`);
       const res = await fetch("/api/sandbox/simulate-bank", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderCode, scenario: "ALLOW_VALID" }) });
       const json = (await res.json().catch(() => ({}))) as { decision?: { verdict: string; reasonCode: string }; guarantee?: GuaranteeCertificate; error?: string };
-      if (!res.ok || json.error) throw new Error(json.error ?? `Lỗi đối soát (${res.status})`);
+      if (!res.ok || json.error) throw new Error(json.error ?? `Reconciliation error (${res.status})`);
       if (json.guarantee) {
         const issued = json.guarantee, txHash = issued.proofBundle.guaranteeTxHash;
         setActiveGuarantee(issued); setBurstCount((n) => n + 1);
         setActiveOrder((p) => (p && p.orderCode === orderCode ? { ...p, status: "GUARANTEED", guaranteeId: issued.guaranteeId, ...(method ? { paymentMethod: method } : {}) } : p));
-        setFeedback({ kind: "notice", text: `Đã cấp ${issued.guaranteeId} · ${formatVnd(issued.amountVnd)}.` });
-        showToast("ok", `Cấp chứng thư ${issued.guaranteeId}`, { txHash, explorerUrl: fujiTxUrl(txHash), latencyMs: Math.round(performance.now() - startedAt) });
+        setFeedback({ kind: "notice", text: `Issued ${issued.guaranteeId} · ${formatVnd(issued.amountVnd)}.` });
+        showToast("ok", `Issued pass ${issued.guaranteeId}`, { txHash, explorerUrl: fujiTxUrl(txHash), latencyMs: Math.round(performance.now() - startedAt) });
         setMobileStep(3); setDesktopTab("INVOICE");
-      } else if (json.decision) failWith("Policy Kernel từ chối", `Policy Kernel: ${json.decision.verdict} (${json.decision.reasonCode})`);
+      } else if (json.decision) failWith("Policy Kernel denied", `Policy Kernel: ${json.decision.verdict} (${json.decision.reasonCode})`);
       await loadData(); await onGuaranteeIssued();
-    } catch (err) { failWith("Đối soát thất bại", err instanceof Error ? err.message : "Lỗi đối soát thanh toán"); } finally { setBusy(null); }
+    } catch (err) { failWith("Reconciliation failed", err instanceof Error ? err.message : "Payment reconciliation error"); } finally { setBusy(null); }
   };
 
   const stepperPhase: GuaranteeStepPhase = busy === "settle" ? "verifying" : activeGuarantee || activeOrder?.status === "GUARANTEED" ? "guaranteed" : activeOrder ? "qr" : "idle";
   const orderMatchesSelection = Boolean(activeOrder && (!selectedEnt || activeOrder.enterpriseId === selectedEnt.id));
   const passAmountVnd = activeGuarantee?.amountVnd ?? (orderMatchesSelection ? activeOrder?.amountVnd : selectedPkg?.amountVnd) ?? selectedPkg?.amountVnd;
-  const passId = activeGuarantee?.guaranteeId ?? (orderMatchesSelection && activeOrder ? `OPX-${activeOrder.orderCode}` : "OPX-CHỜ-CẤP");
+  const passId = activeGuarantee?.guaranteeId ?? (orderMatchesSelection && activeOrder ? `OPX-${activeOrder.orderCode}` : "OPX-PENDING");
 
   return (
     <div className="space-y-4">
@@ -168,7 +168,7 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
         </div>
       )}
       <div className="lg:hidden">
-        <SegmentedTabs ariaLabel="Quy trình mua gói" value={String(mobileStep) as "1" | "2" | "3"} onChange={(k) => setMobileStep(Number(k) as 1 | 2 | 3)} items={[{ key: "1", label: "Chọn gói" }, { key: "2", label: "VietQR" }, { key: "3", label: "Chứng thư", dot: Boolean(activeGuarantee) }]} />
+        <SegmentedTabs ariaLabel="Checkout flow" value={String(mobileStep) as "1" | "2" | "3"} onChange={(k) => setMobileStep(Number(k) as 1 | 2 | 3)} items={[{ key: "1", label: "Select Package" }, { key: "2", label: "VietQR" }, { key: "3", label: "Guarantee", dot: Boolean(activeGuarantee) }]} />
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
         <div className={`min-w-0 lg:col-span-7 ${mobileStep === 1 ? "block" : "hidden lg:block"}`}>
@@ -182,8 +182,8 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
             <GuaranteeStepper phase={stepperPhase} />
             <OpalxGuaranteePass
               variant={activeGuarantee ? "jade" : "obsidian"} enterpriseName={activeGuarantee?.enterpriseName ?? selectedEnt?.enterpriseName ?? activeOrder?.sellerName ?? "OpalX Merchant"}
-              packageName={activeGuarantee?.productName ?? selectedPkg?.label ?? (orderMatchesSelection ? activeOrder?.productName : undefined) ?? "Gói dịch vụ bảo chứng"}
-              amountVnd={passAmountVnd} guaranteeId={passId} holderLabel={activeGuarantee?.payerName ?? (payerName || "Chủ thẻ OpalX")}
+              packageName={activeGuarantee?.productName ?? selectedPkg?.label ?? (orderMatchesSelection ? activeOrder?.productName : undefined) ?? "Guaranteed Service Package"}
+              amountVnd={passAmountVnd} guaranteeId={passId} holderLabel={activeGuarantee?.payerName ?? (payerName || "OpalX Cardholder")}
               bankLabel={activeGuarantee?.maskedBankRef ?? selectedEnt?.bankShortName ?? "NAPAS 247"}
               statusLabel={activeGuarantee ? (activeGuarantee.sandbox ? "[SANDBOX]" : "[LIVE BANK]") : activeProfile.badgeLabel}
               solidState={Boolean(activeGuarantee)} stamped={Boolean(activeGuarantee)} scanning={busy === "settle"}
@@ -192,7 +192,7 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
             />
           </div>
           <div className="hidden lg:block">
-            <SegmentedTabs ariaLabel="Chuyển đổi QR và Phiếu Bảo Chứng" value={desktopTab} onChange={setDesktopTab} items={[{ key: "QR", label: "Thanh toán QR", icon: <QrCode className="h-3.5 w-3.5" /> }, { key: "INVOICE", label: "Phiếu Bảo Chứng", icon: <FileText className="h-3.5 w-3.5" />, dot: Boolean(activeGuarantee) }]} />
+            <SegmentedTabs ariaLabel="Toggle QR Payment and Guarantee Slip" value={desktopTab} onChange={setDesktopTab} items={[{ key: "QR", label: "QR Payment", icon: <QrCode className="h-3.5 w-3.5" /> }, { key: "INVOICE", label: "Guarantee Slip", icon: <FileText className="h-3.5 w-3.5" />, dot: Boolean(activeGuarantee) }]} />
           </div>
           <div className={`${mobileStep === 2 ? "block" : "hidden"} ${desktopTab === "QR" ? "lg:block" : "lg:hidden"}`}>
             <ActiveQrSlipCard order={activeOrder} confirming={busy === "settle"} preferredMethod={preferredMethod} fallbackEmail={buyerEmail || activeSession?.email} onSimulateBankAndMint={handleSettle} onBackToForm={() => setMobileStep(1)} onOpenVault={onOpenVault} />

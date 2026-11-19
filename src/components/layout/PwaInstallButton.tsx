@@ -55,12 +55,12 @@ export function PwaInstallButton() {
     <button
       type="button"
       onClick={() => void handleInstall()}
-      aria-label="Cài ứng dụng OpalX GO"
-      title="Cài App"
+      aria-label="Install OpalX GO app"
+      title="Install App"
       className="ox-badge-verified ox-press inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[11px] font-semibold transition-opacity hover:opacity-90"
     >
       <Download className="h-3.5 w-3.5 shrink-0" />
-      <span className="hidden sm:inline">Cài App</span>
+      <span className="hidden sm:inline">Install App</span>
     </button>
   );
 }

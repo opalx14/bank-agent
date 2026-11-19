@@ -59,19 +59,19 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
         action: "REGISTER_ENTERPRISE",
         enterpriseName: "Golden Gym Wellness",
         taxId: "0319876543",
-        categoryLabel: "Phòng Tập Gym & Yoga",
+        categoryLabel: "Fitness, Gym & Yoga",
         ownerEmail: "founder@goldengym.vn",
         ownerWalletAddress: entLogin.session.walletAddress,
         merchantContractAddress: entLogin.session.merchantContractAddress,
         linkedBankRailId: "bank-mb",
         accountNo: "0988776655",
-        accountName: "Cong Ty Golden Gym",
+        accountName: "Golden Gym Corp",
         initialPackage: {
-          label: "Gói Diamond 6 Tháng",
-          durationLabel: "6 tháng · Toàn CLB",
+          label: "Diamond 6-Month Pass",
+          durationLabel: "6 months · All Clubs",
           amountVnd: 3_600_000,
-          guaranteeRightLabel: "Thẻ Hội Viên & Bảo Chứng CLB",
-          benefits: ["Check-in QR quầy lễ tân", "Bảo vệ PolicyVault 100%"],
+          guaranteeRightLabel: "Membership Pass & Club Guarantee",
+          benefits: ["Front-desk QR check-in", "100% PolicyVault coverage"],
         },
       }),
     );
@@ -81,17 +81,17 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
     expect(ent.ownerEmail).toBe("founder@goldengym.vn");
     expect(ent.kybCommitmentHash).toMatch(/^0x[a-f0-9]{64}$/);
     expect(ent.contractDeploymentTxHash).toMatch(/^0x[a-f0-9]{64}$/);
-    expect(ent.packages[0].benefits).toContain("Check-in QR quầy lễ tân");
+    expect(ent.packages[0].benefits).toContain("Front-desk QR check-in");
 
     const addPkgRes = await postEnterprises(
       jsonPost("http://localhost/api/enterprises", {
         action: "ADD_PACKAGE",
         enterpriseId: ent.id,
-        label: "Gói PT VIP 12 Tháng",
-        durationLabel: "12 tháng · Kèm HLV",
+        label: "PT VIP 12-Month Pass",
+        durationLabel: "12 months · With Coach",
         amountVnd: 9_800_000,
-        guaranteeRightLabel: "Đặc Quyền Platinum",
-        benefits: ["Check-in QR quầy lễ tân", "Tích lũy hạng hội viên ERC-8004"],
+        guaranteeRightLabel: "Platinum Privileges",
+        benefits: ["Front-desk QR check-in", "ERC-8004 membership tier credits"],
       }),
     );
     expect(addPkgRes.status).toBe(200);
@@ -106,7 +106,7 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
         mode: "LOGIN",
         provider: "EMAIL",
         email: "member.vip@gmail.com",
-        displayName: "Nguyễn Minh Khoa",
+        displayName: "Minh Khoa Nguyen",
         role: "CUSTOMER",
       }),
     );
@@ -119,8 +119,8 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
         enterpriseId: ent.id,
         useEnterpriseBank: true,
         amountVnd: 9_800_000,
-        productName: "Gói PT VIP 12 Tháng",
-        payerName: "Nguyễn Minh Khoa",
+        productName: "PT VIP 12-Month Pass",
+        payerName: "Minh Khoa Nguyen",
         buyerEmail: "member.vip@gmail.com",
         paymentMethod: "OPALX_DIRECT",
         confirmedByWallet: custLogin.session.walletAddress,
@@ -145,7 +145,7 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
     const guarantee = settleJson.guarantee;
     expect(guarantee.buyerEmail).toBe("member.vip@gmail.com");
     expect(guarantee.enterpriseId).toBe(ent.id);
-    expect(guarantee.benefits).toContain("Tích lũy hạng hội viên ERC-8004");
+    expect(guarantee.benefits).toContain("ERC-8004 membership tier credits");
 
     for (const kind of ["CHECKIN_PASS", "VAULT_COVERAGE", "ERC8004_PRIVILEGE"] as const) {
       const rightRes = await claimGuaranteeRight(
@@ -158,7 +158,7 @@ describe("End-to-End Web3 Onboarding, Smart Contract Enterprise, Dual Payment, G
       expect(rightJson.avalancheProof.chainId).toBe(43113);
 
       const expectedSummary = `${kind}:${guarantee.guaranteeId}:${ent.enterpriseName}`;
-      const expectedMessage = `OpalX GO Xác Nhận\nHành động: CLAIM_GUARANTEE_RIGHT\nVí: ${rightJson.claim.walletAddress}\nContract: ${custLogin.session.merchantContractAddress}\nNội dung: ${expectedSummary}\nHash: ${rightJson.claim.digestHex}`;
+      const expectedMessage = `OpalX GO Confirmation\nAction: CLAIM_GUARANTEE_RIGHT\nWallet: ${rightJson.claim.walletAddress}\nContract: ${custLogin.session.merchantContractAddress}\nSummary: ${expectedSummary}\nHash: ${rightJson.claim.digestHex}`;
       const sigOk = await verifyMessage({
         address: rightJson.claim.walletAddress,
         message: expectedMessage,

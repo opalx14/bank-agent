@@ -96,7 +96,7 @@ describe("Enterprise VietQR, PayOS HMAC & TT78 XML", () => {
     const custom = extractTt78InvoiceSummary(buildSampleTt78Xml({ amountVnd: 2_500_000, invoiceNumber: "000999" }));
     expect(custom.totalAmountVnd).toBe(2_500_000);
 
-    const aiProposal = proposeInvoiceFromUnstructuredText("MST 0312345678 thanh toan 1500000 VND");
+    const aiProposal = proposeInvoiceFromUnstructuredText("MST 0312345678 payment 1500000 VND");
     expect(aiProposal.source).toBe("AI_BOUNDED_PROPOSAL");
     expect(aiProposal.signatureValid).toBe(false);
 
@@ -114,7 +114,7 @@ describe("Enterprise VietQR, PayOS HMAC & TT78 XML", () => {
     const customQr = buildOrderQrStub({
       orderCode: 20267788,
       amountVnd: 150_000,
-      description: "Thanh toan API",
+      description: "API payment",
       railMode: "SANDBOX",
       bankConfig: {
         bankBin: "970436",
@@ -132,9 +132,9 @@ describe("Enterprise VietQR, PayOS HMAC & TT78 XML", () => {
     expect(customQr.qrCode).toContain("OPX20267788");
 
     expect(extractOrderCodeFromTransferContent("MBVCB.123.OPX20267788.CT")).toBe(20267788);
-    expect(extractOrderCodeFromTransferContent("opx-20267799 thanh toan")).toBe(20267799);
-    expect(extractOrderCodeFromTransferContent("CHUYEN KHOAN THUONG")).toBeNull();
-    expect(resolveSepayOrderCode({ code: "OPX20268888", content: "khac" })).toBe(20268888);
+    expect(extractOrderCodeFromTransferContent("opx-20267799 payment")).toBe(20267799);
+    expect(extractOrderCodeFromTransferContent("REGULAR BANK TRANSFER")).toBeNull();
+    expect(resolveSepayOrderCode({ code: "OPX20268888", content: "other" })).toBe(20268888);
 
     expect(verifySepayAuthHeader("Apikey sepay_secret_99", "sepay_secret_99")).toBe(true);
     expect(verifySepayAuthHeader("Bearer sepay_secret_99", "sepay_secret_99")).toBe(true);
@@ -172,6 +172,6 @@ describe("Enterprise VietQR, PayOS HMAC & TT78 XML", () => {
     const pos58Html = await pos58Res.text();
     expect(pos58Html).toContain("58mm auto");
     expect(pos58Html).toContain("width:52mm");
-    expect(pos58Html).toContain("HÓA ĐƠN ĐỐI CHIẾU");
+    expect(pos58Html).toContain("GUARANTEE RECONCILIATION CERTIFICATE");
   });
 });

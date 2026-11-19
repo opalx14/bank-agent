@@ -53,24 +53,24 @@ export function RoleFanStage({
     {
       role: "CUSTOMER",
       variant: "jade",
-      title: activeRole === "CUSTOMER" && enterpriseName ? enterpriseName : "Hội Viên Bank Agent",
-      pkg: "Thanh toán VietQR & Thẻ Bảo Chứng",
+      title: activeRole === "CUSTOMER" && enterpriseName ? enterpriseName : "Bank Agent Member",
+      pkg: "VietQR Checkout & Guarantee Pass",
       id: "OPX-MEMBER",
       holder: activeRole === "CUSTOMER" && holderLabel ? holderLabel : "member@gmail.com",
       bank: "VIETQR · FUJI",
-      status: "CÁ NHÂN",
-      stamp: "BẢO CHỨNG",
+      status: "PERSONAL",
+      stamp: "VERIFIED",
       delay: "0s",
     },
     {
       role: "ENTERPRISE",
       variant: "crimson",
-      title: activeRole === "ENTERPRISE" && enterpriseName ? enterpriseName : "Doanh Nghiệp Đối Tác",
-      pkg: "Smart Contract Merchant · Tạo gói & VietQR",
+      title: activeRole === "ENTERPRISE" && enterpriseName ? enterpriseName : "Partner Enterprise",
+      pkg: "Merchant Smart Contract · Passes & VietQR",
       id: "MERCHANT-KYB",
-      holder: activeRole === "ENTERPRISE" && holderLabel ? holderLabel : "founder@company.vn",
+      holder: activeRole === "ENTERPRISE" && holderLabel ? holderLabel : "founder@company.com",
       bank: "NAPAS 247 · A2A",
-      status: "DOANH NGHIỆP",
+      status: "ENTERPRISE",
       stamp: "SMART CONTRACT",
       delay: "-2.2s",
     },
@@ -78,12 +78,12 @@ export function RoleFanStage({
       role: "BANK",
       variant: "obsidian",
       title: activeRole === "BANK" && bankLabel ? bankLabel : "MB Bank (970422)",
-      pkg: "Đối soát VietQR · PolicyVault Fuji",
+      pkg: "VietQR Audits · PolicyVault Fuji",
       id: "BANK-AUDITOR",
-      holder: activeRole === "BANK" && holderLabel ? holderLabel : "Kiểm toán viên NAPAS",
+      holder: activeRole === "BANK" && holderLabel ? holderLabel : "NAPAS Auditor",
       bank: "NAPAS 247",
-      status: "NGÂN HÀNG",
-      stamp: "KIỂM CHỨNG",
+      status: "BANK",
+      stamp: "AUDITED",
       delay: "-4.1s",
     },
   ];
@@ -109,7 +109,7 @@ export function RoleFanStage({
               onClick={() => clickable && onSelectRole?.(c.role)}
               role={clickable ? "button" : undefined}
               tabIndex={clickable ? 0 : undefined}
-              aria-label={clickable ? `Chuyển sang vai trò ${c.status}` : undefined}
+              aria-label={clickable ? `Switch to ${c.status} role` : undefined}
               onKeyDown={(e) => {
                 if (clickable && (e.key === "Enter" || e.key === " ")) {
                   e.preventDefault();

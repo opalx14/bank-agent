@@ -6,11 +6,11 @@ import type { EnterpriseOrder, PolicyEvaluationResult, SandboxScenario } from "@
 import { getVerdictBadgeClasses } from "@/components/shared/formatters";
 
 const SCENARIOS: Array<{ id: SandboxScenario; label: string }> = [
-  { id: "ALLOW_VALID", label: "Thanh Toán Hợp Lệ (ALLOW + Cấp Hóa Đơn)" },
-  { id: "DENY_REPLAY", label: "Giả Lập Trùng Mã FT (Chặn Replay)" },
-  { id: "DENY_INVALID_HMAC", label: "Sai Chữ Ký PayOS HMAC (Chặn 401/DENY)" },
-  { id: "DENY_AMOUNT_MISMATCH", label: "Lệch Tiền Chuyển Khoản (Chặn DENY)" },
-  { id: "REQUIRE_APPROVAL_LIMIT", label: "Đơn Vượt Ngưỡng 10M (Yêu Cầu CFO)" },
+  { id: "ALLOW_VALID", label: "Valid Payment (ALLOW + Issue Guarantee)" },
+  { id: "DENY_REPLAY", label: "Simulate Duplicate FT Ref (Block Replay)" },
+  { id: "DENY_INVALID_HMAC", label: "Invalid PayOS HMAC Signature (Block 401/DENY)" },
+  { id: "DENY_AMOUNT_MISMATCH", label: "Transfer Amount Mismatch (Block DENY)" },
+  { id: "REQUIRE_APPROVAL_LIMIT", label: "Order Over 10M Limit (Require CFO)" },
 ];
 
 interface BankSettlementConsoleProps {
@@ -55,16 +55,16 @@ export function BankSettlementConsole({ orders, onCompleted }: BankSettlementCon
   return (
     <section className="ox-subcard space-y-4 rounded-2xl p-4 sm:p-5">
       <div>
-        <h2 className="text-base font-bold text-[var(--ox-ink)]">Kiểm Thử Xác Thực Webhook &amp; BankGateway</h2>
+        <h2 className="text-base font-bold text-[var(--ox-ink)]">Webhook &amp; BankGateway Verification Console</h2>
         <p className="mt-0.5 text-xs text-[var(--ox-muted)]">
-          Mô phỏng kịch bản đối soát (Hợp lệ hoặc Chặn gian lận) trước khi chạy thật.
+          Simulate reconciliation scenarios (valid or fraud blocks) before live execution.
         </p>
       </div>
 
       <div className="grid gap-3.5 sm:grid-cols-2">
         <div>
           <label htmlFor="bank-order-select" className="mb-1.5 block text-xs font-medium text-[var(--ox-muted)]">
-            Chọn Đơn Hàng
+            Select Order
           </label>
           <select
             id="bank-order-select"
@@ -82,7 +82,7 @@ export function BankSettlementConsole({ orders, onCompleted }: BankSettlementCon
 
         <div>
           <label htmlFor="bank-scenario-select" className="mb-1.5 block text-xs font-medium text-[var(--ox-muted)]">
-            Kịch Bản Xác Thực
+            Verification Scenario
           </label>
           <select
             id="bank-scenario-select"
@@ -110,12 +110,12 @@ export function BankSettlementConsole({ orders, onCompleted }: BankSettlementCon
         ) : (
           <ShieldAlert className="h-4 w-4 text-[var(--ox-avax)]" />
         )}
-        <span>{running ? "Đang xác thực..." : "Chạy Kiểm Thử Cổng Ngân Hàng"}</span>
+        <span>{running ? "Verifying..." : "Run Bank Gateway Simulation"}</span>
       </button>
 
       {lastDecision && (
         <div className={`rounded-xl border p-3.5 text-xs ${getVerdictBadgeClasses(lastDecision.verdict)}`}>
-          Phán quyết Kernel: <strong>{lastDecision.verdict}</strong> · Mã lý do:{" "}
+          Kernel Verdict: <strong>{lastDecision.verdict}</strong> · Reason:{" "}
           <span className="font-mono">{lastDecision.reasonCode}</span> (WASM:{" "}
           {lastDecision.wasmExecuted ? "ON" : "FALLBACK"})
         </div>

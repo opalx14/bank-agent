@@ -12,8 +12,8 @@ import { RoleFanStage } from "./RoleFanStage";
 import { useWalletAuth } from "./WalletAuthProvider";
 
 const ROLE_TABS = [
-  { role: "CUSTOMER" as const, label: "Người Dùng", icon: ShoppingBag },
-  { role: "ENTERPRISE" as const, label: "Doanh Nghiệp", icon: Building2 },
+  { role: "CUSTOMER" as const, label: "Personal", icon: ShoppingBag },
+  { role: "ENTERPRISE" as const, label: "Enterprise", icon: Building2 },
 ] as const;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,14 +35,14 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
 
   const isEnterprise = selectedRole === "ENTERPRISE";
   const sampleEmail = isEnterprise ? "kyb.california-fitness@opalx.vn" : "member.cali@gmail.com";
-  const sampleName = isEnterprise ? "California Fitness & Yoga" : "Hội viên California";
+  const sampleName = isEnterprise ? "California Fitness & Yoga" : "California Member";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     const cleanedEmail = emailInput.trim();
     if (!EMAIL_PATTERN.test(cleanedEmail)) {
-      setErrorMsg("Vui lòng nhập email hợp lệ (vd: name@company.vn).");
+      setErrorMsg("Please enter a valid email (e.g. name@company.com).");
       emailRef.current?.focus();
       return;
     }
@@ -55,15 +55,15 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
       ...(isCaliEnt ? { rolePositionId: "california-fitness" } : {}),
     });
     if (!session) {
-      setErrorMsg("Không thể kết nối ví từ email này. Vui lòng thử lại.");
+      setErrorMsg("Unable to connect wallet for this email. Please try again.");
       return;
     }
     router.push(isEnterprise ? "/enterprise" : "/");
   };
 
   const passEnterpriseName = isEnterprise
-    ? emailInput.toLowerCase().includes("california") ? "California Fitness & Yoga" : "Doanh Nghiệp Đối Tác"
-    : "Hội Viên Bank Agent";
+    ? emailInput.toLowerCase().includes("california") ? "California Fitness & Yoga" : "Partner Enterprise"
+    : "Bank Agent Member";
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center px-4 py-8 sm:px-6 lg:px-8">
@@ -73,25 +73,25 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
 
           {defaultRole === "ENTERPRISE" && roleSession?.role === "CUSTOMER" ? (
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[var(--ox-line)] bg-[var(--ox-surface)] px-3.5 py-2 text-xs">
-              <span className="text-[var(--ox-muted)]">Đang dùng tài khoản Cá nhân.</span>
-              <Link href="/" className="font-semibold text-[var(--ox-ink)] hover:underline">← Về trang Cá nhân</Link>
+              <span className="text-[var(--ox-muted)]">Signed in with Personal account.</span>
+              <Link href="/" className="font-semibold text-[var(--ox-ink)] hover:underline">← Back to Personal</Link>
             </div>
           ) : null}
 
           <h1 id="opalx-gateway-title" className="mt-6 text-[clamp(30px,5vw,42px)] leading-[1.08] font-extrabold tracking-[-0.035em] text-[var(--ox-ink)]">
             {isEnterprise ? (
-              <>VietQR Doanh nghiệp.<span className="block text-[var(--ox-avax)]">Đối soát tức thì.</span></>
+              <>Enterprise VietQR.<span className="block text-[var(--ox-avax)]">Instant Audits.</span></>
             ) : (
-              <>Thanh toán VietQR.<span className="block text-[var(--ox-ok-ink)]">Bảo chứng tức thì.</span></>
+              <>VietQR Payments.<span className="block text-[var(--ox-ok-ink)]">Instant Proofs.</span></>
             )}
           </h1>
           <p className="mt-2.5 text-sm leading-relaxed text-[var(--ox-muted)]">
             {isEnterprise
-              ? "Tạo gói dịch vụ, nhận VietQR trực tiếp ngân hàng và xuất phiếu bảo chứng Fuji."
-              : "Chọn vai trò, nhập email để mở ví nhúng 0-popup và lưu thẻ bảo chứng."}
+              ? "Issue service passes, receive direct bank VietQR, and mint Fuji guarantee proofs."
+              : "Pick a role and enter your email for a zero-popup embedded wallet and guarantee passes."}
           </p>
 
-          <div className="mt-6 inline-flex w-full rounded-2xl border border-[var(--ox-line)] bg-[var(--ox-soft)] p-1" role="radiogroup" aria-label="Chọn vai trò">
+          <div className="mt-6 inline-flex w-full rounded-2xl border border-[var(--ox-line)] bg-[var(--ox-soft)] p-1" role="radiogroup" aria-label="Select role">
             {ROLE_TABS.map(({ role, label, icon: Icon }) => {
               const active = selectedRole === role;
               return (
@@ -115,14 +115,14 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
           <form onSubmit={(e) => void handleSubmit(e)} className="mt-5 space-y-4">
             <div>
               <div className="mb-1.5 flex items-center justify-between gap-2">
-                <label htmlFor="gateway-email-input" className="text-xs font-semibold text-[var(--ox-ink)]">Email ví của bạn</label>
+                <label htmlFor="gateway-email-input" className="text-xs font-semibold text-[var(--ox-ink)]">Your wallet email</label>
                 <button
                   type="button"
                   onClick={() => { setErrorMsg(null); setEmailInput(sampleEmail); emailRef.current?.focus(); }}
                   className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-[var(--ox-muted)] transition-colors hover:text-[var(--ox-ink)]"
                 >
                   <Sparkles className="h-3 w-3 text-[var(--ox-avax)]" />
-                  <span>Dùng mẫu</span>
+                  <span>Use sample</span>
                 </button>
               </div>
               <div className="relative">
@@ -134,7 +134,7 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
                   autoComplete="email"
                   value={emailInput}
                   onChange={(e) => { setEmailInput(e.target.value); if (errorMsg) setErrorMsg(null); }}
-                  placeholder={isEnterprise ? "founder@company.vn" : "member@gmail.com"}
+                  placeholder={isEnterprise ? "founder@company.com" : "member@gmail.com"}
                   className="ox-input h-[52px] w-full rounded-2xl pr-4 pl-11 text-sm placeholder:text-[var(--ox-muted)]"
                 />
               </div>
@@ -151,7 +151,7 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
                   : "bg-[var(--ox-ink)] text-[var(--ox-bg)] shadow-[0_12px_28px_-12px_rgba(11,15,25,0.4)]"
               }`}
             >
-              <span>{isEnterprise ? "Vào Không gian Doanh Nghiệp" : "Vào Không gian Người Dùng"}</span>
+              <span>{isEnterprise ? "Enter Enterprise Space" : "Enter Personal Space"}</span>
               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${isEnterprise ? "bg-white/20 text-white" : "bg-[var(--ox-avax)] text-white"}`}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
               </span>
@@ -161,23 +161,23 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
           <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs text-[var(--ox-muted)]">
             {!isEnterprise ? (
               <Link href="/?guest=1" className="font-semibold text-[var(--ox-ink)] hover:underline">
-                Mua nhanh không cần ví →
+                Quick checkout without wallet →
               </Link>
             ) : (
               <button
                 type="button"
-                onClick={() => { setErrorMsg(null); setEmailInput("founder@mybusiness.vn"); emailRef.current?.focus(); }}
+                onClick={() => { setErrorMsg(null); setEmailInput("founder@mybusiness.com"); emailRef.current?.focus(); }}
                 className="font-semibold text-[var(--ox-ink)] hover:underline"
               >
-                Tạo hồ sơ doanh nghiệp mới →
+                New enterprise profile →
               </button>
             )}
             <div className="flex items-center gap-3">
               <HowWalletWorksSheet triggerVariant="link" roleHint={isEnterprise ? "enterprise" : "customer"} />
               <span aria-hidden="true">·</span>
-              <Link href="/bank" className="hover:text-[var(--ox-ink)] hover:underline">Ngân hàng</Link>
+              <Link href="/bank" className="hover:text-[var(--ox-ink)] hover:underline">Bank Portal</Link>
               <span aria-hidden="true">·</span>
-              <Link href="/roadmap" className="hover:text-[var(--ox-ink)] hover:underline">Kiến trúc</Link>
+              <Link href="/roadmap" className="hover:text-[var(--ox-ink)] hover:underline">Architecture</Link>
             </div>
           </div>
         </section>
@@ -194,7 +194,7 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
             holderLabel={emailInput.trim() || undefined}
           />
           <p className="mt-1 text-center font-mono text-[11px] text-[var(--ox-muted)]">
-            Bấm vào thẻ để đổi vai trò · Fuji 43113 · 0 PII
+            Click card to switch role · Fuji 43113 · 0 PII
           </p>
         </div>
       </div>

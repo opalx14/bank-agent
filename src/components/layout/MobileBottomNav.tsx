@@ -11,16 +11,16 @@ import { useWalletAuth } from "@/components/auth/WalletAuthProvider";
 type EnterpriseSection = "OVERVIEW" | "PACKAGES" | "ORDERS" | "BANK" | "PROFILE";
 
 const ENTERPRISE_TABS = [
-  { section: "OVERVIEW" as const, hash: "#overview", label: "Tổng quan", icon: LayoutDashboard },
-  { section: "PACKAGES" as const, hash: "#packages", label: "Gói DV", icon: Layers },
-  { section: "ORDERS" as const, hash: "#orders", label: "Đơn hàng", icon: ClipboardList },
-  { section: "BANK" as const, hash: "#bank", label: "Ngân hàng", icon: Landmark },
-  { section: "PROFILE" as const, hash: "#profile", label: "Hồ sơ", icon: Settings },
+  { section: "OVERVIEW" as const, hash: "#overview", label: "Overview", icon: LayoutDashboard },
+  { section: "PACKAGES" as const, hash: "#packages", label: "Packages", icon: Layers },
+  { section: "ORDERS" as const, hash: "#orders", label: "Orders", icon: ClipboardList },
+  { section: "BANK" as const, hash: "#bank", label: "Bank", icon: Landmark },
+  { section: "PROFILE" as const, hash: "#profile", label: "Profile", icon: Settings },
 ];
 
 const BANK_TABS = [
-  { href: "/bank#rails", hash: "#rails", label: "Luồng Bank", icon: Landmark },
-  { href: "/bank#attestations", hash: "#attestations", label: "Đối soát", icon: FileCheck2 },
+  { href: "/bank#rails", hash: "#rails", label: "Bank Rails", icon: Landmark },
+  { href: "/bank#attestations", hash: "#attestations", label: "Audits", icon: FileCheck2 },
   { href: "/bank#vault", hash: "#vault", label: "PolicyVault", icon: ShieldCheck },
 ] as const;
 
@@ -84,16 +84,16 @@ export function MobileBottomNav() {
     }`;
 
   const userTabs = [
-    { href: role === "CUSTOMER" ? "/" : "/?guest=1", key: "checkout", label: "Mua gói", icon: ShoppingBag, prominent: false },
-    ...(role === "CUSTOMER" ? [{ href: "/?tab=vault", key: "vault", label: "Thẻ của tôi", icon: FileCheck2, prominent: false }] : []),
-    { href: "/scan", key: "scan", label: "Quét QR", icon: QrCode, prominent: true },
+    { href: role === "CUSTOMER" ? "/" : "/?guest=1", key: "checkout", label: "Buy Passes", icon: ShoppingBag, prominent: false },
+    ...(role === "CUSTOMER" ? [{ href: "/?tab=vault", key: "vault", label: "My Passes", icon: FileCheck2, prominent: false }] : []),
+    { href: "/scan", key: "scan", label: "Scan QR", icon: QrCode, prominent: true },
   ];
 
   return (
     <>
       <Suspense fallback={null}><MobileSearchSync onSync={sync} /></Suspense>
       <nav
-        aria-label="Điều hướng di động"
+        aria-label="Mobile navigation"
         className="ox-glass fixed inset-x-0 bottom-0 z-40 border-t border-[var(--ox-line)] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden print:hidden"
       >
       {role === "ENTERPRISE" ? (

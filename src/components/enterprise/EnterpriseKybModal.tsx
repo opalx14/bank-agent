@@ -34,7 +34,7 @@ export function EnterpriseKybModal({ open = false, inline = false, activeBanks, 
   const [pkgDuration, setPkgDuration] = useState("");
   const [pkgAmount, setPkgAmount] = useState("");
   const [guaranteeRightLabel, setGuaranteeRightLabel] = useState("");
-  const [benefits, setBenefits] = useState<string[]>(["Check-in QR quầy lễ tân", "Bảo vệ PolicyVault 100%"]);
+  const [benefits, setBenefits] = useState<string[]>(["Front-desk QR Check-in", "100% PolicyVault Protection"]);
   const [customBenefit, setCustomBenefit] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -57,13 +57,13 @@ export function EnterpriseKybModal({ open = false, inline = false, activeBanks, 
     setErrorMsg(null);
     const hasPkg = pkgLabel.trim().length > 0;
     const checks: Array<[boolean, "1" | "2" | "3", string]> = [
-      [enterpriseName.trim().length < 2, "1", "Tên doanh nghiệp cần ít nhất 2 ký tự."],
-      [taxId.trim().length < 10 || taxId.trim().length > 14, "1", "Mã số thuế (MST) cần dài 10–14 ký tự."],
-      [resolvedCategory.length < 2, "1", "Vui lòng chọn hoặc nhập lĩnh vực kinh doanh."],
-      [!linkedBankRailId, "2", "Vui lòng chọn ngân hàng nhận thanh toán."],
-      [!/^[a-zA-Z0-9]{5,24}$/.test(accountNo.trim()), "2", "Số tài khoản (STK) cần 5–24 ký tự chữ/số không dấu cách."],
-      [normalizedHolder.length < 2, "2", "Vui lòng nhập tên chủ tài khoản ngân hàng hợp lệ."],
-      [hasPkg && (!Number.isFinite(parsedPkgAmount) || parsedPkgAmount < 2000), "3", "Giá gói dịch vụ đầu tiên tối thiểu 2.000 ₫."],
+      [enterpriseName.trim().length < 2, "1", "Enterprise name must be at least 2 characters."],
+      [taxId.trim().length < 10 || taxId.trim().length > 14, "1", "Tax ID must be 10–14 characters."],
+      [resolvedCategory.length < 2, "1", "Please select or enter a business category."],
+      [!linkedBankRailId, "2", "Please select a receiving bank."],
+      [!/^[a-zA-Z0-9]{5,24}$/.test(accountNo.trim()), "2", "Account number must be 5–24 alphanumeric characters without spaces."],
+      [normalizedHolder.length < 2, "2", "Please enter a valid bank account holder name."],
+      [hasPkg && (!Number.isFinite(parsedPkgAmount) || parsedPkgAmount < 2000), "3", "Initial package price must be at least 2,000 ₫."],
     ];
     const invalid = checks.find(([bad]) => bad);
     if (invalid) { setStep(invalid[1]); return setErrorMsg(invalid[2]); }
@@ -87,7 +87,7 @@ export function EnterpriseKybModal({ open = false, inline = false, activeBanks, 
           accountName: accountName.trim(),
           ...(hasPkg ? {
             initialPackage: {
-              label: pkgLabel.trim(), durationLabel: pkgDuration.trim() || "Tiêu chuẩn", amountVnd: Math.round(parsedPkgAmount),
+              label: pkgLabel.trim(), durationLabel: pkgDuration.trim() || "Standard", amountVnd: Math.round(parsedPkgAmount),
               ...(benefits.length > 0 ? { benefits } : {}),
               ...(guaranteeRightLabel.trim() ? { guaranteeRightLabel: guaranteeRightLabel.trim() } : {}),
             },
@@ -95,13 +95,13 @@ export function EnterpriseKybModal({ open = false, inline = false, activeBanks, 
         }),
       });
       const json = (await res.json().catch(() => ({}))) as { enterprise?: VerifiedEnterpriseProfile; error?: string };
-      if (!res.ok || !json.enterprise) throw new Error(json.error ?? `Khởi tạo Smart Contract thất bại (${res.status})`);
+      if (!res.ok || !json.enterprise) throw new Error(json.error ?? `Smart Contract deployment failed (${res.status})`);
       setEnterpriseName(""); setTaxId(""); setLogoImageUrl(""); setAccountNo(""); setAccountName("");
       setPkgLabel(""); setPkgDuration(""); setPkgAmount(""); setGuaranteeRightLabel(""); setCustomBenefit("");
       await onCreated(json.enterprise);
       if (!inline) onClose?.();
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Lỗi khởi tạo Smart Contract doanh nghiệp.");
+      setErrorMsg(err instanceof Error ? err.message : "Error deploying enterprise Smart Contract.");
     } finally {
       setSubmitting(false);
     }
@@ -120,21 +120,21 @@ export function EnterpriseKybModal({ open = false, inline = false, activeBanks, 
           <div className="min-w-0">
             <p className="flex items-center justify-between text-[10px] font-semibold text-[var(--ox-avax-ink)]">
               <span className="inline-flex items-center gap-1"><Cpu className="h-3 w-3" /><span>Contract Fuji</span></span>
-              <a href={`https://testnet.snowtrace.io/address/${walletSession.merchantContractAddress}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 hover:underline"><span>Xem</span><ExternalLink className="h-2.5 w-2.5" /></a>
+              <a href={`https://testnet.snowtrace.io/address/${walletSession.merchantContractAddress}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 hover:underline"><span>View</span><ExternalLink className="h-2.5 w-2.5" /></a>
             </p>
             <p className="mt-0.5 truncate font-mono font-bold text-[var(--ox-ink)] tabular-nums">{truncateHex(walletSession.merchantContractAddress, 5)}</p>
           </div>
         </div>
       ) : (
         <div className="ox-subcard flex flex-wrap items-center justify-between gap-2 rounded-2xl p-3">
-          <span className="text-[var(--ox-muted)]">Kết nối Google để gắn Owner Wallet &amp; xem trước Smart Contract Fuji.</span>
-          <button type="button" disabled={authLoading} onClick={() => void loginWithGoogle()} className="ox-btn-ghost inline-flex min-h-[34px] items-center gap-1.5 rounded-xl px-3 py-1 font-semibold disabled:opacity-60"><Sparkles className="h-3.5 w-3.5 text-[var(--ox-avax)]" /><span>Kết nối Google</span></button>
+          <span className="text-[var(--ox-muted)]">Connect Google to bind Owner Wallet &amp; preview Fuji Smart Contract.</span>
+          <button type="button" disabled={authLoading} onClick={() => void loginWithGoogle()} className="ox-btn-ghost inline-flex min-h-[34px] items-center gap-1.5 rounded-xl px-3 py-1 font-semibold disabled:opacity-60"><Sparkles className="h-3.5 w-3.5 text-[var(--ox-avax)]" /><span>Connect Google</span></button>
         </div>
       )}
-      <SegmentedTabs ariaLabel="Các bước khai báo KYB doanh nghiệp" value={step} onChange={setStep} items={[
-        { key: "1", label: "1. Danh tính", dot: !step1Done },
-        { key: "2", label: "2. Ngân hàng", dot: !step2Done },
-        { key: "3", label: "3. Gói & Quyền", badge: step3Ready ? "Sẵn" : undefined },
+      <SegmentedTabs ariaLabel="Enterprise KYB onboarding steps" value={step} onChange={setStep} items={[
+        { key: "1", label: "1. Identity", dot: !step1Done },
+        { key: "2", label: "2. Bank Rail", dot: !step2Done },
+        { key: "3", label: "3. Package & Rights", badge: step3Ready ? "Ready" : undefined },
       ]} />
       <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
         <EnterpriseKybSteps
@@ -151,15 +151,15 @@ export function EnterpriseKybModal({ open = false, inline = false, activeBanks, 
         {errorMsg && <div role="alert" className="ox-badge-avax flex items-center gap-2 rounded-xl px-3.5 py-2.5 font-medium"><AlertTriangle className="h-4 w-4 shrink-0" /><span>{errorMsg}</span></div>}
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--ox-line)] pt-3">
           <div className="flex items-center gap-2">
-            {step !== "1" && <button type="button" onClick={() => setStep(step === "3" ? "2" : "1")} className="ox-btn-ghost inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-3.5 py-2 font-semibold"><ArrowLeft className="h-3.5 w-3.5" /><span>Quay lại</span></button>}
-            {!inline && <button type="button" onClick={onClose} className="ox-btn-ghost min-h-[40px] rounded-xl px-3.5 py-2 font-semibold">Hủy</button>}
+            {step !== "1" && <button type="button" onClick={() => setStep(step === "3" ? "2" : "1")} className="ox-btn-ghost inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-3.5 py-2 font-semibold"><ArrowLeft className="h-3.5 w-3.5" /><span>Back</span></button>}
+            {!inline && <button type="button" onClick={onClose} className="ox-btn-ghost min-h-[40px] rounded-xl px-3.5 py-2 font-semibold">Cancel</button>}
           </div>
           {step !== "3" ? (
-            <button type="button" onClick={() => setStep(step === "1" ? "2" : "3")} className="ox-btn-primary inline-flex min-h-[42px] items-center gap-1.5 rounded-xl px-4 py-2 font-semibold"><span>Tiếp tục bước {step === "1" ? "2" : "3"}</span><ArrowRight className="h-3.5 w-3.5" /></button>
+            <button type="button" onClick={() => setStep(step === "1" ? "2" : "3")} className="ox-btn-primary inline-flex min-h-[42px] items-center gap-1.5 rounded-xl px-4 py-2 font-semibold"><span>Continue to Step {step === "1" ? "2" : "3"}</span><ArrowRight className="h-3.5 w-3.5" /></button>
           ) : (
             <button type="submit" disabled={submitting || activeBanks.length === 0} className="ox-btn-primary inline-flex min-h-[42px] items-center gap-2 rounded-xl px-5 py-2 disabled:opacity-60">
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Cpu className="h-4 w-4" />}
-              <span>{submitting ? "Đang khởi tạo Smart Contract..." : "Ký Khởi Tạo Smart Contract & Mở DN"}</span>
+              <span>{submitting ? "Deploying Smart Contract..." : "Sign Contract & Launch Enterprise"}</span>
             </button>
           )}
         </div>
@@ -170,11 +170,11 @@ export function EnterpriseKybModal({ open = false, inline = false, activeBanks, 
   if (inline) {
     return (
       <div className="ox-card-glow mx-auto max-w-3xl rounded-3xl p-5 sm:p-7">
-        <h2 className="mb-1 text-lg font-bold text-[var(--ox-ink)] sm:text-xl">Khai Báo Kinh Doanh &amp; Khởi Tạo Smart Contract</h2>
-        <p className="mb-4 text-xs text-[var(--ox-muted)]">Hoàn tất 3 bước để triển khai Merchant Vault trên Fuji &amp; mở bán gói VietQR.</p>
+        <h2 className="mb-1 text-lg font-bold text-[var(--ox-ink)] sm:text-xl">Business KYB &amp; Smart Contract Setup</h2>
+        <p className="mb-4 text-xs text-[var(--ox-muted)]">Complete 3 steps to deploy a Merchant Vault on Fuji &amp; launch VietQR packages.</p>
         {body}
       </div>
     );
   }
-  return <PortalSheet open={open} onClose={onClose ?? (() => undefined)} title="Khai Báo Kinh Doanh & Khởi Tạo Smart Contract">{body}</PortalSheet>;
+  return <PortalSheet open={open} onClose={onClose ?? (() => undefined)} title="Business KYB & Smart Contract Setup">{body}</PortalSheet>;
 }

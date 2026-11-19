@@ -63,7 +63,7 @@ export function GuaranteeCategoryVault({
   const enterpriseStats = useMemo(() => {
     const map = new Map<string, { id: string; name: string; count: number }>();
     for (const g of myGuarantees) {
-      const name = g.enterpriseName?.trim() || "Đối tác OpalX";
+      const name = g.enterpriseName?.trim() || "OpalX Partner";
       const prev = map.get(name) ?? { id: g.enterpriseId || name, name, count: 0 };
       prev.count += 1;
       map.set(name, prev);
@@ -72,7 +72,7 @@ export function GuaranteeCategoryVault({
   }, [myGuarantees]);
 
   const filtered = useMemo(
-    () => (selectedEnterprise === "ALL" ? myGuarantees : myGuarantees.filter((g) => (g.enterpriseName?.trim() || "Đối tác OpalX") === selectedEnterprise)),
+    () => (selectedEnterprise === "ALL" ? myGuarantees : myGuarantees.filter((g) => (g.enterpriseName?.trim() || "OpalX Partner") === selectedEnterprise)),
     [myGuarantees, selectedEnterprise],
   );
 
@@ -86,34 +86,34 @@ export function GuaranteeCategoryVault({
         body: JSON.stringify({ kind, ...(normalizedEmail ? { email: normalizedEmail } : {}) }),
       });
       const json = (await res.json().catch(() => ({}))) as { guarantee?: GuaranteeCertificate; claim?: { label: string }; error?: string };
-      if (!res.ok || !json.guarantee) throw new Error(json.error ?? `Không thể xác thực quyền lợi (${res.status})`);
+      if (!res.ok || !json.guarantee) throw new Error(json.error ?? `Unable to verify right (${res.status})`);
       const updated = json.guarantee;
       setItems((prev) => prev.map((g) => (g.guaranteeId === updated.guaranteeId ? updated : g)));
       onGuaranteeUpdated?.(updated);
-      setClaimNotice({ kind: "ok", text: `Đã ký "${json.claim?.label ?? kind}" · ${updated.guaranteeId}.` });
+      setClaimNotice({ kind: "ok", text: `Signed "${json.claim?.label ?? kind}" · ${updated.guaranteeId}.` });
     } catch (err) {
-      setClaimNotice({ kind: "error", text: err instanceof Error ? err.message : "Lỗi ký quyền bảo chứng." });
+      setClaimNotice({ kind: "error", text: err instanceof Error ? err.message : "Error signing guarantee right." });
     } finally { setClaimingKey(null); }
   };
 
-  const modalEntName = modalGuarantee?.enterpriseName?.trim() || "Đối tác OpalX";
+  const modalEntName = modalGuarantee?.enterpriseName?.trim() || "OpalX Partner";
   const modalIsLive = Boolean(modalGuarantee && !modalGuarantee.sandbox && modalGuarantee.proofBundle.mode === "LIVE_FUJI_AVAX");
   const modalStatusLabel = modalGuarantee?.railMode === "LIVE_BANK" && !modalGuarantee.sandbox ? "[LIVE BANK]" : "[SANDBOX]";
 
   return (
-    <section aria-label="Thẻ và Chứng thư của tôi" className="space-y-4">
+    <section aria-label="My Guarantee Passes" className="space-y-4">
       <div className="ox-card flex flex-wrap items-center justify-between gap-3 rounded-3xl px-4 py-3.5">
         <div className="flex items-center gap-2 text-xs font-medium text-[var(--ox-muted)]">
           <FileCheck2 className="h-4 w-4 text-[var(--ox-ok-ink)]" />
-          <span>Tài khoản <strong className="font-mono text-[var(--ox-ink)]">{userEmail}</strong></span>
+          <span>Signed in as <strong className="font-mono text-[var(--ox-ink)]">{userEmail}</strong></span>
         </div>
-        <span className="font-mono text-xs text-[var(--ox-muted)] tabular-nums"><strong className="text-[var(--ox-ink)]">{filtered.length}</strong> thẻ của bạn</span>
+        <span className="font-mono text-xs text-[var(--ox-muted)] tabular-nums"><strong className="text-[var(--ox-ink)]">{filtered.length}</strong> passes</span>
       </div>
 
       {enterpriseStats.length > 1 && (
         <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
           <button type="button" onClick={() => setSelectedEnterprise("ALL")} className={`ox-press min-h-[36px] shrink-0 rounded-full px-3.5 py-1 text-xs font-semibold tabular-nums ${selectedEnterprise === "ALL" ? "ox-pill-active" : "ox-btn-ghost"}`}>
-            Tất cả · {myGuarantees.length}
+            All · {myGuarantees.length}
           </button>
           {enterpriseStats.map((ent) => (
             <button key={ent.name} type="button" onClick={() => setSelectedEnterprise(selectedEnterprise === ent.name ? "ALL" : ent.name)} className={`ox-press inline-flex min-h-[36px] shrink-0 items-center gap-2 rounded-full py-1 pr-3 pl-1.5 text-xs font-semibold tabular-nums ${selectedEnterprise === ent.name ? "ox-pill-active" : "ox-btn-ghost"}`}>
@@ -134,10 +134,10 @@ export function GuaranteeCategoryVault({
       {filtered.length === 0 ? (
         <div className="ox-card flex flex-col items-center justify-center gap-3 rounded-3xl border-dashed px-5 py-12 text-center">
           <Sparkles className="h-6 w-6 text-[var(--ox-muted)]" />
-          <p className="max-w-md text-sm text-[var(--ox-muted)]">Bạn chưa có thẻ bảo chứng nào.</p>
+          <p className="max-w-md text-sm text-[var(--ox-muted)]">You don&apos;t have any guarantee passes yet.</p>
           {onSwitchToCheckout && (
             <button type="button" onClick={onSwitchToCheckout} className="ox-btn-primary min-h-[42px] rounded-xl px-5 py-2 text-xs">
-              Mua gói ngay
+              Buy a Pass
             </button>
           )}
         </div>
@@ -160,15 +160,15 @@ export function GuaranteeCategoryVault({
                   <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 font-mono text-[10px] font-bold tabular-nums ${modalStatusLabel === "[LIVE BANK]" ? "ox-badge-verified" : "ox-badge-warn"}`}>{modalStatusLabel}</span>
                 </div>
               </div>
-              <button type="button" aria-label="Đóng QR" onClick={() => setModalGuarantee(null)} className="ox-btn-ghost rounded-xl p-2"><X className="h-4 w-4" /></button>
+              <button type="button" aria-label="Close QR" onClick={() => setModalGuarantee(null)} className="ox-btn-ghost rounded-xl p-2"><X className="h-4 w-4" /></button>
             </div>
             <div className="mx-auto inline-block rounded-2xl border border-[var(--ox-line)] bg-white p-3.5 shadow-md">
-              {qrMap[modalGuarantee.guaranteeId] ? <img src={qrMap[modalGuarantee.guaranteeId]} alt={`QR Check-in ${modalGuarantee.guaranteeId}`} className="h-44 w-44 object-contain" /> : <div className="flex h-44 w-44 items-center justify-center text-xs text-slate-500">Đang tạo QR...</div>}
+              {qrMap[modalGuarantee.guaranteeId] ? <img src={qrMap[modalGuarantee.guaranteeId]} alt={`QR Check-in ${modalGuarantee.guaranteeId}`} className="h-44 w-44 object-contain" /> : <div className="flex h-44 w-44 items-center justify-center text-xs text-slate-500">Generating QR...</div>}
             </div>
-            <OpalxGuaranteePass variant={modalIsLive ? "jade" : "obsidian"} enterpriseName={modalEntName} packageName={modalGuarantee.productName || modalGuarantee.guaranteeId} amountVnd={modalGuarantee.amountVnd} guaranteeId={modalGuarantee.guaranteeId} holderLabel={modalGuarantee.payerName || "Hội viên OpalX"} bankLabel={modalGuarantee.maskedBankRef} statusLabel={modalStatusLabel} solidState stamped tilt txRef={modalGuarantee.lastPrintHash ?? modalGuarantee.proofBundle.guaranteeTxHash} className="mx-auto" />
+            <OpalxGuaranteePass variant={modalIsLive ? "jade" : "obsidian"} enterpriseName={modalEntName} packageName={modalGuarantee.productName || modalGuarantee.guaranteeId} amountVnd={modalGuarantee.amountVnd} guaranteeId={modalGuarantee.guaranteeId} holderLabel={modalGuarantee.payerName || "OpalX Member"} bankLabel={modalGuarantee.maskedBankRef} statusLabel={modalStatusLabel} solidState stamped tilt txRef={modalGuarantee.lastPrintHash ?? modalGuarantee.proofBundle.guaranteeTxHash} className="mx-auto" />
             <div className="ox-subcard flex items-center justify-between gap-2 rounded-2xl px-3.5 py-2.5 font-mono text-[11px] tabular-nums">
               <span className="font-bold text-[var(--ox-ok-ink)]">{modalGuarantee.guaranteeId}</span>
-              <span className="truncate text-[var(--ox-muted)]">{modalGuarantee.buyerEmail || "Đối soát Fuji"}</span>
+              <span className="truncate text-[var(--ox-muted)]">{modalGuarantee.buyerEmail || "Fuji Reconciled"}</span>
             </div>
           </div>
         )}

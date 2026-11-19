@@ -14,13 +14,13 @@ export function PolicyAuditTable({
     <section className="ox-card rounded-2xl p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-bold text-[var(--ox-ink)]">
-          Nhật Ký Policy Kernel ({auditLogs.length})
+          Policy Kernel Audit Log ({auditLogs.length})
         </h2>
         <span className="font-mono text-xs text-[var(--ox-muted)]">Rust WASM Deterministic</span>
       </div>
 
       {auditLogs.length === 0 ? (
-        <p className="py-6 text-center text-sm text-[var(--ox-muted)]">Chưa có nhật ký kiểm tra Policy.</p>
+        <p className="py-6 text-center text-sm text-[var(--ox-muted)]">No policy audit logs yet.</p>
       ) : (
         <>
           <div className="space-y-3 sm:hidden">
@@ -34,7 +34,7 @@ export function PolicyAuditTable({
                     {log.verdict}
                   </span>
                 </div>
-                <p className="font-mono text-[var(--ox-ink)]">Lý do: {log.reasonCode}</p>
+                <p className="font-mono text-[var(--ox-ink)]">Reason: {log.reasonCode}</p>
                 <div className="flex items-center justify-between gap-2 pt-1">
                   <span className="text-[var(--ox-muted)]">{formatUtcTime(log.createdAtIso)}</span>
                   <OnChainProofBadge label="Proof" txHash={log.txHash} />
@@ -47,11 +47,11 @@ export function PolicyAuditTable({
             <table className="w-full text-left text-xs tabular-nums">
               <thead>
                 <tr className="border-b border-[var(--ox-line)] text-xs font-semibold text-[var(--ox-muted)]">
-                  <th className="pb-2.5 pr-3">Thời gian</th>
-                  <th className="pb-2.5 pr-3">Đơn</th>
-                  <th className="pb-2.5 pr-3">Phán quyết</th>
-                  <th className="pb-2.5 pr-3">Lý do</th>
-                  <th className="pb-2.5 text-right">Bằng chứng</th>
+                  <th className="pb-2.5 pr-3">Timestamp</th>
+                  <th className="pb-2.5 pr-3">Order</th>
+                  <th className="pb-2.5 pr-3">Verdict</th>
+                  <th className="pb-2.5 pr-3">Reason</th>
+                  <th className="pb-2.5 text-right">Proof</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--ox-line)]">

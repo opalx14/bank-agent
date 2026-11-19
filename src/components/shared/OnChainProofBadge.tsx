@@ -13,7 +13,7 @@ export function OnChainProofBadge({ label, txHash, blockNumber }: OnChainProofBa
   if (!txHash) {
     return (
       <span className="inline-flex shrink-0 items-center whitespace-nowrap rounded-lg border border-[var(--ox-line)] bg-[var(--ox-soft)] px-2.5 py-0.5 font-mono text-[11px] text-[var(--ox-muted)]">
-        {label}: Chờ ghi
+        {label}: Pending
       </span>
     );
   }

@@ -7,18 +7,18 @@ import { OnChainProofBadge } from "@/components/shared/OnChainProofBadge";
 export function BankAttestationTable({ attestations }: { attestations: BankAttestationProof[] }) {
   return (
     <section
-      aria-label="Sổ chứng thực mã giao dịch ngân hàng"
+      aria-label="Bank transaction attestation ledger"
       className="ox-card rounded-2xl p-5"
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-bold text-[var(--ox-ink)]">
-          Sổ Chứng Thực BankGateway ({attestations.length})
+          BankGateway Attestation Ledger ({attestations.length})
         </h2>
         <span className="font-mono text-xs text-[var(--ox-muted)]">Anti-Replay FT</span>
       </div>
 
       {attestations.length === 0 ? (
-        <p className="py-6 text-center text-sm text-[var(--ox-muted)]">Chưa có chứng thực ngân hàng nào.</p>
+        <p className="py-6 text-center text-sm text-[var(--ox-muted)]">No bank attestations recorded yet.</p>
       ) : (
         <>
           <div className="space-y-3 sm:hidden">
@@ -32,7 +32,7 @@ export function BankAttestationTable({ attestations }: { attestations: BankAttes
                 </div>
                 <div className="flex items-center justify-between gap-2 text-[var(--ox-muted)]">
                   <span>
-                    Mã FT: <strong className="font-mono text-[var(--ox-ink)]">{att.bankRefMask}</strong>
+                    FT Ref: <strong className="font-mono text-[var(--ox-ink)]">{att.bankRefMask}</strong>
                   </span>
                   <span className="font-mono">{truncateHex(att.bankRefCommitment, 4)}</span>
                 </div>
@@ -48,11 +48,11 @@ export function BankAttestationTable({ attestations }: { attestations: BankAttes
             <table className="w-full text-left text-xs tabular-nums">
               <thead>
                 <tr className="border-b border-[var(--ox-line)] text-xs font-semibold text-[var(--ox-muted)]">
-                  <th className="pb-2.5 pr-3">Đơn</th>
-                  <th className="pb-2.5 pr-3">Mã FT (Che)</th>
-                  <th className="pb-2.5 pr-3">Cam kết FT</th>
-                  <th className="pb-2.5 pr-3 text-right">Số Tiền</th>
-                  <th className="pb-2.5 text-right">Tx BankGateway</th>
+                  <th className="pb-2.5 pr-3">Order</th>
+                  <th className="pb-2.5 pr-3">FT Ref (Masked)</th>
+                  <th className="pb-2.5 pr-3">FT Commitment</th>
+                  <th className="pb-2.5 pr-3 text-right">Amount</th>
+                  <th className="pb-2.5 text-right">BankGateway Tx</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--ox-line)]">

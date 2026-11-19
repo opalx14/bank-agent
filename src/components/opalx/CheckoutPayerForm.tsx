@@ -34,24 +34,24 @@ export function CheckoutPayerForm({
   creating,
 }: CheckoutPayerFormProps) {
   const ctaLabel = creating
-    ? "Đang khởi tạo..."
+    ? "Creating..."
     : selectedPkg
       ? preferredMethod === "OPALX_DIRECT"
-        ? `Thanh toán trực tiếp · ${formatVnd(selectedPkg.amountVnd)}`
-        : `Tạo VietQR · ${formatVnd(selectedPkg.amountVnd)}`
-      : "Chọn gói để tiếp tục";
+        ? `Pay Direct · ${formatVnd(selectedPkg.amountVnd)}`
+        : `Create VietQR · ${formatVnd(selectedPkg.amountVnd)}`
+      : "Select a package to continue";
 
   return (
-    <section className="space-y-3.5" aria-label="Chủ chứng từ và phương thức thanh toán">
+    <section className="space-y-3.5" aria-label="Pass holder and payment method">
       <h2 className="inline-flex items-center gap-1.5 text-sm font-bold text-[var(--ox-ink)]">
         <UserCheck className="h-4 w-4 text-[var(--ox-ok-ink)]" />
-        <span>Chủ chứng từ</span>
+        <span>Pass Holder</span>
       </h2>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="min-w-0">
           <label htmlFor="cust-payer" className="mb-1.5 block text-xs font-medium text-[var(--ox-muted)]">
-            Họ tên chủ chứng từ
+            Full name
           </label>
           <input
             id="cust-payer"
@@ -59,7 +59,7 @@ export function CheckoutPayerForm({
             autoComplete="name"
             value={payerName}
             onChange={(e) => onPayerNameChange(e.target.value)}
-            placeholder="Khách hàng OpalX"
+            placeholder="OpalX Customer"
             className="ox-input min-h-[44px] w-full rounded-xl px-3.5 py-2 text-sm placeholder:text-[var(--ox-muted)]"
           />
         </div>
@@ -70,7 +70,7 @@ export function CheckoutPayerForm({
             className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-[var(--ox-muted)]"
           >
             <Mail className="h-3.5 w-3.5 text-[var(--ox-ok)]" />
-            <span>Email nhận chứng thư</span>
+            <span>Receipt email</span>
           </label>
           <input
             id="cust-email"
@@ -87,7 +87,7 @@ export function CheckoutPayerForm({
       <div
         className="grid grid-cols-1 gap-2.5 sm:grid-cols-2"
         role="radiogroup"
-        aria-label="Phương thức thanh toán ưu tiên"
+        aria-label="Preferred payment method"
       >
         <button
           type="button"
@@ -104,8 +104,8 @@ export function CheckoutPayerForm({
             <QrCode className="h-4 w-4" />
           </span>
           <div className="min-w-0">
-            <p className="font-semibold text-[var(--ox-ink)]">VietQR App Ngân Hàng</p>
-            <p className="truncate text-[11px] text-[var(--ox-muted)]">Quét QR hoặc mở app</p>
+            <p className="font-semibold text-[var(--ox-ink)]">VietQR Bank App</p>
+            <p className="truncate text-[11px] text-[var(--ox-muted)]">Scan QR or open banking app</p>
           </div>
         </button>
 
@@ -125,15 +125,15 @@ export function CheckoutPayerForm({
           </span>
           <div className="min-w-0">
             <p className="font-semibold text-[var(--ox-ink)]">OpalX Direct</p>
-            <p className="truncate text-[11px] text-[var(--ox-muted)]">Chuyển khoản &amp; cấp thẻ ngay</p>
+            <p className="truncate text-[11px] text-[var(--ox-muted)]">Instant transfer &amp; pass issuance</p>
           </div>
         </button>
       </div>
 
       <details className="ox-subcard rounded-xl px-3.5 py-2.5 text-xs">
-        <summary className="font-semibold text-[var(--ox-ink)]">Hóa đơn điện tử (TT78 XML)</summary>
+        <summary className="font-semibold text-[var(--ox-ink)]">E-Invoice (TT78 XML)</summary>
         <label className="mt-2.5 flex cursor-pointer items-center justify-between gap-2 border-t border-[var(--ox-line)] pt-2.5 text-[var(--ox-muted)]">
-          <span>Đính kèm XML Thông tư 78 để đối soát 3 chiều</span>
+          <span>Attach Circular 78 XML for 3-way match</span>
           <input
             type="checkbox"
             checked={requireInvoiceXml}

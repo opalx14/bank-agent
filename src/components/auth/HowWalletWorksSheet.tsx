@@ -11,29 +11,29 @@ export interface HowWalletWorksSheetProps {
 }
 
 const ROLE_SUBTITLE: Record<NonNullable<HowWalletWorksSheetProps["roleHint"]>, string> = {
-  enterprise: "Dành cho Doanh Nghiệp phát hành gói dịch vụ & cam kết Merchant KYB.",
-  bank: "Dành cho Ngân Hàng đối soát giao dịch NAPAS 247 & PolicyVault Fuji.",
-  customer: "Dành cho Hội Viên thanh toán VietQR trực tiếp & giữ Phiếu Bảo Chứng.",
+  enterprise: "For Enterprises issuing service passes & Merchant KYB commitments.",
+  bank: "For Banks auditing NAPAS 247 settlements & PolicyVault Fuji.",
+  customer: "For Members paying directly via VietQR & holding Guarantee Passes.",
 };
 
 const HELP_ROWS = [
   {
     icon: Sparkles,
     badgeCls: "bg-[var(--ox-avax-tint)] text-[var(--ox-avax-ink)]",
-    title: "Passkey P-256 trên máy",
-    desc: "Không cần cài ví ngoài; ký bảo chứng nhanh, phí Fuji có thể được hỗ trợ hoặc xác nhận 1 chạm.",
+    title: "Passkey P-256 on-device",
+    desc: "No external wallet needed; sign guarantees with 1-tap approval and subsidized Fuji gas.",
   },
   {
     icon: KeyRound,
     badgeCls: "bg-[var(--ox-info-tint)] text-[var(--ox-info-ink)]",
-    title: "Chủ quyền & Bảo mật",
-    desc: "Khóa phiên/thiết bị chỉ ký cam kết SHA-256 & chứng từ (0 PII on-chain); hãy giữ an toàn thiết bị hoặc sao lưu phiên khi cần.",
+    title: "0 PII SHA-256 Commitments",
+    desc: "Device keys sign only SHA-256 hashes & proofs (0 PII on-chain); keep your device or session backup safe.",
   },
   {
     icon: FlaskConical,
     badgeCls: "bg-[var(--ox-ok-tint)] text-[var(--ox-ok-ink)]",
-    title: "Mạng thử nghiệm & Thanh toán thật",
-    desc: "Bảo chứng chạy trên Avalanche Fuji (43113); tiền VND luôn chuyển trực tiếp qua VietQR/ngân hàng, không giữ hộ.",
+    title: "Fuji Testnet & Direct VietQR Rail",
+    desc: "Proofs are recorded on Avalanche Fuji (43113); VND always settles directly via VietQR bank rails with zero custody.",
   },
 ] as const;
 
@@ -55,13 +55,13 @@ export function HowWalletWorksSheet({
     <>
       <button type="button" onClick={() => setOpen(true)} className={`${triggerCls} ${className}`.trim()}>
         <HelpCircle className={triggerVariant === "button" ? "h-4 w-4 text-[var(--ox-muted)]" : "h-3.5 w-3.5"} />
-        <span>Ví hoạt động thế nào?</span>
+        <span>How does the wallet work?</span>
       </button>
 
-      <PortalSheet open={open} onClose={() => setOpen(false)} title="Ví OpalX & Bảo Chứng Fuji">
+      <PortalSheet open={open} onClose={() => setOpen(false)} title="Bank Agent Wallet & Fuji Proof">
         <button
           type="button"
-          aria-label="Đóng"
+          aria-label="Close"
           onClick={() => setOpen(false)}
           className="ox-btn-ghost absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full"
         >
@@ -92,7 +92,7 @@ export function HowWalletWorksSheet({
           onClick={() => setOpen(false)}
           className="ox-btn-primary mt-5 inline-flex min-h-[42px] w-full items-center justify-center rounded-xl px-4 text-sm"
         >
-          Đã hiểu
+          Got it
         </button>
       </PortalSheet>
     </>

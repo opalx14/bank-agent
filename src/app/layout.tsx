@@ -25,9 +25,9 @@ const jetbrainsMono = JetBrains_Mono({
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("opalx-theme")==="dark"?"dark":"light";var r=document.documentElement;r.dataset.theme=t;r.style.colorScheme=t;}catch(e){}})();`;
 
 export const metadata: Metadata = {
-  title: "OpalX GO — Thanh Toán VietQR & Bảo Chứng Avalanche Fuji",
+  title: "OpalX GO — VietQR Payments & Avalanche Fuji Guarantees",
   description:
-    "Nền tảng Web3 liên kết trực tiếp NAPAS 247 & Avalanche Fuji: Doanh nghiệp khởi tạo Smart Contract & gói dịch vụ, Người dùng thanh toán VietQR nhận Thẻ Bảo Chứng.",
+    "Web3 platform bridging NAPAS 247 & Avalanche Fuji: Enterprises deploy Smart Contracts & service passes, Members pay via VietQR and receive verifiable Guarantee Passes.",
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -50,7 +50,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
-      lang="vi"
+      lang="en"
       suppressHydrationWarning
       className={`${beVietnamPro.variable} ${jetbrainsMono.variable}`}
     >

@@ -17,9 +17,9 @@ interface WalletSessionPanelProps {
 }
 
 const ROLE_BADGE: Record<PortalRole, { label: string; cls: string }> = {
-  CUSTOMER: { label: "Cá nhân", cls: "ox-subcard text-[var(--ox-ink)]" },
-  ENTERPRISE: { label: "Doanh nghiệp", cls: "ox-badge-verified" },
-  BANK: { label: "Ngân hàng", cls: "ox-badge-avax" },
+  CUSTOMER: { label: "Personal", cls: "ox-subcard text-[var(--ox-ink)]" },
+  ENTERPRISE: { label: "Enterprise", cls: "ox-badge-verified" },
+  BANK: { label: "Bank", cls: "ox-badge-avax" },
 };
 
 const ROLE_SWITCH_OPTIONS: ReadonlyArray<{
@@ -28,9 +28,9 @@ const ROLE_SWITCH_OPTIONS: ReadonlyArray<{
   route: string;
   icon: typeof User;
 }> = [
-  { role: "CUSTOMER", label: "Cá nhân", route: "/", icon: User },
-  { role: "ENTERPRISE", label: "Doanh nghiệp", route: "/enterprise", icon: Building2 },
-  { role: "BANK", label: "Ngân hàng", route: "/bank", icon: Landmark },
+  { role: "CUSTOMER", label: "Personal", route: "/", icon: User },
+  { role: "ENTERPRISE", label: "Enterprise", route: "/enterprise", icon: Building2 },
+  { role: "BANK", label: "Bank", route: "/bank", icon: Landmark },
 ];
 
 export function WalletSessionPanel({
@@ -92,7 +92,7 @@ export function WalletSessionPanel({
 
       <dl className="ox-subcard divide-y divide-[var(--ox-line)] rounded-xl px-3 font-mono">
         <div className="flex items-center justify-between py-2">
-          <dt className="font-sans text-[var(--ox-muted)]">Ví nhúng</dt>
+          <dt className="font-sans text-[var(--ox-muted)]">Embedded Wallet</dt>
           <dd>
             <a
               href={`https://testnet.snowtrace.io/address/${session.walletAddress}`}
@@ -120,14 +120,14 @@ export function WalletSessionPanel({
           </dd>
         </div>
         <div className="flex items-center justify-between py-2">
-          <dt className="font-sans text-[var(--ox-muted)]">Số dư AVAX Fuji</dt>
+          <dt className="font-sans text-[var(--ox-muted)]">AVAX Fuji Balance</dt>
           <dd className="font-semibold text-[var(--ox-ok-ink)] tabular-nums">
             {Number.isFinite(parsedBalance) ? `${parsedBalance.toFixed(4)} AVAX` : "Fuji 43113"}
           </dd>
         </div>
       </dl>
 
-      <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Chuyển không gian vai trò">
+      <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Switch role workspace">
         {ROLE_SWITCH_OPTIONS.map((item) => {
           const Icon = item.icon;
           const active = roleSession?.role === item.role;
@@ -150,7 +150,7 @@ export function WalletSessionPanel({
       </div>
 
       <div className="ox-subcard flex items-center justify-between gap-2 rounded-xl px-3 py-2">
-        <span className="text-[11px] font-medium text-[var(--ox-muted)]">Chế độ kết nối Bank</span>
+        <span className="text-[11px] font-medium text-[var(--ox-muted)]">Bank Rail Mode</span>
         <button
           type="button"
           aria-pressed={isLiveBank}
@@ -177,7 +177,7 @@ export function WalletSessionPanel({
         className="ox-btn-ghost inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-xl px-3 py-2 font-semibold"
       >
         <LogOut className="h-3.5 w-3.5" />
-        <span>Đăng xuất Ví</span>
+        <span>Sign Out</span>
       </button>
     </div>
   );

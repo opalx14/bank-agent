@@ -31,13 +31,13 @@ export function AvalancheTechVerifier({
     try {
       const qs = guaranteeId ? `?guaranteeId=${encodeURIComponent(guaranteeId)}` : "";
       const res = await fetch(`/api/avalanche/verify-stack${qs}`, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Không thể kiểm chứng Avalanche Stack (${res.status})`);
+      if (!res.ok) throw new Error(`Unable to verify Avalanche Stack (${res.status})`);
       const json = (await res.json()) as AvalancheStackVerification;
       const elapsed = (typeof performance !== "undefined" ? performance.now() : Date.now()) - startedAt;
       setLatencyMs(Math.max(1, Math.round(elapsed)));
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Lỗi kết nối kiểm chứng Avalanche Fuji.");
+      setError(err instanceof Error ? err.message : "Failed to connect to Avalanche Fuji verifier.");
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,7 @@ export function AvalancheTechVerifier({
     <section
       ref={containerRef}
       id="avalanche-verifier"
-      aria-label="Kiểm chứng đối chiếu 6 trụ cột Avalanche Fuji"
+      aria-label="6-Pillar Avalanche Fuji Verifier"
       className="ox-card space-y-4 rounded-3xl p-4 sm:p-5"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -126,10 +126,10 @@ export function AvalancheTechVerifier({
           </div>
 
           <h2 className="text-base font-bold tracking-tight text-[var(--ox-ink)] sm:text-lg">
-            Kiểm chứng 6 trụ cột Avalanche Fuji
+            6-Pillar Avalanche Fuji Verifier
           </h2>
           <p className="text-xs text-[var(--ox-muted)]">
-            Đối chiếu trực tiếp RPC Fuji, 3 Gateway Contracts, Rust WASM, ERC-8004, USDC x402 và Passkey P-256.
+            Live verification of Fuji RPC, 3 Gateway Contracts, Rust WASM, ERC-8004, USDC x402, and Passkey P-256.
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export function AvalancheTechVerifier({
             className="ox-btn-avax inline-flex min-h-[36px] items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs disabled:opacity-60"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span>{loading ? "Đang kiểm chứng..." : "Kiểm chứng RPC"}</span>
+            <span>{loading ? "Verifying..." : "Verify RPC"}</span>
           </button>
 
           <button
@@ -153,7 +153,7 @@ export function AvalancheTechVerifier({
             onClick={() => setOpen((prev) => !prev)}
             className="ox-btn-ghost inline-flex min-h-[36px] items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold"
           >
-            <span>{open ? "Thu gọn" : "Mở đối chiếu"}</span>
+            <span>{open ? "Collapse" : "Expand"}</span>
             {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
         </div>

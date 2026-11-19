@@ -37,20 +37,20 @@
   ],
   "shortcuts": [
     {
-      "name": "Doanh Nghiệp",
+      "name": "Enterprise",
       "short_name": "VietQR",
       "url": "/enterprise",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Quét VietQR",
-      "short_name": "Quét QR",
+      "name": "Scan VietQR",
+      "short_name": "Scan QR",
       "url": "/scan",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Cổng Ngân Hàng",
-      "short_name": "Ngân Hàng",
+      "name": "Bank Gateway",
+      "short_name": "Bank",
       "url": "/bank",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },

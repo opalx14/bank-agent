@@ -63,7 +63,7 @@ export function AvalanchePillarGrid({
           <div className="font-mono text-sm font-bold text-[var(--ox-ok-ink)] tabular-nums sm:text-base">
             {verifiedCount}/{data.pillars.length}
           </div>
-          <div className="text-[11px] text-[var(--ox-muted)]">Trụ cột xác thực</div>
+          <div className="text-[11px] text-[var(--ox-muted)]">Verified Pillars</div>
         </div>
         <div className="col-span-2 rounded-2xl bg-[var(--ox-soft)] px-3 py-2.5 sm:col-span-1">
           <div className="font-mono text-sm font-bold text-[var(--ox-ink)] sm:text-base">
@@ -127,18 +127,18 @@ export function AvalanchePillarGrid({
                 <button
                   type="button"
                   onClick={() => onCopy(pillar.id, pillar.proofRef)}
-                  aria-label={`Sao chép ${pillar.title}`}
+                  aria-label={`Copy ${pillar.title}`}
                   className="ox-press inline-flex h-7 items-center gap-1 rounded-lg bg-[var(--ox-soft)] px-2 font-mono text-[10px] font-semibold text-[var(--ox-ink)] hover:opacity-80"
                 >
                   {isCopied ? <Check className="h-3 w-3 text-[var(--ox-ok-ink)]" /> : <Copy className="h-3 w-3" />}
-                  <span>{isCopied ? "Đã chép" : "Copy"}</span>
+                  <span>{isCopied ? "Copied" : "Copy"}</span>
                 </button>
                 {pillar.explorerUrl && (
                   <a
                     href={pillar.explorerUrl}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label={`Xem ${pillar.title} trên Snowtrace`}
+                    aria-label={`View ${pillar.title} on Snowtrace`}
                     className="ox-press inline-flex h-7 items-center gap-1 rounded-lg bg-[var(--ox-soft)] px-2 font-mono text-[10px] font-semibold text-[var(--ox-ink)] hover:text-[var(--ox-avax)]"
                   >
                     <span>Snowtrace</span>

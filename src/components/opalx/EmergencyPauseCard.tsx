@@ -43,7 +43,7 @@ export function EmergencyPauseCard({ paused, onUpdated }: EmergencyPauseCardProp
           </span>
         </div>
         <p className="text-xs leading-relaxed text-[var(--ox-muted)]">
-          Ngắt khẩn cấp on-chain ngay lập tức mọi lệnh cấp mới hóa đơn và thu phí trên Fuji khi phát hiện bất thường.
+          Immediately pause all on-chain guarantee issuances and fee settlements on Fuji when anomalies are detected.
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export function EmergencyPauseCard({ paused, onUpdated }: EmergencyPauseCardProp
           ) : (
             <ShieldAlert className="h-4 w-4" />
           )}
-          <span>{paused ? "Mở Lại Hệ Thống" : "Kích Hoạt Kill Switch"}</span>
+          <span>{paused ? "Resume System" : "Activate Kill Switch"}</span>
         </button>
       </div>
     </div>

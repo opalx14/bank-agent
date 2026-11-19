@@ -77,7 +77,7 @@ export function BankGatewayView() {
     return (
       <div className="mx-auto flex min-h-[55vh] max-w-6xl items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="ox-card flex w-full max-w-md items-center justify-center gap-3 rounded-2xl px-6 py-8 text-sm font-medium text-[var(--ox-muted)]">
-          <Loader2 className="h-5 w-5 animate-spin text-[var(--ox-avax)]" /><span>Đang kiểm tra kết nối ví Ngân hàng...</span>
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--ox-avax)]" /><span>Checking Bank wallet connection...</span>
         </div>
       </div>
     );
@@ -111,17 +111,17 @@ export function BankGatewayView() {
                 </span>
               </div>
               <h1 className="text-xl font-bold tracking-tight text-[var(--ox-ink)] sm:text-2xl">
-                OpalX Bank — Mạng Lưới Ngân Hàng VietQR &amp; Đối Soát Quỹ
+                OpalX Bank — VietQR Bank Network &amp; Treasury Reconciliation
               </h1>
               <p className="max-w-3xl text-sm text-[var(--ox-muted)]">
-                {bankRails.length || 6} ngân hàng tại Việt Nam kết nối qua NAPAS 247 &amp;{" "}
-                <span className="font-mono font-semibold text-[var(--ox-ink)]">BankGateway ({truncateHex(gatewayAddress, 4)})</span> trên Avalanche Fuji.
+                {bankRails.length || 6} Vietnam banks connected via NAPAS 247 &amp;{" "}
+                <span className="font-mono font-semibold text-[var(--ox-ink)]">BankGateway ({truncateHex(gatewayAddress, 4)})</span> on Avalanche Fuji.
               </p>
             </div>
           </div>
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => void loadData()} disabled={refreshing} className="ox-btn-ghost inline-flex min-h-[38px] items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold disabled:opacity-60">
-              <RefreshCw className={`h-3.5 w-3.5 text-[var(--ox-avax)] ${refreshing ? "animate-spin" : ""}`} /><span>Làm mới</span>
+              <RefreshCw className={`h-3.5 w-3.5 text-[var(--ox-avax)] ${refreshing ? "animate-spin" : ""}`} /><span>Refresh</span>
             </button>
             <a href={`https://testnet.snowtrace.io/address/${gatewayAddress}`} target="_blank" rel="noreferrer" className="ox-btn-ghost inline-flex min-h-[38px] items-center gap-1.5 rounded-xl px-3 py-1.5 font-mono text-xs font-semibold">
               <Landmark className="h-3.5 w-3.5 text-[var(--ox-info-ink)]" /><span>BankGateway: {truncateHex(gatewayAddress, 4)}</span><ExternalLink className="h-3 w-3 text-[var(--ox-muted)]" />
@@ -131,10 +131,10 @@ export function BankGatewayView() {
 
         <div className="grid grid-cols-2 gap-2 font-mono tabular-nums sm:grid-cols-4">
           {[
-            { label: "Rails hoạt động", value: `${activeRails}/${bankRails.length || 6}` },
-            { label: "Báo có NAPAS", value: String(attestations.length) },
-            { label: "Chứng thư Fuji", value: String(guarantees.length) },
-            { label: "Relayer / Kênh", value: primaryRail ? `${primaryRail.shortName} · ${primaryRail.webhookProvider}` : "NAPAS 247" },
+            { label: "Active Rails", value: `${activeRails}/${bankRails.length || 6}` },
+            { label: "NAPAS Credits", value: String(attestations.length) },
+            { label: "Fuji Guarantees", value: String(guarantees.length) },
+            { label: "Relayer / Channel", value: primaryRail ? `${primaryRail.shortName} · ${primaryRail.webhookProvider}` : "NAPAS 247" },
           ].map((tile) => (
             <div key={tile.label} className="rounded-2xl bg-[var(--ox-soft)] px-3.5 py-2.5">
               <div className="truncate text-sm font-bold text-[var(--ox-ink)]">{tile.value}</div>
@@ -158,7 +158,7 @@ export function BankGatewayView() {
                 <span className={`relative inline-flex h-2 w-2 rounded-full ${isLiveBank ? "bg-emerald-500" : "bg-amber-500"}`} />
               </span>
               <span>Bank Settlement Console · {activeProfile.badgeLabel}</span>
-              <span className="font-mono text-[11px] font-normal text-[var(--ox-muted)] tabular-nums">({orders.length} đơn)</span>
+              <span className="font-mono text-[11px] font-normal text-[var(--ox-muted)] tabular-nums">({orders.length} orders)</span>
             </span>
             <ChevronDown className="h-4 w-4 shrink-0 text-[var(--ox-muted)] transition-transform group-open:rotate-180" />
           </summary>
@@ -168,7 +168,7 @@ export function BankGatewayView() {
 
       <section id="vault" className="scroll-mt-20 space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-bold text-[var(--ox-ink)] sm:text-lg">Quản Trị Quỹ Bảo Chứng Avalanche Fuji &amp; Kill Switch</h2>
+          <h2 className="text-base font-bold text-[var(--ox-ink)] sm:text-lg">Avalanche Fuji Guarantee Treasury &amp; Kill Switch</h2>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--ox-soft)] px-3 py-1 font-mono text-xs font-semibold text-[var(--ox-ink)] tabular-nums">
             <span className={`h-2 w-2 rounded-full ${snapshot?.vaultPaused ? "bg-[var(--ox-avax)]" : "animate-pulse bg-emerald-500"}`} aria-hidden="true" />
             <span>Fuji Testnet · 43113 · 100% AVAX</span>

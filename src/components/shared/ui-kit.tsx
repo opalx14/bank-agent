@@ -74,9 +74,9 @@ export function SegmentedTabs<K extends string>({
 export type GuaranteeStepPhase = "idle" | "qr" | "verifying" | "guaranteed";
 
 const STEP_META = [
-  { label: "1. Tạo VietQR", icon: QrCode },
-  { label: "2. WASM Đối Soát", icon: Cpu },
-  { label: "3. Bảo Chứng Fuji", icon: ShieldCheck },
+  { label: "1. Create VietQR", icon: QrCode },
+  { label: "2. WASM Policy", icon: Cpu },
+  { label: "3. Fuji Proof", icon: ShieldCheck },
 ] as const;
 
 export function GuaranteeStepper({ phase }: { phase: GuaranteeStepPhase }) {
@@ -84,7 +84,7 @@ export function GuaranteeStepper({ phase }: { phase: GuaranteeStepPhase }) {
   const progress = activeIdx < 0 ? 0 : activeIdx >= 3 ? 1 : activeIdx / 2;
 
   return (
-    <div aria-label="Tiến trình thanh toán và bảo chứng" className="relative mx-auto w-full py-1">
+    <div aria-label="Payment and guarantee progress" className="relative mx-auto w-full py-1">
       <span aria-hidden="true" className="absolute top-[21px] right-7 left-7 h-0.5 bg-[var(--ox-line)]" />
       <span
         aria-hidden="true"

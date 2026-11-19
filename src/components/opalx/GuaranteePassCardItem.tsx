@@ -9,9 +9,9 @@ import { OpalxGuaranteePass } from "@/components/shared/OpalxGuaranteePass";
 import type { GuaranteeCertificate, GuaranteeRightKind } from "@/types";
 
 const RIGHT_ACTIONS: Array<{ kind: GuaranteeRightKind; label: string; icon: typeof QrCode }> = [
-  { kind: "CHECKIN_PASS", label: "Check-in tại quầy", icon: UserCheck },
-  { kind: "VAULT_COVERAGE", label: "Bảo vệ PolicyVault", icon: Shield },
-  { kind: "ERC8004_PRIVILEGE", label: "Quyền lợi ERC-8004", icon: Award },
+  { kind: "CHECKIN_PASS", label: "Counter Check-in", icon: UserCheck },
+  { kind: "VAULT_COVERAGE", label: "PolicyVault Coverage", icon: Shield },
+  { kind: "ERC8004_PRIVILEGE", label: "ERC-8004 Privilege", icon: Award },
 ];
 
 interface GuaranteePassCardItemProps {
@@ -32,8 +32,8 @@ export function GuaranteePassCardItem({
   onClaimRight,
 }: GuaranteePassCardItemProps) {
   const entName = g.enterpriseName?.trim() || "California Fitness & Yoga";
-  const catLabel = g.categoryLabel?.trim() || "Phòng Tập Gym & Yoga";
-  const pkgName = g.productName || g.description || `Đơn #${g.orderCode}`;
+  const catLabel = g.categoryLabel?.trim() || "Gym & Yoga Studio";
+  const pkgName = g.productName || g.description || `Order #${g.orderCode}`;
   const encodedId = encodeURIComponent(g.guaranteeId);
   const prints = g.printCount ?? 0;
   const feeInfo = computePrintFeeBreakdown(Math.max(1, prints));
@@ -74,7 +74,7 @@ export function GuaranteePassCardItem({
           packageName={pkgName}
           amountVnd={g.amountVnd}
           guaranteeId={g.guaranteeId}
-          holderLabel={g.payerName || "Hội viên OpalX"}
+          holderLabel={g.payerName || "OpalX Member"}
           bankLabel={g.maskedBankRef}
           statusLabel={statusLabel}
           solidState
@@ -96,8 +96,8 @@ export function GuaranteePassCardItem({
 
         <div className="ox-subcard space-y-2 rounded-2xl p-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-bold text-[var(--ox-ink)]">Quyền lợi ECDSA</p>
-            <span className="font-mono text-[11px] text-[var(--ox-muted)] tabular-nums">{g.claimedRights?.length ?? 0}/3 đã ký</span>
+            <p className="text-xs font-bold text-[var(--ox-ink)]">ECDSA Rights</p>
+            <span className="font-mono text-[11px] text-[var(--ox-muted)] tabular-nums">{g.claimedRights?.length ?? 0}/3 signed</span>
           </div>
 
           <div className="space-y-1.5">
@@ -123,7 +123,7 @@ export function GuaranteePassCardItem({
                     {claimed ? (
                       <span className="ox-badge-verified shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px]">{truncateHex(claimed.signature, 4)}</span>
                     ) : (
-                      <span className="shrink-0 font-mono text-[10px] text-[var(--ox-muted)]">Ký →</span>
+                      <span className="shrink-0 font-mono text-[10px] text-[var(--ox-muted)]">Sign →</span>
                     )}
                   </button>
                   {claimed && <p className="px-1 text-[11px] leading-relaxed text-[var(--ox-muted)]">{claimed.verificationNote}</p>}
@@ -134,7 +134,7 @@ export function GuaranteePassCardItem({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] text-[var(--ox-muted)] tabular-nums">
-          <span>In {prints} lần · {feeInfo.totalFeePerPrintAvax} AVAX (≈ {formatVnd(feeInfo.totalFeePerPrintVnd)})</span>
+          <span>Printed {prints}x · {feeInfo.totalFeePerPrintAvax} AVAX (≈ {formatVnd(feeInfo.totalFeePerPrintVnd)})</span>
           <a href={`https://testnet.snowtrace.io/tx/${txHash}`} target="_blank" rel="noreferrer" className="text-[var(--ox-ok-ink)] hover:underline">
             {truncateHex(txHash, 5)}
           </a>
@@ -144,15 +144,15 @@ export function GuaranteePassCardItem({
       <div className="grid grid-cols-1 gap-2 border-t border-[var(--ox-line)] pt-3 sm:grid-cols-3">
         <Link href={`/print/${encodedId}`} className="ox-btn-primary inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs whitespace-nowrap">
           <Printer className="h-3.5 w-3.5 shrink-0" />
-          <span>In Phiếu</span>
+          <span>Print Slip</span>
         </Link>
         <a href={`/api/guarantees/${encodedId}/print-html?download=1`} className="ox-btn-ghost inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold whitespace-nowrap">
           <Download className="h-3.5 w-3.5 shrink-0" />
-          <span>Tải .HTML</span>
+          <span>Download .HTML</span>
         </a>
         <Link href={`/verify/${encodedId}`} className="ox-btn-ghost inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold whitespace-nowrap text-[var(--ox-ok-ink)]">
           <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-          <span>Kiểm Chứng Fuji</span>
+          <span>Verify on Fuji</span>
         </Link>
       </div>
     </article>

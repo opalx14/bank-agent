@@ -55,12 +55,12 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
     setErrorMsg(null);
     const cleaned = emailInput.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleaned)) {
-      setErrorMsg("Vui lòng nhập email hợp lệ.");
+      setErrorMsg("Please enter a valid email address.");
       return;
     }
     const created = await loginWithRole({ role: "CUSTOMER", provider: "EMAIL", email: cleaned });
     if (!created) {
-      setErrorMsg("Không thể tạo ví cho email này.");
+      setErrorMsg("Unable to create a wallet for this email.");
       return;
     }
     setEmailInput("");
@@ -73,7 +73,7 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
       role: "CUSTOMER",
       provider: "GOOGLE",
       email: "member.cali@gmail.com",
-      displayName: "Hội viên California",
+      displayName: "California Member",
     });
     if (created) setOpen(false);
   };
@@ -84,7 +84,7 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
         type="button"
         aria-expanded={open}
         aria-haspopup="dialog"
-        aria-label="Thông tin Ví nhúng và Smart Contract"
+        aria-label="Embedded Wallet and Smart Contract"
         onClick={() => {
           const next = !open;
           setOpen(next);
@@ -100,7 +100,7 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
               value={balanceFraction}
               size={22}
               danger={Number.isFinite(parsedBalance) && parsedBalance <= 0.005}
-              label="Mức nhiên liệu AVAX Fuji"
+              label="AVAX Fuji fuel level"
             />
             <span className="relative flex h-1.5 w-1.5 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--ox-ok)] opacity-75" />
@@ -111,7 +111,7 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
         ) : (
           <>
             <Wallet className="h-3.5 w-3.5 shrink-0" />
-            <span>Kết nối Ví</span>
+            <span>Connect Wallet</span>
           </>
         )}
       </button>
@@ -119,17 +119,17 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
       {open ? (
         <div
           role="dialog"
-          aria-label="Ví nhúng và Smart Contract"
+          aria-label="Embedded Wallet and Smart Contract"
           className="ox-card fixed inset-x-3 top-16 z-50 rounded-2xl p-4 text-xs shadow-2xl sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-84"
         >
           <div className="flex items-center justify-between border-b border-[var(--ox-line)] pb-3">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[var(--ox-avax)]" />
-              <span className="text-sm font-semibold text-[var(--ox-ink)]">Ví nhúng &amp; Smart Contract</span>
+              <span className="text-sm font-semibold text-[var(--ox-ink)]">Embedded Wallet &amp; Smart Contract</span>
             </div>
             <button
               type="button"
-              aria-label="Đóng"
+              aria-label="Close"
               onClick={() => setOpen(false)}
               className="rounded-lg p-1.5 text-[var(--ox-muted)] transition-colors hover:bg-[var(--ox-soft)] hover:text-[var(--ox-ink)]"
             >
@@ -148,11 +148,11 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
           ) : (
             <div className="mt-3 space-y-3">
               <p className="leading-relaxed text-[var(--ox-muted)]">
-                Nhập Email để hệ thống tự khởi tạo Ví nhúng &amp; Smart Contract trên Avalanche Fuji.
+                Enter your email to auto-provision an Embedded Wallet &amp; Smart Contract on Avalanche Fuji.
               </p>
               <form onSubmit={(e) => void handleEmailLogin(e)} className="space-y-2">
                 <label htmlFor="popover-email-input" className="block font-medium text-[var(--ox-ink)]">
-                  Email của bạn
+                  Your email
                 </label>
                 <div className="flex gap-1.5">
                   <input
@@ -161,7 +161,7 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
                     autoComplete="email"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
-                    placeholder="name@company.vn"
+                    placeholder="name@company.com"
                     className="ox-input min-h-[40px] min-w-0 flex-1 rounded-xl px-3 py-1.5 text-xs placeholder:text-[var(--ox-muted)]"
                   />
                   <button
@@ -170,7 +170,7 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
                     className="ox-btn-primary inline-flex min-h-[40px] shrink-0 items-center gap-1 rounded-xl px-3 py-1.5 font-semibold disabled:opacity-60"
                   >
                     <Mail className="h-3.5 w-3.5" />
-                    <span>Tạo Ví</span>
+                    <span>Create Wallet</span>
                   </button>
                 </div>
                 {errorMsg ? <p className="ox-badge-avax rounded-lg px-2.5 py-1.5 font-medium">{errorMsg}</p> : null}
@@ -182,7 +182,7 @@ export function AgentWalletPopover({ fullWidth = false }: { fullWidth?: boolean 
                 className="ox-btn-ghost inline-flex min-h-[40px] w-full items-center justify-center gap-2 rounded-xl px-3 py-2 font-semibold disabled:opacity-60"
               >
                 {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                <span>Dùng nhanh tài khoản mẫu</span>
+                <span>Use sample account</span>
               </button>
             </div>
           )}

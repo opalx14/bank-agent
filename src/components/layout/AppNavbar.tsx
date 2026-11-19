@@ -16,23 +16,23 @@ import { ThemeToggleButton } from "./ThemeProvider";
 type EnterpriseSection = "OVERVIEW" | "PACKAGES" | "ORDERS" | "BANK" | "PROFILE";
 
 const ROLE_META: Record<PortalRole, { home: string; badge: string; cls: string }> = {
-  CUSTOMER: { home: "/", badge: "Cá nhân", cls: "ox-subcard text-[var(--ox-ink)]" },
-  ENTERPRISE: { home: "/enterprise", badge: "Doanh nghiệp", cls: "ox-badge-verified" },
-  BANK: { home: "/bank", badge: "Ngân hàng", cls: "ox-badge-avax" },
+  CUSTOMER: { home: "/", badge: "Personal", cls: "ox-subcard text-[var(--ox-ink)]" },
+  ENTERPRISE: { home: "/enterprise", badge: "Enterprise", cls: "ox-badge-verified" },
+  BANK: { home: "/bank", badge: "Bank", cls: "ox-badge-avax" },
 };
 
 const ENTERPRISE_NAV: ReadonlyArray<{ href: string; label: string; ent: EnterpriseSection }> = [
-  { href: "/enterprise#overview", label: "Tổng quan", ent: "OVERVIEW" },
-  { href: "/enterprise#packages", label: "Gói & Dịch vụ", ent: "PACKAGES" },
-  { href: "/enterprise#orders", label: "Đơn hàng", ent: "ORDERS" },
-  { href: "/enterprise#bank", label: "Ngân hàng & VietQR", ent: "BANK" },
-  { href: "/enterprise#profile", label: "Hồ sơ", ent: "PROFILE" },
+  { href: "/enterprise#overview", label: "Overview", ent: "OVERVIEW" },
+  { href: "/enterprise#packages", label: "Packages", ent: "PACKAGES" },
+  { href: "/enterprise#orders", label: "Orders", ent: "ORDERS" },
+  { href: "/enterprise#bank", label: "Bank & VietQR", ent: "BANK" },
+  { href: "/enterprise#profile", label: "Profile", ent: "PROFILE" },
 ];
 
 const BANK_NAV: ReadonlyArray<{ href: string; hash: string; label: string }> = [
-  { href: "/bank#rails", hash: "#rails", label: "Luồng Ngân hàng" },
-  { href: "/bank#attestations", hash: "#attestations", label: "Đối soát NAPAS" },
-  { href: "/bank#vault", hash: "#vault", label: "PolicyVault Fuji" },
+  { href: "/bank#rails", hash: "#rails", label: "Bank Rails" },
+  { href: "/bank#attestations", hash: "#attestations", label: "NAPAS Audits" },
+  { href: "/bank#vault", hash: "#vault", label: "PolicyVault" },
 ];
 
 const HASH_TO_ENT: Record<string, EnterpriseSection> = {
@@ -107,9 +107,9 @@ export function AppNavbar() {
         ? BANK_NAV.map((i) => ({ href: i.href, hash: i.hash, label: i.label, active: pathname.startsWith("/bank") && bankHash === i.hash }))
         : showUserNav
           ? [
-              { href: role === "CUSTOMER" ? "/" : "/?guest=1", label: "Mua gói", active: isHomeRoute && !isVaultTab, tab: "CHECKOUT" },
-              ...(role === "CUSTOMER" ? [{ href: "/?tab=vault", label: "Thẻ của tôi", active: isHomeRoute && isVaultTab, tab: "VAULT" as const }] : []),
-              { href: "/scan", label: "Quét VietQR", active: pathname.startsWith("/scan") },
+              { href: role === "CUSTOMER" ? "/" : "/?guest=1", label: "Buy Passes", active: isHomeRoute && !isVaultTab, tab: "CHECKOUT" },
+              ...(role === "CUSTOMER" ? [{ href: "/?tab=vault", label: "My Passes", active: isHomeRoute && isVaultTab, tab: "VAULT" as const }] : []),
+              { href: "/scan", label: "Scan QR", active: pathname.startsWith("/scan") },
             ]
           : [];
 
@@ -138,7 +138,7 @@ export function AppNavbar() {
           </Link>
 
           {navItems.length > 0 ? (
-            <nav aria-label="Điều hướng vai trò" className="hidden items-center gap-0.5 rounded-full border border-[var(--ox-line)] bg-[var(--ox-soft)] p-1 md:flex">
+            <nav aria-label="Role navigation" className="hidden items-center gap-0.5 rounded-full border border-[var(--ox-line)] bg-[var(--ox-soft)] p-1 md:flex">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -169,7 +169,7 @@ export function AppNavbar() {
                 type="button"
                 aria-pressed={isLiveBank}
                 onClick={() => setActiveKind(isLiveBank ? "DEMO_ACCOUNT" : "LIVE_DIRECT_ACCOUNT")}
-                title={isLiveBank ? "Đang ở [LIVE BANK] — Bấm để chuyển [SANDBOX]" : "Đang ở [SANDBOX] — Bấm để chuyển [LIVE BANK]"}
+                title={isLiveBank ? "Active: [LIVE BANK] — Click to switch to [SANDBOX]" : "Active: [SANDBOX] — Click to switch to [LIVE BANK]"}
                 className={`ox-press inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-2.5 font-mono text-[10px] font-bold tracking-tight whitespace-nowrap sm:text-[11px] ${
                   isLiveBank ? "ox-badge-verified" : "ox-badge-warn"
                 }`}
@@ -194,7 +194,7 @@ export function AppNavbar() {
                 className="ox-btn-primary inline-flex min-h-[38px] items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap sm:px-4"
               >
                 <Wallet className="h-3.5 w-3.5 shrink-0" />
-                <span>Đăng nhập<span className="hidden min-[400px]:inline"> Ví</span></span>
+                <span>Sign In</span>
               </button>
             )}
           </div>
@@ -203,9 +203,9 @@ export function AppNavbar() {
         {showApkUpgrade ? (
           <div className="border-t border-[var(--ox-line)] bg-[var(--ox-soft)] px-4 py-1.5 text-[11px] text-[var(--ox-ink)]">
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-2">
-              <span className="truncate font-medium">Đã có bản APK v2.0 gọn 1 thanh tiêu đề</span>
+              <span className="truncate font-medium">APK v2.0 available with a compact header bar</span>
               <a href="/api/apk" className="ox-btn-primary inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-[11px]">
-                <Download className="h-3 w-3" /><span>Tải APK v2.0</span>
+                <Download className="h-3 w-3" /><span>Download APK v2.0</span>
               </a>
             </div>
           </div>

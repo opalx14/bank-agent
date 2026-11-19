@@ -29,12 +29,12 @@ export function PortalSheet({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={title ?? "Hộp thoại"}
+      aria-label={title ?? "Dialog"}
       className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
     >
       <button
         type="button"
-        aria-label="Đóng hộp thoại"
+        aria-label="Close dialog"
         onClick={onClose}
         className="absolute inset-0 bg-black/50 backdrop-blur-xs"
       />

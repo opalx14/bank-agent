@@ -33,7 +33,7 @@ export function TxStatusToast({
       ? `Onchain ${(latencyMs / 1000).toFixed(1)}s`
       : null;
   const detailText =
-    state === "sent" ? "Đang xác nhận trên Fuji…" : state === "ok" ? "Đã xác nhận on-chain" : errorMessage || "Giao dịch thất bại";
+    state === "sent" ? "Confirming on Fuji…" : state === "ok" ? "Confirmed on-chain" : errorMessage || "Transaction failed";
 
   const handleCopy = async () => {
     if (!txHash || typeof navigator === "undefined" || !navigator.clipboard) return;
@@ -74,8 +74,8 @@ export function TxStatusToast({
           <button
             type="button"
             onClick={() => void handleCopy()}
-            aria-label={copied ? "Đã sao chép mã giao dịch" : "Sao chép mã giao dịch"}
-            title={copied ? "Đã sao chép" : "Sao chép txHash"}
+            aria-label={copied ? "Transaction hash copied" : "Copy transaction hash"}
+            title={copied ? "Copied" : "Copy txHash"}
             className="shrink-0 rounded-lg p-1.5 opacity-80 transition-opacity hover:opacity-100"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-400 dark:text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
@@ -83,13 +83,13 @@ export function TxStatusToast({
         ) : null}
 
         {resolvedExplorerUrl ? (
-          <a href={resolvedExplorerUrl} target="_blank" rel="noreferrer" aria-label="Xem trên Snowtrace Fuji" title="Xem trên Snowtrace Fuji" className="shrink-0 rounded-lg p-1.5 opacity-80 transition-opacity hover:opacity-100">
+          <a href={resolvedExplorerUrl} target="_blank" rel="noreferrer" aria-label="View on Snowtrace Fuji" title="View on Snowtrace Fuji" className="shrink-0 rounded-lg p-1.5 opacity-80 transition-opacity hover:opacity-100">
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         ) : null}
 
         {onClose ? (
-          <button type="button" onClick={onClose} aria-label="Đóng thông báo" className="shrink-0 rounded-lg p-1 opacity-75 transition-opacity hover:opacity-100"><X className="h-3.5 w-3.5" /></button>
+          <button type="button" onClick={onClose} aria-label="Close notification" className="shrink-0 rounded-lg p-1 opacity-75 transition-opacity hover:opacity-100"><X className="h-3.5 w-3.5" /></button>
         ) : null}
       </div>
     </div>

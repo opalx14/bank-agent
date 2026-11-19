@@ -37,7 +37,7 @@ export async function GET(
     "Cache-Control": "no-store",
   };
   if (download) {
-    headers["Content-Disposition"] = `attachment; filename="OpalX-ChungThu-${safeId}.html"`;
+    headers["Content-Disposition"] = `attachment; filename="OpalX-Guarantee-${safeId}.html"`;
   }
 
   return new Response(html, { status: 200, headers });

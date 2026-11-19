@@ -81,8 +81,8 @@ export function ThemeToggleButton({ className = "" }: { className?: string }) {
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label={isDark ? "Chuyển sang giao diện Sáng" : "Chuyển sang giao diện Tối"}
-      title={isDark ? "Giao diện Sáng" : "Giao diện Tối"}
+      aria-label={isDark ? "Switch to Light theme" : "Switch to Dark theme"}
+      title={isDark ? "Light theme" : "Dark theme"}
       className={`ox-btn-ghost ox-press inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${className}`}
     >
       {isDark ? (

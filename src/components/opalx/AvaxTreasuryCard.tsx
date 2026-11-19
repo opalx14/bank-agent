@@ -55,20 +55,20 @@ export function AvaxTreasuryCard({ snapshot, guarantees, onSettled }: AvaxTreasu
         body: JSON.stringify({ guaranteeId: targetId }),
       });
       const json = (await res.json().catch(() => ({}))) as { error?: string; receipt?: AvaxFeeSettlementReceipt };
-      if (!res.ok || !json.receipt) throw new Error(json.error ?? "Thanh toán phí AVAX thất bại");
+      if (!res.ok || !json.receipt) throw new Error(json.error ?? "AVAX fee settlement failed");
       setLastReceipt(json.receipt);
       await onSettled();
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Lỗi quyết toán AVAX");
+      setErrorMsg(err instanceof Error ? err.message : "AVAX settlement error");
     } finally {
       setSettling(false);
     }
   };
 
   const telemetryRows = [
-    { label: "Khả dụng tức thời", value: formatAvax(snapshot?.availableReserveAvax ?? 0.005, 5) },
-    { label: "Hạn mức ngày còn lại", value: formatAvax(snapshot?.remainingDailyAllowanceAvax ?? 0.05, 4) },
-    { label: "Tỷ giá quy đổi nội bộ", value: `1 AVAX = ${formatVnd(snapshot?.vndPerAvaxRate ?? 600_000)}` },
+    { label: "Available Reserve", value: formatAvax(snapshot?.availableReserveAvax ?? 0.005, 5) },
+    { label: "Daily Allowance Left", value: formatAvax(snapshot?.remainingDailyAllowanceAvax ?? 0.05, 4) },
+    { label: "Internal FX Rate", value: `1 AVAX = ${formatVnd(snapshot?.vndPerAvaxRate ?? 600_000)}` },
   ];
 
   return (
@@ -77,7 +77,7 @@ export function AvaxTreasuryCard({ snapshot, guarantees, onSettled }: AvaxTreasu
         <div className="flex min-w-0 items-center gap-3">
           <BrandOrb seed={snapshot?.contracts?.opalxCore || "fuji-treasury"} label="Fuji Treasury" size={38} />
           <div className="min-w-0">
-            <h2 className="truncate text-base font-bold text-[var(--ox-ink)]">Quỹ Bảo Chứng &amp; Phí 100% AVAX</h2>
+            <h2 className="truncate text-base font-bold text-[var(--ox-ink)]">Guarantee Vault &amp; 100% AVAX Fees</h2>
             <p className="truncate font-mono text-[11px] text-[var(--ox-muted)] tabular-nums">
               OpalXCore {truncateHex(snapshot?.contracts?.opalxCore, 4)} · 0 PII On-Chain
             </p>
@@ -102,9 +102,9 @@ export function AvaxTreasuryCard({ snapshot, guarantees, onSettled }: AvaxTreasu
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[var(--ox-soft)] px-4 py-3">
         <div className="flex items-center gap-3">
-          <RadialRing value={utilizationRatio} size={44} stroke={4.5} danger={utilizationRatio > 0.85} label="Tỷ lệ ký quỹ AVAX" />
+          <RadialRing value={utilizationRatio} size={44} stroke={4.5} danger={utilizationRatio > 0.85} label="AVAX Collateral Utilization" />
           <div className="leading-tight">
-            <p className="text-[11px] font-medium text-[var(--ox-muted)]">Tỷ lệ sử dụng ký quỹ</p>
+            <p className="text-[11px] font-medium text-[var(--ox-muted)]">Collateral Utilization</p>
             <p className="font-mono text-base font-bold text-[var(--ox-ink)] tabular-nums">
               <CountUpValue value={utilizationRatio * 100} format={(n) => `${n.toFixed(1)}%`} />
             </p>
@@ -118,7 +118,7 @@ export function AvaxTreasuryCard({ snapshot, guarantees, onSettled }: AvaxTreasu
             </p>
           </div>
           <div>
-            <span className="text-[10px] text-[var(--ox-muted)]">Đang khóa</span>
+            <span className="text-[10px] text-[var(--ox-muted)]">Locked</span>
             <p className="font-bold text-[var(--ox-warn-ink)]">
               <CountUpValue value={snapshot?.lockedCollateralAvax ?? 0} format={(n) => formatAvax(n, 5)} />
             </p>
@@ -128,13 +128,13 @@ export function AvaxTreasuryCard({ snapshot, guarantees, onSettled }: AvaxTreasu
 
       <dl className="divide-y divide-[var(--ox-line)] font-mono text-xs tabular-nums">
         <div className="flex items-center justify-between gap-3 py-2">
-          <dt className="text-[var(--ox-muted)]">Quỹ phí thu</dt>
+          <dt className="text-[var(--ox-muted)]">Protocol Fee Pool</dt>
           <dd className="font-bold text-[var(--ox-ok-ink)]">
             <CountUpValue value={snapshot?.protocolFeePoolAvax ?? 0} format={(n) => formatAvax(n, 5)} />
           </dd>
         </div>
         <div className="flex items-center justify-between gap-3 py-2">
-          <dt className="text-[var(--ox-muted)]">Bảo chứng VND</dt>
+          <dt className="text-[var(--ox-muted)]">Guaranteed VND</dt>
           <dd className="font-bold text-[var(--ox-ink)]">
             <CountUpValue value={snapshot?.guaranteedCoverageVnd ?? 0} format={formatVnd} />
           </dd>
@@ -149,7 +149,7 @@ export function AvaxTreasuryCard({ snapshot, guarantees, onSettled }: AvaxTreasu
 
       <div className="flex flex-col gap-2.5 border-t border-[var(--ox-line)] pt-3 sm:flex-row sm:items-center">
         <select
-          aria-label="Chọn mã bảo chứng để thu phí kiểm chứng AVAX"
+          aria-label="Select guarantee ID for AVAX verification fee"
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
           className="ox-input min-h-[44px] flex-1 rounded-xl px-3.5 py-2 font-mono text-xs"
@@ -168,7 +168,7 @@ export function AvaxTreasuryCard({ snapshot, guarantees, onSettled }: AvaxTreasu
           className="ox-btn-primary inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-2 text-xs disabled:opacity-50"
         >
           {settling && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          <span>Nộp Phí ({snapshot?.minVerificationFeeAvax ?? 0.00001} AVAX)</span>
+          <span>Settle Fee ({snapshot?.minVerificationFeeAvax ?? 0.00001} AVAX)</span>
         </button>
       </div>
 
@@ -176,7 +176,7 @@ export function AvaxTreasuryCard({ snapshot, guarantees, onSettled }: AvaxTreasu
       {lastReceipt && (
         <div className="ox-badge-verified flex flex-wrap items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-xs">
           <span className="font-medium tabular-nums">
-            Đã quyết toán {lastReceipt.feeAvax} AVAX ({lastReceipt.mode})
+            Settled {lastReceipt.feeAvax} AVAX ({lastReceipt.mode})
           </span>
           <OnChainProofBadge label="Fee Tx" txHash={lastReceipt.txHash} blockNumber={lastReceipt.blockNumber} />
         </div>

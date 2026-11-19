@@ -23,9 +23,9 @@ const ROLE_OPTIONS: ReadonlyArray<{
   route: string;
   icon: typeof User;
 }> = [
-  { role: "CUSTOMER", label: "Cá nhân", desc: "Thanh toán & Thẻ", route: "/", icon: User },
-  { role: "ENTERPRISE", label: "Doanh nghiệp", desc: "Gói DV & VietQR", route: "/enterprise", icon: Building2 },
-  { role: "BANK", label: "Ngân hàng", desc: "Đối soát Fuji", route: "/bank", icon: Landmark },
+  { role: "CUSTOMER", label: "Personal", desc: "Pay & Passes", route: "/", icon: User },
+  { role: "ENTERPRISE", label: "Enterprise", desc: "Passes & VietQR", route: "/enterprise", icon: Building2 },
+  { role: "BANK", label: "Bank", desc: "Fuji Audits", route: "/bank", icon: Landmark },
 ];
 
 export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: WalletLoginModalProps) {
@@ -49,7 +49,7 @@ export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: 
     setErrorMsg(null);
     const cleanedEmail = email.trim();
     if (!EMAIL_PATTERN.test(cleanedEmail)) {
-      setErrorMsg("Vui lòng nhập địa chỉ email hợp lệ.");
+      setErrorMsg("Please enter a valid email address.");
       return;
     }
 
@@ -68,7 +68,7 @@ export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: 
       ...(rolePositionId ? { rolePositionId } : {}),
     });
     if (!session) {
-      setErrorMsg("Không thể kết nối ví cho email này. Vui lòng thử lại.");
+      setErrorMsg("Unable to connect wallet for this email. Please try again.");
       return;
     }
     onClose();
@@ -82,21 +82,21 @@ export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: 
       setDisplayName("California Fitness & Yoga");
     } else if (role === "BANK") {
       setEmail("officer.bank-mb@opalx.vn");
-      setDisplayName("Kiểm toán MB Bank (970422)");
+      setDisplayName("MB Bank Auditor (970422)");
     } else {
       setEmail("member.cali@gmail.com");
-      setDisplayName("Hội viên California");
+      setDisplayName("California Member");
     }
   };
 
   return (
-    <PortalSheet open={open} onClose={onClose} title="Đăng nhập Ví">
-      <button type="button" aria-label="Đóng" onClick={onClose} className="ox-btn-ghost absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full">
+    <PortalSheet open={open} onClose={onClose} title="Sign In Wallet">
+      <button type="button" aria-label="Close" onClick={onClose} className="ox-btn-ghost absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full">
         <X className="h-4 w-4" />
       </button>
-      <p className="mb-4 text-xs text-[var(--ox-muted)]">Chọn vai trò và kết nối ví nhúng 0-popup trên Avalanche Fuji.</p>
+      <p className="mb-4 text-xs text-[var(--ox-muted)]">Select a role and connect a zero-popup embedded wallet on Avalanche Fuji.</p>
 
-      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Chọn vai trò đăng nhập">
+      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Select sign-in role">
         {ROLE_OPTIONS.map((item) => {
           const Icon = item.icon;
           const active = role === item.role;
@@ -131,7 +131,7 @@ export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: 
 
       <form onSubmit={(e) => void handleSubmit(e)} className="mt-4 space-y-3">
         <div>
-          <label htmlFor="modal-wallet-email" className="block text-xs font-semibold text-[var(--ox-ink)]">Email tài khoản</label>
+          <label htmlFor="modal-wallet-email" className="block text-xs font-semibold text-[var(--ox-ink)]">Account email</label>
           <div className="relative mt-1.5">
             <Mail className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[var(--ox-muted)]" />
             <input
@@ -143,7 +143,7 @@ export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: 
                 setEmail(e.target.value);
                 if (errorMsg) setErrorMsg(null);
               }}
-              placeholder={role === "ENTERPRISE" ? "founder@company.vn" : role === "BANK" ? "officer.bank-mb@opalx.vn" : "name@gmail.com"}
+              placeholder={role === "ENTERPRISE" ? "founder@company.com" : role === "BANK" ? "officer.bank-mb@opalx.vn" : "name@gmail.com"}
               className="ox-input min-h-[44px] w-full rounded-xl pr-3.5 pl-10 text-sm placeholder:text-[var(--ox-muted)]"
             />
           </div>
@@ -151,7 +151,7 @@ export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: 
 
         <div>
           <label htmlFor="modal-wallet-name" className="block text-xs font-semibold text-[var(--ox-ink)]">
-            Tên hiển thị <span className="font-normal text-[var(--ox-muted)]">(tùy chọn)</span>
+            Display name <span className="font-normal text-[var(--ox-muted)]">(optional)</span>
           </label>
           <input
             id="modal-wallet-name"
@@ -159,21 +159,21 @@ export function WalletLoginModal({ open, defaultLayout = "CUSTOMER", onClose }: 
             autoComplete="name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            placeholder={role === "ENTERPRISE" ? "Tên doanh nghiệp" : "Tên hiển thị"}
+            placeholder={role === "ENTERPRISE" ? "Enterprise name" : "Display name"}
             className="ox-input mt-1.5 min-h-[42px] w-full rounded-xl px-3.5 text-sm placeholder:text-[var(--ox-muted)]"
           />
         </div>
 
         <button type="button" onClick={applySample} className="ox-btn-ghost ox-press inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold">
           <Sparkles className="h-3.5 w-3.5 text-[var(--ox-avax)]" />
-          <span>Điền nhanh tài khoản mẫu</span>
+          <span>Use sample account</span>
         </button>
 
         {errorMsg ? <p role="alert" className="ox-badge-avax rounded-xl px-3.5 py-2 text-xs font-medium">{errorMsg}</p> : null}
 
         <button type="submit" disabled={loading} className={`${role === "ENTERPRISE" ? "ox-btn-avax" : "ox-btn-primary"} inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm disabled:opacity-60`}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          <span>Đăng nhập · Mở {activeMeta.label}</span>
+          <span>Sign In · Open {activeMeta.label}</span>
         </button>
 
         <div className="flex justify-center pt-0.5">

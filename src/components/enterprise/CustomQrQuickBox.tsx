@@ -73,9 +73,9 @@ export function CustomQrQuickBox({
       onChangeImage(dataUrl);
       onToggle(true);
       await saveServerConfig(true, dataUrl);
-      setStatusMsg("Đã lưu ảnh QR cá nhân để dùng khi tạo đơn.");
+      setStatusMsg("Custom QR image saved for new orders.");
     } catch {
-      setStatusMsg("Không đọc được ảnh này. Hãy chọn file PNG hoặc JPG.");
+      setStatusMsg("Could not read this image. Please select a PNG or JPG file.");
     } finally {
       setBusy(false);
     }
@@ -85,7 +85,7 @@ export function CustomQrQuickBox({
     onChangeImage("");
     onToggle(false);
     await saveServerConfig(false, "");
-    setStatusMsg("Đã xóa ảnh QR cá nhân.");
+    setStatusMsg("Custom QR image removed.");
   };
 
   return (
@@ -103,10 +103,10 @@ export function CustomQrQuickBox({
               }}
               className="h-4 w-4 accent-[var(--ox-ok)]"
             />
-            <span>Hiển thị ảnh QR cá nhân của bạn</span>
+            <span>Use your custom QR image</span>
           </label>
         ) : (
-          <span className="font-semibold text-[var(--ox-ink)]">Ảnh Mã QR thanh toán cá nhân</span>
+          <span className="font-semibold text-[var(--ox-ink)]">Custom Payment QR Image</span>
         )}
 
         <input
@@ -123,7 +123,7 @@ export function CustomQrQuickBox({
           className="ox-btn-ghost inline-flex min-h-[38px] items-center gap-1.5 rounded-xl px-3 py-1.5 font-semibold text-[var(--ox-ink)] disabled:opacity-60"
         >
           {qrImageDataUrl ? <Upload className="h-3.5 w-3.5" /> : <ImagePlus className="h-3.5 w-3.5" />}
-          <span>{busy ? "Đang tải..." : qrImageDataUrl ? "Đổi ảnh QR" : "Chọn ảnh QR từ máy"}</span>
+          <span>{busy ? "Uploading..." : qrImageDataUrl ? "Change QR Image" : "Upload QR Image"}</span>
         </button>
       </div>
 
@@ -131,19 +131,19 @@ export function CustomQrQuickBox({
         <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--ox-line)] bg-[var(--ox-surface)] p-2.5">
           <div className="flex min-w-0 items-center gap-3">
             <div className="shrink-0 rounded-lg border border-[var(--ox-line)] bg-white p-1 shadow-sm">
-              <img src={qrImageDataUrl} alt="Mã QR cá nhân của bạn" className="h-14 w-14 rounded object-contain" />
+              <img src={qrImageDataUrl} alt="Your custom QR code" className="h-14 w-14 rounded object-contain" />
             </div>
             <div className="min-w-0">
-              <p className="truncate font-semibold text-[var(--ox-ink)]">Đã sẵn sàng Mã QR của bạn</p>
+              <p className="truncate font-semibold text-[var(--ox-ink)]">Custom QR Ready</p>
               <p className="text-[11px] text-[var(--ox-muted)]">
-                {enabled ? "Mã này sẽ hiện ngay khi tạo thanh toán." : "Bật công tắc để hiển thị mã này."}
+                {enabled ? "This QR appears automatically at checkout." : "Enable toggle to display this QR."}
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={() => void handleRemove()}
-            aria-label="Xóa ảnh QR cá nhân"
+            aria-label="Remove custom QR image"
             className="rounded-lg p-2 text-[var(--ox-muted)] transition-colors hover:bg-[var(--ox-avax-tint)] hover:text-[var(--ox-avax-ink)]"
           >
             <Trash2 className="h-4 w-4" />
@@ -151,7 +151,7 @@ export function CustomQrQuickBox({
         </div>
       ) : (
         <p className="text-[11px] text-[var(--ox-muted)]">
-          Chọn ảnh chụp mã QR ngân hàng của bạn (MB, VCB, MoMo...) để khách quét thử ngay khi demo.
+          Upload a photo of your bank QR code (MB, VCB, MoMo...) for live demo scans.
         </p>
       )}
 

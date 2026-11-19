@@ -14,7 +14,7 @@ import { GuaranteeCategoryVault } from "./GuaranteeCategoryVault";
 
 type PortalTab = "CHECKOUT" | "VAULT" | "FUJI";
 const TAB_TITLES: Record<PortalTab, string> = {
-  CHECKOUT: "Mua gói & Thanh toán VietQR", VAULT: "Thẻ & Chứng thư của tôi", FUJI: "Hạ tầng Avalanche Fuji",
+  CHECKOUT: "Buy Passes & VietQR", VAULT: "My Guarantee Passes", FUJI: "Fuji Infrastructure",
 };
 
 function OpalxSearchSync({ onSync }: { onSync: () => void }) {
@@ -114,7 +114,7 @@ export function OpalxCoreView() {
       {isRedirecting ? (
         <div className="mx-auto flex min-h-[55vh] max-w-6xl items-center justify-center px-4 py-10">
           <div className="ox-card flex items-center gap-2.5 rounded-2xl px-6 py-5 text-sm text-[var(--ox-muted)]">
-            <Loader2 className="h-4 w-4 animate-spin text-[var(--ox-ok)]" /><span>Đang chuẩn bị không gian của bạn...</span>
+            <Loader2 className="h-4 w-4 animate-spin text-[var(--ox-ok)]" /><span>Preparing your workspace...</span>
           </div>
         </div>
       ) : roleSession?.role === "ENTERPRISE" && isPreview ? (
@@ -122,10 +122,10 @@ export function OpalxCoreView() {
           <header className="ox-card flex flex-col justify-between gap-3 rounded-3xl p-4 sm:flex-row sm:items-center sm:p-5">
             <div className="flex items-center gap-2.5">
               <span className="ox-badge-verified flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"><Store className="h-4 w-4" /></span>
-              <p className="text-xs font-medium text-[var(--ox-ink)] sm:text-sm">Đang xem thử trang thanh toán Khách hàng (chỉ hiển thị gói của doanh nghiệp bạn).</p>
+              <p className="text-xs font-medium text-[var(--ox-ink)] sm:text-sm">Previewing customer checkout (showing only your enterprise&apos;s packages).</p>
             </div>
             <Link href="/enterprise" className="ox-btn-primary inline-flex min-h-[38px] shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold">
-              <ArrowLeft className="h-3.5 w-3.5" /><span>Quay lại Quản trị Doanh nghiệp</span>
+              <ArrowLeft className="h-3.5 w-3.5" /><span>Back to Enterprise Studio</span>
             </Link>
           </header>
           <CustomerPackageCheckout lockedEnterpriseId={lockedEntId} onGuaranteeIssued={loadAll} />
@@ -139,21 +139,21 @@ export function OpalxCoreView() {
             <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:flex-nowrap">
             <div className="min-w-0 flex-1 lg:flex-initial">
               <SegmentedTabs
-                ariaLabel="Chuyển đổi Mua gói và Thẻ của tôi"
+                ariaLabel="Switch between Buy Passes and My Passes"
                 value={activeTab === "FUJI" ? "CHECKOUT" : activeTab}
                 onChange={selectTab}
                 className="w-full sm:min-w-[280px]"
                 items={[
-                  { key: "CHECKOUT", label: "Mua gói", icon: <ShoppingBag className="h-3.5 w-3.5 shrink-0" /> },
-                  { key: "VAULT", label: "Thẻ của tôi", icon: <FileCheck2 className="h-3.5 w-3.5 shrink-0" />, ...(roleSession?.role === "CUSTOMER" ? { badge: myGuaranteesCount ?? 0 } : {}) },
+                  { key: "CHECKOUT", label: "Buy Passes", icon: <ShoppingBag className="h-3.5 w-3.5 shrink-0" /> },
+                  { key: "VAULT", label: "My Passes", icon: <FileCheck2 className="h-3.5 w-3.5 shrink-0" />, ...(roleSession?.role === "CUSTOMER" ? { badge: myGuaranteesCount ?? 0 } : {}) },
                 ]}
               />
             </div>
             <Link href="/scan" className="ox-btn-ghost ox-press hidden min-h-[40px] shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold sm:inline-flex">
-              <ScanLine className="h-3.5 w-3.5 text-[var(--ox-ok-ink)]" /><span>Quét VietQR</span>
+              <ScanLine className="h-3.5 w-3.5 text-[var(--ox-ok-ink)]" /><span>Scan QR</span>
             </Link>
               {activeTab === "VAULT" && (
-                <button type="button" onClick={() => void loadAll()} disabled={refreshing} aria-label="Làm mới thẻ" className="ox-btn-ghost ox-press inline-flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full disabled:opacity-60">
+                <button type="button" onClick={() => void loadAll()} disabled={refreshing} aria-label="Refresh passes" className="ox-btn-ghost ox-press inline-flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full disabled:opacity-60">
                   <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
                 </button>
               )}
@@ -168,9 +168,9 @@ export function OpalxCoreView() {
             ) : (
               <div className="ox-card rounded-3xl px-6 py-12 text-center">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--ox-line)] bg-[var(--ox-soft)] text-[var(--ox-ink)]"><Wallet className="h-5 w-5" /></div>
-                <h2 className="mt-4 text-base font-bold text-[var(--ox-ink)]">Đăng nhập Ví để xem thẻ bảo chứng của bạn</h2>
+                <h2 className="mt-4 text-base font-bold text-[var(--ox-ink)]">Sign in with Wallet to view your guarantee passes</h2>
                 <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("opalx:open-login", { detail: { defaultLayout: "CUSTOMER" } }))} className="ox-btn-primary mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-2xl px-5 py-2 text-xs">
-                  <Wallet className="h-3.5 w-3.5" /><span>Đăng nhập Ví</span>
+                  <Wallet className="h-3.5 w-3.5" /><span>Sign in with Wallet</span>
                 </button>
               </div>
             ))}

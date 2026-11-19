@@ -6,7 +6,7 @@ function StatusBadge({ status }: { status: RoadmapPhaseStatus }) {
     return (
       <span className="ox-badge-verified inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold">
         <CheckCircle2 className="h-3.5 w-3.5" />
-        ĐÃ HOÀN THÀNH
+        COMPLETED
       </span>
     );
   }
@@ -14,14 +14,14 @@ function StatusBadge({ status }: { status: RoadmapPhaseStatus }) {
     return (
       <span className="ox-badge-avax inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold">
         <Clock className="h-3.5 w-3.5" />
-        ĐANG TRIỂN KHAI
+        IN PROGRESS
       </span>
     );
   }
   return (
     <span className="ox-subcard inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold text-[var(--ox-muted)]">
       <CircleDashed className="h-3.5 w-3.5" />
-      KẾ HOẠCH
+      PLANNED
     </span>
   );
 }
@@ -37,13 +37,13 @@ export function ProjectRoadmapView({ phases }: { phases: RoadmapPhase[] }) {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6">
       <div className="space-y-1.5">
         <span className="ox-badge-avax inline-flex rounded-full px-2.5 py-0.5 font-mono text-xs font-semibold">
-          OpalX GO · Lộ trình Avalanche L1
+          OpalX GO · Avalanche L1 Roadmap
         </span>
         <h1 className="text-2xl font-bold text-[var(--ox-ink)] sm:text-3xl">
-          Lộ Trình Phát Triển Dự Án (100% AVAX · Avalanche L1)
+          Project Roadmap (100% AVAX · Avalanche L1)
         </h1>
         <p className="text-sm text-[var(--ox-muted)]">
-          Kế hoạch 4 giai đoạn từ lõi 3 smart contracts Fuji AVAX đến kết nối PayOS NAPAS 247 live và Avalanche L1 doanh nghiệp.
+          Four-phase plan from 3 core Avalanche Fuji smart contracts to live PayOS NAPAS 247 rails and an enterprise Avalanche L1.
         </p>
       </div>
 

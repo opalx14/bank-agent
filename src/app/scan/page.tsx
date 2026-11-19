@@ -34,7 +34,7 @@ export default function PosScanPage() {
             <QrCode className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-[var(--ox-ink)] sm:text-xl">Quét VietQR &amp; Chứng Thư</h1>
+            <h1 className="text-lg font-bold text-[var(--ox-ink)] sm:text-xl">VietQR &amp; Guarantee Scanner</h1>
             <div className="mt-1 flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
               <span className="ox-badge-verified rounded-full px-2 py-0.5 font-semibold">NAPAS 247</span>
               <span className="ox-subcard rounded-full px-2 py-0.5 font-semibold text-[var(--ox-muted)]">CRC-16</span>
@@ -48,7 +48,7 @@ export default function PosScanPage() {
             <span>Checkout</span>
           </Link>
           <Link href="/enterprise" className="ox-btn-ghost inline-flex min-h-[38px] items-center rounded-xl px-3.5 py-2 text-xs font-semibold">
-            Doanh nghiệp
+            Enterprise
           </Link>
         </div>
       </header>
@@ -56,11 +56,11 @@ export default function PosScanPage() {
       <QrCameraScanner onDecoded={setDecoded} />
 
       {guaranteeId && (
-        <section aria-label="Chứng Thư Bảo Chứng phát hiện" className="ox-card-glow space-y-4 rounded-3xl p-5">
+        <section aria-label="Detected OpalX Guarantee Certificate" className="ox-card-glow space-y-4 rounded-3xl p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <FileCheck2 className="h-4 w-4 text-[var(--ox-ok-ink)]" />
-              <h2 className="text-sm font-bold text-[var(--ox-ink)]">Chứng Thư Bảo Chứng OpalX</h2>
+              <h2 className="text-sm font-bold text-[var(--ox-ink)]">OpalX Guarantee Certificate</h2>
             </div>
             <span className="ox-badge-verified inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold">
               <ShieldCheck className="h-3.5 w-3.5" />
@@ -70,61 +70,61 @@ export default function PosScanPage() {
 
           <div className="flex flex-wrap gap-2">
             <Link href={`/verify/${encodeURIComponent(guaranteeId)}`} className="ox-btn-primary inline-flex min-h-[42px] items-center gap-1.5 rounded-xl px-4 py-2 text-xs">
-              <span>Kiểm Chứng Fuji</span>
+              <span>Verify on Fuji</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link href={`/print/${encodeURIComponent(guaranteeId)}`} className="ox-btn-ghost inline-flex min-h-[42px] items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold">
               <Printer className="h-3.5 w-3.5" />
-              <span>In Phiếu</span>
+              <span>Print Receipt</span>
             </Link>
           </div>
         </section>
       )}
 
       {parsed && (
-        <section aria-label="Kết quả bóc tách VietQR" className="ox-card-glow space-y-4 rounded-3xl p-5">
+        <section aria-label="Decoded VietQR payload" className="ox-card-glow space-y-4 rounded-3xl p-5">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ox-line)] pb-3">
             <div className="flex items-center gap-2">
               <Landmark className="h-4 w-4 text-[var(--ox-ok-ink)]" />
-              <h2 className="text-sm font-bold text-[var(--ox-ink)]">Kết quả bóc tách EMVCo VietQR</h2>
+              <h2 className="text-sm font-bold text-[var(--ox-ink)]">EMVCo VietQR Decoded</h2>
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">
               <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold ${parsed.crcValid ? "ox-badge-verified" : "ox-badge-avax"}`}>
                 {parsed.crcValid ? <CheckCircle2 className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
-                <span>CRC-16: {parsed.crcValid ? "Hợp lệ" : "Không hợp lệ"}</span>
+                <span>CRC-16: {parsed.crcValid ? "Valid" : "Invalid"}</span>
               </span>
               <span className="rounded-full border border-[var(--ox-line)] bg-[var(--ox-soft)] px-2.5 py-0.5 font-mono text-[11px] font-semibold text-[var(--ox-muted)]">
-                {parsed.isDynamic ? "VietQR Động" : "VietQR Tĩnh"}
+                {parsed.isDynamic ? "Dynamic VietQR" : "Static VietQR"}
               </span>
             </div>
           </div>
 
           <dl className="divide-y divide-[var(--ox-line)] text-xs sm:text-sm">
             <div className="flex items-center justify-between gap-3 py-2.5">
-              <dt className="text-[var(--ox-muted)]">Ngân hàng nhận</dt>
+              <dt className="text-[var(--ox-muted)]">Beneficiary Bank</dt>
               <dd className="text-right font-semibold text-[var(--ox-ink)]">
-                {parsed.bankShortName ?? "Không xác định"}
+                {parsed.bankShortName ?? "Unknown"}
                 {parsed.bankBin ? <span className="ml-1.5 font-mono text-xs text-[var(--ox-muted)]">(BIN {parsed.bankBin})</span> : null}
               </dd>
             </div>
             <div className="flex items-center justify-between gap-3 py-2.5">
-              <dt className="text-[var(--ox-muted)]">Số tài khoản</dt>
+              <dt className="text-[var(--ox-muted)]">Account Number</dt>
               <dd className="font-mono font-bold text-[var(--ox-ink)] tabular-nums">{parsed.accountNo ?? "—"}</dd>
             </div>
             <div className="flex items-center justify-between gap-3 py-2.5">
-              <dt className="text-[var(--ox-muted)]">Số tiền</dt>
+              <dt className="text-[var(--ox-muted)]">Amount</dt>
               <dd className="font-mono text-base font-extrabold text-[var(--ox-ok-ink)] tabular-nums">
-                {parsed.amountVnd !== undefined ? formatVnd(parsed.amountVnd) : "Chưa cố định"}
+                {parsed.amountVnd !== undefined ? formatVnd(parsed.amountVnd) : "Open amount"}
               </dd>
             </div>
             <div className="flex items-center justify-between gap-3 py-2.5">
-              <dt className="text-[var(--ox-muted)]">Nội dung chuyển khoản</dt>
+              <dt className="text-[var(--ox-muted)]">Transfer Memo</dt>
               <dd className="font-mono font-semibold text-[var(--ox-ink)]">{parsed.purpose ?? "—"}</dd>
             </div>
             {parsed.orderCode !== undefined && (
               <div className="flex items-center justify-between gap-3 py-2.5">
-                <dt className="text-[var(--ox-muted)]">Mã đơn OpalX</dt>
+                <dt className="text-[var(--ox-muted)]">OpalX Order Code</dt>
                 <dd className="font-mono font-bold text-[var(--ox-avax-ink)] tabular-nums">OPX{parsed.orderCode}</dd>
               </div>
             )}
@@ -132,7 +132,7 @@ export default function PosScanPage() {
 
           {parsed.validFormat && parsed.bankBin && parsed.accountNo && (
             <div className="space-y-2 border-t border-[var(--ox-line)] pt-3">
-              <p className="text-xs font-semibold text-[var(--ox-muted)]">Mở nhanh App Ngân hàng (dl.vietqr.io)</p>
+              <p className="text-xs font-semibold text-[var(--ox-muted)]">Open Bank App (dl.vietqr.io)</p>
               <div className="flex flex-wrap gap-2">
                 {QUICK_BANK_APPS.map((b) => (
                   <a
@@ -153,7 +153,7 @@ export default function PosScanPage() {
                   </a>
                 ))}
                 <Link href="/" className="ox-btn-avax inline-flex min-h-[38px] items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs">
-                  <span>Thanh toán &amp; Bảo chứng</span>
+                  <span>Pay &amp; Guarantee</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
@@ -161,7 +161,7 @@ export default function PosScanPage() {
           )}
 
           <details className="ox-subcard rounded-2xl px-3.5 py-2.5 text-xs">
-            <summary className="font-semibold text-[var(--ox-muted)]">Chuỗi EMVCo gốc ({parsed.rawPayload.length} ký tự)</summary>
+            <summary className="font-semibold text-[var(--ox-muted)]">Raw EMVCo Payload ({parsed.rawPayload.length} chars)</summary>
             <p className="mt-2 break-all font-mono text-[11px] text-[var(--ox-ink)]">{parsed.rawPayload}</p>
           </details>
         </section>

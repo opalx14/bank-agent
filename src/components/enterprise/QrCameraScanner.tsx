@@ -76,7 +76,7 @@ export function QrCameraScanner({ onDecoded }: QrCameraScannerProps) {
           }, 500);
         }
       } catch {
-        setErrorMsg("Không mở được camera trên thiết bị này. Dùng ô dán mã hoặc nạp mẫu bên dưới.");
+        setErrorMsg("Unable to open camera on this device. Paste a payload or load a sample below.");
         setMode("idle");
       }
     };
@@ -109,7 +109,7 @@ export function QrCameraScanner({ onDecoded }: QrCameraScannerProps) {
             <ScanLine className="h-4 w-4" />
           </span>
           <div>
-            <h2 className="text-sm font-bold text-[var(--ox-ink)]">Camera Quét VietQR &amp; Chứng Thư</h2>
+            <h2 className="text-sm font-bold text-[var(--ox-ink)]">VietQR &amp; Guarantee Scanner</h2>
             <span className="font-mono text-[11px] text-[var(--ox-muted)]">EMVCo · BarcodeDetector</span>
           </div>
         </div>
@@ -118,12 +118,12 @@ export function QrCameraScanner({ onDecoded }: QrCameraScannerProps) {
           {mode === "locked" && (
             <button type="button" onClick={() => { setErrorMsg(null); setMode("scanning"); }} className="ox-btn-avax ox-press inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs">
               <RotateCcw className="h-3.5 w-3.5" />
-              <span>Quét lại</span>
+              <span>Scan again</span>
             </button>
           )}
           <button type="button" onClick={() => { setErrorMsg(null); setMode((p) => (p === "idle" ? "scanning" : "idle")); }} className="ox-btn-ghost ox-press inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold">
             {mode !== "idle" ? <CameraOff className="h-4 w-4" /> : <Camera className="h-4 w-4" />}
-            <span>{mode !== "idle" ? "Tắt Camera" : "Bật Camera"}</span>
+            <span>{mode !== "idle" ? "Disable Camera" : "Enable Camera"}</span>
           </button>
         </div>
       </div>
@@ -138,16 +138,16 @@ export function QrCameraScanner({ onDecoded }: QrCameraScannerProps) {
               ) : (
                 <span className="h-2 w-2 shrink-0 rounded-full bg-[#3dd6c3] motion-safe:animate-ping" aria-hidden="true" />
               )}
-              <span className="truncate">{mode === "locked" ? "Đã khóa khung hình" : "Đưa mã VietQR hoặc Chứng Thư vào khung"}</span>
+              <span className="truncate">{mode === "locked" ? "Frame locked" : "Point camera at a VietQR or Guarantee QR code"}</span>
             </span>
 
             <div className="flex shrink-0 items-center gap-1.5">
               {mode === "locked" && (
-                <button type="button" onClick={() => { setErrorMsg(null); setMode("scanning"); }} aria-label="Quét lại" className="ox-press flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm hover:bg-black/75">
+                <button type="button" onClick={() => { setErrorMsg(null); setMode("scanning"); }} aria-label="Scan again" className="ox-press flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm hover:bg-black/75">
                   <RotateCcw className="h-4 w-4" />
                 </button>
               )}
-              <button type="button" onClick={() => setMode("idle")} aria-label="Đóng camera" className="ox-press flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm hover:bg-black/75">
+              <button type="button" onClick={() => setMode("idle")} aria-label="Close camera" className="ox-press flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm hover:bg-black/75">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -167,14 +167,14 @@ export function QrCameraScanner({ onDecoded }: QrCameraScannerProps) {
       {errorMsg && <p className="ox-badge-warn rounded-2xl px-3.5 py-2.5 text-xs font-medium">{errorMsg}</p>}
 
       <div className="flex flex-col gap-2 sm:flex-row">
-        <label htmlFor="manual-vietqr-input" className="sr-only">Chuỗi EMVCo VietQR hoặc mã chứng thư</label>
-        <input id="manual-vietqr-input" type="text" value={manualText} onChange={(e) => setManualText(e.target.value)} placeholder="Dán chuỗi EMVCo VietQR hoặc mã OPX-..." className="ox-input min-h-[44px] flex-1 rounded-xl px-3.5 py-2 font-mono text-xs" />
+        <label htmlFor="manual-vietqr-input" className="sr-only">EMVCo VietQR payload or guarantee code</label>
+        <input id="manual-vietqr-input" type="text" value={manualText} onChange={(e) => setManualText(e.target.value)} placeholder="Paste EMVCo VietQR payload or OPX-... code" className="ox-input min-h-[44px] flex-1 rounded-xl px-3.5 py-2 font-mono text-xs" />
         <button type="button" onClick={handleDecodeManual} className="ox-btn-primary min-h-[44px] rounded-xl px-4 py-2 text-xs whitespace-nowrap">
-          Giải mã QR
+          Decode QR
         </button>
         <button type="button" onClick={handleLoadSample} className="ox-btn-ghost ox-press inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap">
           <Sparkles className="h-3.5 w-3.5 text-[var(--ox-avax)]" />
-          <span>Nạp QR VietQR mẫu</span>
+          <span>Load Sample VietQR</span>
         </button>
       </div>
     </div>

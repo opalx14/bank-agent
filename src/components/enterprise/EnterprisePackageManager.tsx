@@ -30,7 +30,7 @@ export function EnterprisePackageManager({ enterprise, onUpdated }: EnterprisePa
       body: JSON.stringify(body),
     });
     const json = (await res.json().catch(() => ({}))) as { error?: string };
-    if (!res.ok) throw new Error(json.error ?? `Thao tác thất bại (${res.status})`);
+    if (!res.ok) throw new Error(json.error ?? `Action failed (${res.status})`);
     await onUpdated();
   };
 
@@ -41,7 +41,7 @@ export function EnterprisePackageManager({ enterprise, onUpdated }: EnterprisePa
     try {
       await postAction({ action: "TOGGLE_PACKAGE", enterpriseId: enterprise.id, packageId, active });
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Không thể đổi trạng thái gói.");
+      setErrorMsg(err instanceof Error ? err.message : "Unable to toggle package status.");
     } finally {
       setBusyPkgId(null);
     }
@@ -53,9 +53,9 @@ export function EnterprisePackageManager({ enterprise, onUpdated }: EnterprisePa
     setBusyPkgId(packageId);
     try {
       await postAction({ action: "DELETE_PACKAGE", enterpriseId: enterprise.id, packageId });
-      setStatusMsg(`Đã xóa gói "${pkgName}".`);
+      setStatusMsg(`Deleted package "${pkgName}".`);
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Không thể xóa gói dịch vụ.");
+      setErrorMsg(err instanceof Error ? err.message : "Unable to delete service package.");
     } finally {
       setBusyPkgId(null);
     }
@@ -66,15 +66,15 @@ export function EnterprisePackageManager({ enterprise, onUpdated }: EnterprisePa
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-bold text-[var(--ox-ink)] sm:text-base">
-            Hệ Thống Gói Dịch Vụ &amp; Quyền Lợi Bảo Chứng
+            Service Packages &amp; Guarantee Benefits
           </h2>
           <p className="mt-1 text-xs text-[var(--ox-muted)]">
-            Gói đang mở bán tự động đồng bộ sang ứng dụng Khách hàng OpalX GO &amp; PolicyVault Avalanche Fuji.
+            Active packages sync automatically to the OpalX GO customer app &amp; Avalanche Fuji PolicyVault.
           </p>
         </div>
         <span className="ox-badge-verified inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[11px] font-semibold tabular-nums">
-          <span>Đang mở bán:</span>
-          <span>{activeCount}/{enterprise.packages.length} gói</span>
+          <span>Active:</span>
+          <span>{activeCount}/{enterprise.packages.length} packages</span>
         </span>
       </div>
 
@@ -102,7 +102,7 @@ export function EnterprisePackageManager({ enterprise, onUpdated }: EnterprisePa
 
       {enterprise.packages.length === 0 ? (
         <p className="ox-subcard rounded-xl border-dashed py-7 text-center text-xs text-[var(--ox-muted)]">
-          Chưa có gói dịch vụ nào. Thêm gói ở trên để đồng bộ sang ứng dụng Khách hàng OpalX GO.
+          No packages yet. Add a package above to sync with the OpalX GO customer app.
         </p>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
@@ -165,13 +165,13 @@ export function EnterprisePackageManager({ enterprise, onUpdated }: EnterprisePa
                         : "border-[var(--ox-line)] bg-[var(--ox-surface)] text-[var(--ox-muted)] hover:text-[var(--ox-ink)]"
                     }`}
                   >
-                    {pkg.active ? "Đang mở bán" : "Tạm ẩn"}
+                    {pkg.active ? "Active" : "Hidden"}
                   </button>
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => void handleDelete(pkg.id, pkg.label)}
-                    aria-label={`Xóa gói ${pkg.label}`}
+                    aria-label={`Delete package ${pkg.label}`}
                     className="rounded-lg p-1.5 text-[var(--ox-muted)] transition-colors hover:bg-[var(--ox-avax-tint)] hover:text-[var(--ox-avax-ink)] disabled:opacity-50"
                   >
                     <Trash2 className="h-4 w-4" />

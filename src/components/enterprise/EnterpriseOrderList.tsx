@@ -16,11 +16,11 @@ function getOrderStatusMeta(status: EnterpriseOrder["status"]): {
   label: string;
   className: string;
 } {
-  if (status === "GUARANTEED") return { label: "ĐÃ BẢO CHỨNG", className: "ox-badge-verified" };
-  if (status === "DENIED") return { label: "TỪ CHỐI", className: "ox-badge-avax" };
-  if (status === "REVOKED") return { label: "ĐÃ THU HỒI", className: "ox-badge-avax" };
-  if (status === "NEEDS_APPROVAL") return { label: "CHỜ DUYỆT", className: "ox-badge-warn" };
-  return { label: "CHỜ THANH TOÁN", className: "ox-badge-warn" };
+  if (status === "GUARANTEED") return { label: "GUARANTEED", className: "ox-badge-verified" };
+  if (status === "DENIED") return { label: "DENIED", className: "ox-badge-avax" };
+  if (status === "REVOKED") return { label: "REVOKED", className: "ox-badge-avax" };
+  if (status === "NEEDS_APPROVAL") return { label: "NEEDS APPROVAL", className: "ox-badge-warn" };
+  return { label: "PENDING PAYMENT", className: "ox-badge-warn" };
 }
 
 function OrderRows({
@@ -31,7 +31,7 @@ function OrderRows({
   if (orders.length === 0) {
     return (
       <p className="py-7 text-center text-xs text-[var(--ox-muted)]">
-        Chưa có đơn đặt dịch vụ nào từ khách hàng.
+        No customer orders yet.
       </p>
     );
   }
@@ -99,7 +99,7 @@ function OrderRows({
                   className="ox-btn-ghost inline-flex min-h-[30px] items-center gap-1 rounded-lg px-2.5 py-1 font-mono text-[10px] font-semibold"
                 >
                   <ShieldCheck className="h-3 w-3 text-[var(--ox-ok-ink)]" />
-                  <span>Xem bảo chứng</span>
+                  <span>Verify Pass</span>
                   <ExternalLink className="h-2.5 w-2.5" />
                 </Link>
               )}
@@ -124,10 +124,10 @@ export function EnterpriseOrderList({
       <section className="ox-card overflow-hidden rounded-2xl">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--ox-line)] bg-[var(--ox-soft)] px-4 py-3">
           <h3 className="text-xs font-bold text-[var(--ox-ink)] sm:text-sm">
-            Đơn khách đặt &amp; Bảo chứng đã cấp ({orders.length})
+            Customer Orders &amp; Issued Guarantees ({orders.length})
           </h3>
           <span className="ox-badge-verified rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold tabular-nums">
-            {guaranteedCount} đã bảo chứng
+            {guaranteedCount} guaranteed
           </span>
         </div>
         <OrderRows orders={orders} selectedOrderCode={selectedOrderCode} onSelectOrder={onSelectOrder} />
@@ -138,7 +138,7 @@ export function EnterpriseOrderList({
   return (
     <details className="ox-card group overflow-hidden rounded-2xl">
       <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 text-xs font-bold text-[var(--ox-ink)]">
-        <span>Đơn khách đặt &amp; Bảo chứng đã cấp ({orders.length})</span>
+        <span>Customer Orders &amp; Issued Guarantees ({orders.length})</span>
         <ChevronDown className="h-4 w-4 text-[var(--ox-muted)] transition-transform group-open:rotate-180" />
       </summary>
       <div className="border-t border-[var(--ox-line)]">

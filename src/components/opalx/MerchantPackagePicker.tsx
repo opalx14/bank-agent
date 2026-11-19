@@ -39,15 +39,15 @@ export function MerchantPackagePicker({
 }: MerchantPackagePickerProps) {
   return (
     <div className="space-y-5">
-      <section className="space-y-3" aria-label="Đối tác phát hành">
+      <section className="space-y-3" aria-label="Issuing Partners">
         <div className="flex items-center justify-between gap-2">
           <h2 className="inline-flex items-center gap-1.5 text-sm font-bold text-[var(--ox-ink)]">
             <Store className="h-4 w-4 text-[var(--ox-avax)]" />
-            <span>{lockedEnterprise ? "Đơn vị phát hành" : "Đối tác phát hành"}</span>
+            <span>{lockedEnterprise ? "Issuing Partner" : "Issuing Partners"}</span>
           </h2>
           {!lockedEnterprise ? (
             <span className="font-mono text-xs font-semibold text-[var(--ox-ok-ink)] tabular-nums">
-              {enterprises.length} đối tác
+              {enterprises.length} partners
             </span>
           ) : null}
         </div>
@@ -79,7 +79,7 @@ export function MerchantPackagePicker({
                     categoryFilter === cat ? "ox-pill-active" : "ox-btn-ghost"
                   }`}
                 >
-                  {cat === "ALL" ? "Tất cả" : cat}
+                  {cat === "ALL" ? "All" : cat}
                 </button>
               ))}
             </div>
@@ -113,7 +113,7 @@ export function MerchantPackagePicker({
                       <div className="flex shrink-0 items-center gap-1">
                         {isCustom && (
                           <span className="ox-badge-avax inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-semibold">
-                            <Sparkles className="h-2.5 w-2.5" /><span>Mới</span>
+                            <Sparkles className="h-2.5 w-2.5" /><span>New</span>
                           </span>
                         )}
                         {ent.kybVerified && (
@@ -129,7 +129,7 @@ export function MerchantPackagePicker({
                         <Landmark className="h-3 w-3 shrink-0 text-[var(--ox-ok)]" />
                         <span className="truncate font-mono tabular-nums">{ent.bankShortName} · {ent.accountNo}</span>
                       </span>
-                      <span className="shrink-0 font-mono text-[10px] text-[var(--ox-muted)] tabular-nums">{openPkgCount} gói</span>
+                      <span className="shrink-0 font-mono text-[10px] text-[var(--ox-muted)] tabular-nums">{openPkgCount} packages</span>
                     </div>
                   </button>
                 );
@@ -139,21 +139,21 @@ export function MerchantPackagePicker({
         )}
       </section>
 
-      <section className="space-y-2.5" aria-label="Chọn gói dịch vụ">
+      <section className="space-y-2.5" aria-label="Select Service Package">
         <div className="flex items-center justify-between gap-2">
           <h2 className="inline-flex items-center gap-1.5 text-sm font-bold text-[var(--ox-ink)]">
             <Layers className="h-4 w-4 text-[var(--ox-ok-ink)]" />
-            <span>Chọn gói dịch vụ</span>
+            <span>Select Service Package</span>
           </h2>
-          <span className="font-mono text-xs text-[var(--ox-muted)] tabular-nums">{activePackages.length} gói</span>
+          <span className="font-mono text-xs text-[var(--ox-muted)] tabular-nums">{activePackages.length} packages</span>
         </div>
 
         {activePackages.length === 0 ? (
           <div className="ox-subcard rounded-2xl border-dashed p-5 text-center text-xs text-[var(--ox-muted)]">
-            Chưa có gói dịch vụ đang mở bán.
+            No active service packages available.
           </div>
         ) : (
-          <div role="radiogroup" aria-label="Chọn gói dịch vụ" className="divide-y divide-[var(--ox-line)] overflow-hidden rounded-2xl border border-[var(--ox-line)] bg-[var(--ox-surface)]">
+          <div role="radiogroup" aria-label="Select Service Package" className="divide-y divide-[var(--ox-line)] overflow-hidden rounded-2xl border border-[var(--ox-line)] bg-[var(--ox-surface)]">
             {activePackages.map((pkg) => {
               const selected = selectedPkg?.id === pkg.id;
               const pkgBenefits = pkg.benefits?.length ? pkg.benefits : pkg.guaranteeRightLabel ? [pkg.guaranteeRightLabel] : [];

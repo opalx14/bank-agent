@@ -32,7 +32,7 @@ export function ThermalGuaranteeSlip({
   if (!guarantee) {
     return (
       <div className="ox-card flex min-h-[240px] items-center justify-center rounded-3xl border-dashed p-6 text-center text-sm text-[var(--ox-muted)]">
-        Phiếu Bảo Chứng &amp; mã Hash Avalanche sẽ hiển thị ngay sau khi thanh toán thành công.
+        Your Avalanche Guarantee Slip &amp; hash proof will appear immediately after payment.
       </div>
     );
   }
@@ -53,26 +53,26 @@ export function ThermalGuaranteeSlip({
   };
 
   const rows: Array<[string, string, string?]> = [
-    ["Đơn vị", guarantee.enterpriseName || "California Fitness & Yoga", "font-semibold"],
-    ["Hạng mục", guarantee.categoryLabel || "Phòng Tập Gym & Yoga"],
-    ["Gói dịch vụ", guarantee.productName || guarantee.description || `Đơn #${guarantee.orderCode}`],
-    ...(guarantee.buyerEmail ? ([["Email chủ thẻ", guarantee.buyerEmail, "font-mono text-xs"]] as Array<[string, string, string?]>) : []),
-    ["Số tiền", formatVnd(guarantee.amountVnd), "font-mono text-base font-bold text-[var(--ox-ok-ink)] tabular-nums"],
-    ["Mã Hash Avalanche", truncateHex(hashPreview, 7), "font-mono text-xs font-semibold"],
+    ["Enterprise", guarantee.enterpriseName || "California Fitness & Yoga", "font-semibold"],
+    ["Category", guarantee.categoryLabel || "Gym & Fitness"],
+    ["Package", guarantee.productName || guarantee.description || `Order #${guarantee.orderCode}`],
+    ...(guarantee.buyerEmail ? ([["Holder Email", guarantee.buyerEmail, "font-mono text-xs"]] as Array<[string, string, string?]>) : []),
+    ["Amount", formatVnd(guarantee.amountVnd), "font-mono text-base font-bold text-[var(--ox-ok-ink)] tabular-nums"],
+    ["Avalanche Hash", truncateHex(hashPreview, 7), "font-mono text-xs font-semibold"],
   ];
 
   return (
-    <article aria-label="Phiếu Bảo Chứng Avalanche" className="ox-pass-surface overflow-hidden rounded-3xl">
+    <article aria-label="Avalanche Guarantee Slip" className="ox-pass-surface overflow-hidden rounded-3xl">
       <div className="flex items-center justify-between gap-2 border-b border-[var(--ox-line)] bg-[var(--ox-ok-tint)]/45 px-4 py-3.5">
         <div className="flex min-w-0 items-center gap-2.5">
           <ShieldCheck className="h-5 w-5 shrink-0 text-[var(--ox-ok-ink)]" />
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-[var(--ox-ok-ink)]">Phiếu Bảo Chứng Avalanche</p>
+            <p className="truncate text-xs font-semibold text-[var(--ox-ok-ink)]">Avalanche Guarantee Slip</p>
             <p className="font-mono text-sm font-bold text-[var(--ox-ink)]">{guarantee.guaranteeId}</p>
           </div>
         </div>
         <span className="ox-badge-verified shrink-0 rounded-lg px-2.5 py-1 font-mono text-[11px] font-semibold tabular-nums">
-          Đã in: {guarantee.printCount ?? 0} lần
+          Printed: {guarantee.printCount ?? 0}x
         </span>
       </div>
 
@@ -98,20 +98,20 @@ export function ThermalGuaranteeSlip({
 
         <div className="ox-subcard rounded-2xl p-3 text-xs text-[var(--ox-muted)] tabular-nums">
           <div className="flex items-center justify-between gap-2 font-semibold text-[var(--ox-ink)]">
-            <span>Phí in &amp; hash / lần</span>
+            <span>Print &amp; hash fee / copy</span>
             <span className="shrink-0 font-mono text-[var(--ox-ok-ink)] whitespace-nowrap">
               ~{fee.totalFeePerPrintAvax} AVAX (≈ {formatVnd(fee.totalFeePerPrintVnd)})
             </span>
           </div>
           <p className="mt-1 text-[11px]">
-            Gồm {fee.protocolFeePerPrintAvax} AVAX giao thức + ~{fee.estimatedGasPerPrintAvax} AVAX gas Fuji.
+            Includes {fee.protocolFeePerPrintAvax} AVAX protocol + ~{fee.estimatedGasPerPrintAvax} AVAX Fuji gas.
           </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {verifyQrUrl && (
             <div className="mx-auto shrink-0 rounded-2xl border border-[var(--ox-line)] bg-white p-2 shadow-sm sm:mx-0">
-              <img src={verifyQrUrl} alt={`QR kiểm chứng ${guarantee.guaranteeId}`} className="h-16 w-16 object-contain" />
+              <img src={verifyQrUrl} alt={`Verification QR ${guarantee.guaranteeId}`} className="h-16 w-16 object-contain" />
             </div>
           )}
 
@@ -123,24 +123,24 @@ export function ThermalGuaranteeSlip({
               className="ox-btn-primary inline-flex min-h-[44px] items-center justify-center gap-2 rounded-2xl px-4 py-2 text-xs disabled:opacity-60 sm:text-sm"
             >
               {printing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
-              <span>{printing ? "Đang băm & mở bản in..." : "In Phiếu (58mm/80mm/A4)"}</span>
+              <span>{printing ? "Hashing & opening print..." : "Print (58mm/80mm/A4)"}</span>
             </button>
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {onOpenVault ? (
                 <button type="button" onClick={() => onOpenVault(guarantee.guaranteeId)} className="ox-btn-avax inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs">
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Mở Thẻ &amp; Quyền Lợi</span>
+                  <span>Open Pass &amp; Benefits</span>
                 </button>
               ) : (
                 <Link href="/?tab=vault" className="ox-btn-avax inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs">
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Mở Thẻ &amp; Quyền Lợi</span>
+                  <span>Open Pass &amp; Benefits</span>
                 </Link>
               )}
               <Link href={guarantee.verifyPath} className="ox-btn-ghost inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold">
                 <ExternalLink className="h-3.5 w-3.5" />
-                <span>Kiểm Chứng Fuji</span>
+                <span>Verify on Fuji</span>
               </Link>
             </div>
           </div>

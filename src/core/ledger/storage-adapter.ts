@@ -9,14 +9,65 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 export interface LedgerStorageBackendInfo {
-  backend: "LOCAL_FILE" | "VERCEL_TMP_FILE" | "SUPABASE_POSTGRES_SYNC";
+  backend: "LOCAL_FILE" | "VERCEL_TMP_FILE" | "SUPABASE_POSTGRES_SYNC" | "CLOUDFLARE_KV";
   filePath: string;
   remoteConfigured: boolean;
   tableName?: string;
 }
 
+export interface CloudflareKvLike {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string): Promise<void>;
+}
+
+interface WorkerLedgerMemoryState {
+  active: boolean;
+  raw: string | null;
+  dirty: boolean;
+}
+
 const DEFAULT_SUPABASE_TABLE = "opalx_ledger_snapshots";
 const PRIMARY_SNAPSHOT_ID = "primary";
+const WORKER_KV_LEDGER_KEY = "opalx:ledger:primary";
+
+function getWorkerLedgerState(): WorkerLedgerMemoryState {
+  const g = globalThis as typeof globalThis & {
+    __opalxWorkerLedgerState?: WorkerLedgerMemoryState;
+  };
+  if (!g.__opalxWorkerLedgerState) {
+    g.__opalxWorkerLedgerState = { active: false, raw: null, dirty: false };
+  }
+  return g.__opalxWorkerLedgerState;
+}
+
+/** Hydrates edge-isolate ledger memory from Cloudflare Workers KV before request handling. */
+export async function hydrateWorkerLedgerFromKv(kv?: CloudflareKvLike | null): Promise<void> {
+  const state = getWorkerLedgerState();
+  state.active = true;
+  state.dirty = false;
+  if (!kv) return;
+  try {
+    const stored = await kv.get(WORKER_KV_LEDGER_KEY);
+    if (typeof stored === "string" && stored.length > 0) {
+      state.raw = stored;
+    }
+  } catch {
+    // Keep existing in-memory snapshot if KV read fails transiently.
+  }
+}
+
+/** Persists any mutated ledger snapshot back to Cloudflare Workers KV before returning response. */
+export async function flushWorkerLedgerToKv(kv?: CloudflareKvLike | null): Promise<void> {
+  const state = getWorkerLedgerState();
+  if (!state.active || !state.dirty || state.raw === null) return;
+  state.dirty = false;
+  if (!kv) return;
+  try {
+    await kv.put(WORKER_KV_LEDGER_KEY, state.raw);
+  } catch {
+    // Non-fatal in edge runtime; memory state stays consistent within isolate.
+  }
+}
 
 /** Resolves the local or serverless temporary ledger JSON path. */
 export function resolveLedgerFilePath(
@@ -41,8 +92,16 @@ export function isRemotePostgresConfigured(
 export function getLedgerStorageInfo(
   env: Record<string, string | undefined> = process.env,
 ): LedgerStorageBackendInfo {
-  const filePath = resolveLedgerFilePath(env);
+  const workerState = getWorkerLedgerState();
   const remoteConfigured = isRemotePostgresConfigured(env);
+  if (workerState.active && !env.OPALX_LEDGER_PATH?.trim() && !remoteConfigured) {
+    return {
+      backend: "CLOUDFLARE_KV",
+      filePath: `kv://bankagent-ledger/${WORKER_KV_LEDGER_KEY}`,
+      remoteConfigured: true,
+    };
+  }
+  const filePath = resolveLedgerFilePath(env);
   const isServerlessWithoutOverride =
     (env.VERCEL === "1" || Boolean(env.AWS_LAMBDA_FUNCTION_NAME)) &&
     !env.OPALX_LEDGER_PATH?.trim();
@@ -82,22 +141,43 @@ function getSupabaseRestTarget(
   };
 }
 
-/** Reads the raw serialized ledger JSON from disk, or null if absent. */
+/** Reads the raw serialized ledger JSON from Cloudflare KV memory or local disk. */
 export function readRawLedgerJson(): string | null {
-  const target = resolveLedgerFilePath();
-  if (!existsSync(/* turbopackIgnore: true */ target)) return null;
-  return readFileSync(/* turbopackIgnore: true */ target, "utf8");
+  const workerState = getWorkerLedgerState();
+  if (workerState.active) {
+    return workerState.raw;
+  }
+  try {
+    const target = resolveLedgerFilePath();
+    if (!existsSync(/* turbopackIgnore: true */ target)) return null;
+    return readFileSync(/* turbopackIgnore: true */ target, "utf8");
+  } catch {
+    return workerState.raw;
+  }
 }
 
-/** Atomically writes serialized ledger JSON to disk and triggers async Postgres snapshot sync. */
+/** Atomically writes serialized ledger JSON to Cloudflare KV memory or local disk + Supabase sync. */
 export function writeRawLedgerJson(serialized: string): void {
-  const target = resolveLedgerFilePath();
-  mkdirSync(/* turbopackIgnore: true */ path.dirname(/* turbopackIgnore: true */ target), {
-    recursive: true,
-  });
-  const tmpPath = `${target}.${process.pid}.${Date.now()}.tmp`;
-  writeFileSync(/* turbopackIgnore: true */ tmpPath, serialized, "utf8");
-  renameSync(/* turbopackIgnore: true */ tmpPath, /* turbopackIgnore: true */ target);
+  const workerState = getWorkerLedgerState();
+  if (workerState.active) {
+    workerState.raw = serialized;
+    workerState.dirty = true;
+    pushLedgerSnapshotToSupabase(serialized);
+    return;
+  }
+  try {
+    const target = resolveLedgerFilePath();
+    mkdirSync(/* turbopackIgnore: true */ path.dirname(/* turbopackIgnore: true */ target), {
+      recursive: true,
+    });
+    const tmpPath = `${target}.${process.pid}.${Date.now()}.tmp`;
+    writeFileSync(/* turbopackIgnore: true */ tmpPath, serialized, "utf8");
+    renameSync(/* turbopackIgnore: true */ tmpPath, /* turbopackIgnore: true */ target);
+  } catch {
+    workerState.active = true;
+    workerState.raw = serialized;
+    workerState.dirty = true;
+  }
   pushLedgerSnapshotToSupabase(serialized);
 }
 

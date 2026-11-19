@@ -1,5 +1,3 @@
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import type {
   BankAttestationProof,
   BankPartnerRail,
@@ -21,6 +19,7 @@ import {
 import { extractTt78InvoiceSummary } from "@/core/enterprise/einvoice-parser";
 import { buildSampleTt78Xml } from "@/core/enterprise/einvoice-samples";
 import { computeCommitmentHash } from "@/lib/avalanche/signer";
+import liveFujiProofsData from "./live-fuji-proofs.json";
 
 interface SeedLiveProofs {
   guaranteeId: string;
@@ -75,13 +74,8 @@ export function buildDefaultBankConfig(nowIso = new Date().toISOString()): Merch
 }
 
 function loadLiveFujiSeed(): SeedLiveProofs | null {
-  const proofPath = path.join(process.cwd(), "src", "core", "ledger", "live-fuji-proofs.json");
-  if (!existsSync(proofPath)) return null;
-  try {
-    return JSON.parse(readFileSync(proofPath, "utf8")) as SeedLiveProofs;
-  } catch {
-    return null;
-  }
+  if (!liveFujiProofsData || typeof liveFujiProofsData !== "object") return null;
+  return liveFujiProofsData as unknown as SeedLiveProofs;
 }
 
 function makeSeedOrder(params: {

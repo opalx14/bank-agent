@@ -52,14 +52,33 @@ type WasmEvalFn = (
 
 let cachedWasmEval: WasmEvalFn | null | undefined;
 
+/** Registers a statically compiled WebAssembly.Module (for Cloudflare Workers edge execution). */
+export function registerPrecompiledGuardWasm(mod: WebAssembly.Module | null): void {
+  const g = globalThis as typeof globalThis & { __opalxGuardWasmModule?: WebAssembly.Module | null };
+  g.__opalxGuardWasmModule = mod;
+  cachedWasmEval = undefined;
+}
+
 function loadWasmEval(): WasmEvalFn | null {
   if (cachedWasmEval !== undefined) return cachedWasmEval;
-  const wasmPath = path.join(process.cwd(), "crates", "opalx-guard", "opalx_guard.wasm");
-  if (!existsSync(wasmPath)) {
-    cachedWasmEval = null;
-    return null;
+  const g = globalThis as typeof globalThis & { __opalxGuardWasmModule?: WebAssembly.Module | null };
+  if (g.__opalxGuardWasmModule) {
+    try {
+      const inst = new WebAssembly.Instance(g.__opalxGuardWasmModule, {});
+      const fn = inst.exports.opalx_guard_eval;
+      cachedWasmEval = typeof fn === "function" ? (fn as WasmEvalFn) : null;
+      return cachedWasmEval;
+    } catch {
+      cachedWasmEval = null;
+      return null;
+    }
   }
   try {
+    const wasmPath = path.join(process.cwd(), "crates", "opalx-guard", "opalx_guard.wasm");
+    if (!existsSync(wasmPath)) {
+      cachedWasmEval = null;
+      return null;
+    }
     const mod = new WebAssembly.Module(readFileSync(wasmPath));
     const inst = new WebAssembly.Instance(mod, {});
     const fn = inst.exports.opalx_guard_eval;

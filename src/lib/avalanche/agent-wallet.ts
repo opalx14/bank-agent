@@ -42,27 +42,87 @@ function readPublicAddress(rawKey?: string): `0x${string}` | undefined {
   }
 }
 
-export function isAgentSignerEnabled(): boolean {
-  const filePath = resolveSessionPath();
-  if (!existsSync(filePath)) return true;
+interface WorkerAgentFlagState {
+  active: boolean;
+  enabled: boolean;
+  dirty: boolean;
+}
+
+const WORKER_KV_AGENT_FLAG_KEY = "opalx:agent:enabled";
+
+function getWorkerAgentFlagState(): WorkerAgentFlagState {
+  const g = globalThis as typeof globalThis & { __opalxWorkerAgentFlagState?: WorkerAgentFlagState };
+  if (!g.__opalxWorkerAgentFlagState) {
+    g.__opalxWorkerAgentFlagState = { active: false, enabled: true, dirty: false };
+  }
+  return g.__opalxWorkerAgentFlagState;
+}
+
+export async function hydrateWorkerAgentFlagFromKv(
+  kv?: { get(key: string): Promise<string | null> } | null,
+): Promise<void> {
+  const state = getWorkerAgentFlagState();
+  state.active = true;
+  state.dirty = false;
+  if (!kv) return;
   try {
+    const raw = await kv.get(WORKER_KV_AGENT_FLAG_KEY);
+    if (raw === "true") state.enabled = true;
+    else if (raw === "false") state.enabled = false;
+  } catch {
+    // Keep existing in-memory flag.
+  }
+}
+
+export async function flushWorkerAgentFlagToKv(
+  kv?: { put(key: string, value: string): Promise<void> } | null,
+): Promise<void> {
+  const state = getWorkerAgentFlagState();
+  if (!state.active || !state.dirty) return;
+  state.dirty = false;
+  if (!kv) return;
+  try {
+    await kv.put(WORKER_KV_AGENT_FLAG_KEY, state.enabled ? "true" : "false");
+  } catch {
+    // Ignore transient KV error.
+  }
+}
+
+export function isAgentSignerEnabled(): boolean {
+  const state = getWorkerAgentFlagState();
+  if (state.active) return state.enabled;
+  try {
+    const filePath = resolveSessionPath();
+    if (!existsSync(filePath)) return true;
     const parsed = JSON.parse(readFileSync(filePath, "utf8")) as { agentEnabled?: unknown };
     return typeof parsed.agentEnabled === "boolean" ? parsed.agentEnabled : true;
   } catch {
-    return true;
+    return state.enabled;
   }
 }
 
 export function setAgentSignerEnabled(enabled: boolean): boolean {
-  const filePath = resolveSessionPath();
-  mkdirSync(path.dirname(filePath), { recursive: true });
-  const tmp = `${filePath}.${process.pid}.tmp`;
-  writeFileSync(
-    tmp,
-    JSON.stringify({ agentEnabled: enabled, updatedAtIso: new Date().toISOString() }, null, 2),
-    "utf8",
-  );
-  renameSync(tmp, filePath);
+  const state = getWorkerAgentFlagState();
+  if (state.active) {
+    state.enabled = enabled;
+    state.dirty = true;
+    return enabled;
+  }
+  try {
+    const filePath = resolveSessionPath();
+    mkdirSync(path.dirname(filePath), { recursive: true });
+    const tmp = `${filePath}.${process.pid}.tmp`;
+    writeFileSync(
+      tmp,
+      JSON.stringify({ agentEnabled: enabled, updatedAtIso: new Date().toISOString() }, null, 2),
+      "utf8",
+    );
+    renameSync(tmp, filePath);
+  } catch {
+    state.active = true;
+    state.enabled = enabled;
+    state.dirty = true;
+  }
   return enabled;
 }
 

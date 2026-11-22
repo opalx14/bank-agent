@@ -8,6 +8,7 @@ import type { GuaranteeCertificate } from "@/types";
 import { RoleLoginGateway } from "@/components/auth/auth.role-login-gateway";
 import { useWalletAuth } from "@/components/auth/auth.wallet-provider";
 import { SegmentedTabs } from "@/components/shared/shared.ui-kit";
+import { AgentX402Console } from "./opalx.agent-x402-console";
 import { AvalancheTechVerifier } from "./opalx.avalanche-verifier";
 import { CustomerPackageCheckout } from "./opalx.customer-checkout";
 import { GuaranteeCategoryVault } from "./opalx.guarantee-vault";
@@ -175,7 +176,12 @@ export function OpalxCoreView() {
               </div>
             ))}
 
-          {activeTab === "FUJI" && <AvalancheTechVerifier defaultOpen />}
+          {activeTab === "FUJI" && (
+            <div className="space-y-5">
+              <AvalancheTechVerifier defaultOpen />
+              <AgentX402Console />
+            </div>
+          )}
         </div>
       )}
     </>

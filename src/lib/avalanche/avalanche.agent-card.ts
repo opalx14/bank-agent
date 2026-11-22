@@ -1,4 +1,5 @@
 import { AVALANCHE_FUJI_NETWORK, getGatewayAddresses } from "./avalanche.network";
+import { FUJI_CAIP2, FUJI_USDC_ADDRESS, FUJI_USDC_EIP712_EXTRA } from "./avalanche.x402";
 
 export interface AgentRegistrationCard {
   type: "https://eips.ethereum.org/EIPS/eip-8004#registration-v1";
@@ -7,6 +8,15 @@ export interface AgentRegistrationCard {
   chainId: 43113;
   network: "eip155:43113";
   settlementCurrency: "AVAX";
+  paymentProtocols: ["x402-v2-exact-eip3009", "avax-native-fuji"];
+  x402: {
+    network: "eip155:43113";
+    asset: typeof FUJI_USDC_ADDRESS;
+    extra: typeof FUJI_USDC_EIP712_EXTRA;
+    priceUsdc: string;
+    auditResourceEndpoint: string;
+    settleEndpoint: string;
+  };
   active: boolean;
   gatewayContracts: {
     enterpriseGateway: `0x${string}`;
@@ -29,6 +39,15 @@ export function buildAgentRegistrationCard(origin: string): AgentRegistrationCar
     chainId: AVALANCHE_FUJI_NETWORK.chainId,
     network: AVALANCHE_FUJI_NETWORK.caip2,
     settlementCurrency: "AVAX",
+    paymentProtocols: ["x402-v2-exact-eip3009", "avax-native-fuji"],
+    x402: {
+      network: FUJI_CAIP2,
+      asset: FUJI_USDC_ADDRESS,
+      extra: { ...FUJI_USDC_EIP712_EXTRA },
+      priceUsdc: "0.01",
+      auditResourceEndpoint: `${cleanOrigin}/api/x402/audit-proof`,
+      settleEndpoint: `${cleanOrigin}/api/x402/settle`,
+    },
     active: true,
     gatewayContracts: contracts,
     services: [
@@ -37,6 +56,9 @@ export function buildAgentRegistrationCard(origin: string): AgentRegistrationCar
       { name: "opalx-avax-fee", endpoint: `${cleanOrigin}/api/avax/settle-fee` },
       { name: "treasury-status", endpoint: `${cleanOrigin}/api/treasury/status` },
       { name: "guarantee-verify", endpoint: `${cleanOrigin}/api/guarantees` },
+      { name: "x402-audit-proof", endpoint: `${cleanOrigin}/api/x402/audit-proof` },
+      { name: "x402-settle", endpoint: `${cleanOrigin}/api/x402/settle` },
+      { name: "ai-security-agent", endpoint: `${cleanOrigin}/api/agent/assist` },
     ],
     registrations: [
       {

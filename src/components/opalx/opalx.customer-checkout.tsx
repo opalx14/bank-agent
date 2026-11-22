@@ -14,16 +14,11 @@ import { TxStatusToast, type TxStatusToastProps, type TxToastState } from "@/com
 import { GuaranteeStepper, SegmentedTabs, type GuaranteeStepPhase } from "@/components/shared/shared.ui-kit";
 import { CheckoutPayerForm, type CheckoutPaymentMethod } from "./opalx.checkout-payer-form";
 import { DEFAULT_PARTNER_IDS, MerchantPackagePicker } from "./opalx.merchant-package-picker";
+import { fujiTxUrl, PaymentAgentTrace, type AgentAssistPayload, type X402SettlePayload } from "./opalx.payment-agent-trace";
 
-interface CustomerPackageCheckoutProps {
-  initialEnterpriseId?: string;
-  lockedEnterpriseId?: string;
-  onGuaranteeIssued: () => Promise<void>;
-  onOpenVault?: (guaranteeId?: string) => void;
-}
+interface CustomerPackageCheckoutProps { initialEnterpriseId?: string; lockedEnterpriseId?: string; onGuaranteeIssued: () => Promise<void>; onOpenVault?: (guaranteeId?: string) => void; }
 
 type ToastMeta = Omit<TxStatusToastProps, "onClose">;
-const fujiTxUrl = (txHash?: string) => (txHash ? `https://testnet.snowtrace.io/tx/${txHash}` : undefined);
 
 function sortEnterprises(list: VerifiedEnterpriseProfile[]): VerifiedEnterpriseProfile[] {
   return [...list].sort((a, b) => {
@@ -46,12 +41,14 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
   const [buyerEmail, setBuyerEmail] = useState("");
   const [preferredMethod, setPreferredMethod] = useState<CheckoutPaymentMethod>("VIETQR_BANK_APP");
   const [requireInvoiceXml, setRequireInvoiceXml] = useState(false);
+  const [manualReceiptImageDataUrl, setManualReceiptImageDataUrl] = useState("");
   const [activeOrder, setActiveOrder] = useState<EnterpriseOrder | null>(null);
   const [activeGuarantee, setActiveGuarantee] = useState<GuaranteeCertificate | null>(null);
   const [burstCount, setBurstCount] = useState(0);
   const [mobileStep, setMobileStep] = useState<1 | 2 | 3>(1);
   const [desktopTab, setDesktopTab] = useState<"QR" | "INVOICE">("QR");
-  const [busy, setBusy] = useState<"create" | "settle" | null>(null);
+  const [busy, setBusy] = useState<"create" | "settle" | "seal" | null>(null);
+  const [proofTrace, setProofTrace] = useState<{ guaranteeId: string; agentAudit: AgentAssistPayload | null; x402Seal: X402SettlePayload | null } | null>(null);
   const [feedback, setFeedback] = useState<{ kind: "error" | "notice"; text: string } | null>(null);
   const [toast, setToast] = useState<ToastMeta>({ open: false, state: "idle", label: "" });
   const deepLinkRef = useRef<string | undefined>(undefined);
@@ -118,7 +115,9 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
         ...(resolvedEmail ? { buyerEmail: resolvedEmail } : {}), paymentMethod: preferredMethod, sellerName: selectedEnt.enterpriseName,
         sellerTaxId: selectedEnt.taxId, sellerEnterpriseAddress: selectedEnt.ownerWalletAddress, amountVnd: selectedPkg.amountVnd,
         categoryLabel: selectedEnt.categoryLabel, useEnterpriseBank: true, railMode: activeProfile.railMode, requireInvoiceXml,
-        ...(invoiceXml ? { invoiceXml } : {}), broadcastOnChain: true,
+        ...(invoiceXml ? { invoiceXml } : {}),
+        ...(manualReceiptImageDataUrl ? { manualReceiptImageDataUrl } : {}),
+        broadcastOnChain: true,
         ...(conf?.walletAddress ? { confirmedByWallet: conf.walletAddress } : {}),
         ...(conf?.merchantContractAddress ? { merchantContractAddress: conf.merchantContractAddress } : {}),
         ...(conf?.signature ? { walletSignature: conf.signature } : {}),
@@ -127,7 +126,7 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
       const json = (await res.json().catch(() => ({}))) as { error?: string; order?: EnterpriseOrder };
       if (!res.ok || !json.order) throw new Error(json.error ?? `Order creation failed (${res.status})`);
       const txHash = json.order.enterpriseTxHash;
-      setActiveOrder(json.order); setActiveGuarantee(null);
+      setActiveOrder(json.order); setActiveGuarantee(null); setProofTrace(null);
       setFeedback({ kind: "notice", text: `Order #${json.order.orderCode} · ${selectedEnt.bankShortName} ready.` });
       showToast("ok", `Order #${json.order.orderCode} ready`, { txHash, explorerUrl: fujiTxUrl(txHash), latencyMs: Math.round(performance.now() - startedAt) });
       setMobileStep(2); setDesktopTab("QR"); await loadData();
@@ -136,7 +135,7 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
 
   const handleSettle = async (orderCode: number, method?: CheckoutPaymentMethod) => {
     const startedAt = performance.now();
-    setFeedback(null); setBusy("settle"); showToast("sent", `Reconciling order #${orderCode}`);
+    setFeedback(null); setProofTrace(null); setBusy("settle"); showToast("sent", `Reconciling order #${orderCode}`);
     try {
       await confirmWithWallet("CONFIRM_RECONCILE", `Payment (${method ?? preferredMethod}) & guarantee #${orderCode}`);
       const res = await fetch("/api/sandbox/simulate-bank", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderCode, scenario: "ALLOW_VALID" }) });
@@ -149,15 +148,26 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
         setFeedback({ kind: "notice", text: `Issued ${issued.guaranteeId} · ${formatVnd(issued.amountVnd)}.` });
         showToast("ok", `Issued pass ${issued.guaranteeId}`, { txHash, explorerUrl: fujiTxUrl(txHash), latencyMs: Math.round(performance.now() - startedAt) });
         setMobileStep(3); setDesktopTab("INVOICE");
+        setBusy("seal");
+        try {
+          const [aRes, xRes] = await Promise.allSettled([
+            fetch("/api/agent/assist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: `Audit guarantee ${issued.guaranteeId} and verify 3-way WASM policy alignment`, guaranteeId: issued.guaranteeId, orderAmountVnd: issued.amountVnd, bankPaidAmountVnd: issued.amountVnd, webhookSignatureValid: true, scenario: "verify_onchain" }) }),
+            fetch("/api/x402/settle", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "demo-buyer-agent", guaranteeId: issued.guaranteeId }) }),
+          ]);
+          const agentAudit = aRes.status === "fulfilled" && aRes.value.ok ? ((await aRes.value.json().catch(() => null)) as AgentAssistPayload | null) : null;
+          const x402Seal = xRes.status === "fulfilled" && xRes.value.ok ? ((await xRes.value.json().catch(() => null)) as X402SettlePayload | null) : null;
+          setProofTrace({ guaranteeId: issued.guaranteeId, agentAudit, x402Seal });
+        } catch { /* Optional AI/x402 trace never blocks an issued VND guarantee. */ }
       } else if (json.decision) failWith("Policy Kernel denied", `Policy Kernel: ${json.decision.verdict} (${json.decision.reasonCode})`);
       await loadData(); await onGuaranteeIssued();
     } catch (err) { failWith("Reconciliation failed", err instanceof Error ? err.message : "Payment reconciliation error"); } finally { setBusy(null); }
   };
 
-  const stepperPhase: GuaranteeStepPhase = busy === "settle" ? "verifying" : activeGuarantee || activeOrder?.status === "GUARANTEED" ? "guaranteed" : activeOrder ? "qr" : "idle";
+  const stepperPhase: GuaranteeStepPhase = busy === "settle" ? "verifying" : busy === "seal" ? "sealing" : activeGuarantee || activeOrder?.status === "GUARANTEED" ? "guaranteed" : activeOrder ? "qr" : "idle";
   const orderMatchesSelection = Boolean(activeOrder && (!selectedEnt || activeOrder.enterpriseId === selectedEnt.id));
   const passAmountVnd = activeGuarantee?.amountVnd ?? (orderMatchesSelection ? activeOrder?.amountVnd : selectedPkg?.amountVnd) ?? selectedPkg?.amountVnd;
   const passId = activeGuarantee?.guaranteeId ?? (orderMatchesSelection && activeOrder ? `OPX-${activeOrder.orderCode}` : "OPX-PENDING");
+  const traceMatch = activeGuarantee && proofTrace?.guaranteeId === activeGuarantee.guaranteeId ? proofTrace : null;
 
   return (
     <div className="space-y-4">
@@ -174,22 +184,14 @@ export function CustomerPackageCheckout({ initialEnterpriseId, lockedEnterpriseI
         <div className={`min-w-0 lg:col-span-7 ${mobileStep === 1 ? "block" : "hidden lg:block"}`}>
           <form onSubmit={(e) => void handleCreateOrder(e)} className="ox-card space-y-6 rounded-3xl p-4 sm:p-6">
             <MerchantPackagePicker enterprises={visibleEnterprises} categories={categories} categoryFilter={categoryFilter} onCategoryChange={setCategoryFilter} selectedEnt={selectedEnt} onSelectEnterprise={(ent) => { setSelectedEntId(ent.id); setSelectedPkgId(ent.packages.find((p) => p.active)?.id ?? ""); }} activePackages={activePackages} selectedPkg={selectedPkg} onSelectPackage={setSelectedPkgId} lockedEnterprise={Boolean(lockedEnterpriseId)} />
-            <CheckoutPayerForm payerName={payerName} onPayerNameChange={setPayerName} buyerEmail={buyerEmail} onBuyerEmailChange={setBuyerEmail} preferredMethod={preferredMethod} onPreferredMethodChange={setPreferredMethod} requireInvoiceXml={requireInvoiceXml} onRequireInvoiceXmlChange={setRequireInvoiceXml} selectedPkg={selectedPkg} canSubmit={busy === null && Boolean(selectedEnt && selectedPkg)} creating={busy === "create"} />
+            <CheckoutPayerForm payerName={payerName} onPayerNameChange={setPayerName} buyerEmail={buyerEmail} onBuyerEmailChange={setBuyerEmail} preferredMethod={preferredMethod} onPreferredMethodChange={setPreferredMethod} requireInvoiceXml={requireInvoiceXml} onRequireInvoiceXmlChange={setRequireInvoiceXml} manualReceiptImageDataUrl={manualReceiptImageDataUrl} onManualReceiptImageChange={setManualReceiptImageDataUrl} selectedPkg={selectedPkg} canSubmit={busy === null && Boolean(selectedEnt && selectedPkg)} creating={busy === "create"} />
           </form>
         </div>
         <div className="min-w-0 space-y-4 lg:sticky lg:top-20 lg:col-span-5">
           <div className="ox-card space-y-3 rounded-3xl p-4">
             <GuaranteeStepper phase={stepperPhase} />
-            <OpalxGuaranteePass
-              variant={activeGuarantee ? "jade" : "obsidian"} enterpriseName={activeGuarantee?.enterpriseName ?? selectedEnt?.enterpriseName ?? activeOrder?.sellerName ?? "OpalX Merchant"}
-              packageName={activeGuarantee?.productName ?? selectedPkg?.label ?? (orderMatchesSelection ? activeOrder?.productName : undefined) ?? "Guaranteed Service Package"}
-              amountVnd={passAmountVnd} guaranteeId={passId} holderLabel={activeGuarantee?.payerName ?? (payerName || "OpalX Cardholder")}
-              bankLabel={activeGuarantee?.maskedBankRef ?? selectedEnt?.bankShortName ?? "NAPAS 247"}
-              statusLabel={activeGuarantee ? (activeGuarantee.sandbox ? "[SANDBOX]" : "[LIVE BANK]") : activeProfile.badgeLabel}
-              solidState={Boolean(activeGuarantee)} stamped={Boolean(activeGuarantee)} scanning={busy === "settle"}
-              typing={busy === "create" || busy === "settle"} shine={activeGuarantee ? "once" : "none"} tilt burstKey={burstCount}
-              txRef={activeGuarantee?.proofBundle.guaranteeTxHash ?? "0x43113"} className="mx-auto"
-            />
+            <OpalxGuaranteePass variant={activeGuarantee ? "jade" : "obsidian"} enterpriseName={activeGuarantee?.enterpriseName ?? selectedEnt?.enterpriseName ?? activeOrder?.sellerName ?? "OpalX Merchant"} packageName={activeGuarantee?.productName ?? selectedPkg?.label ?? (orderMatchesSelection ? activeOrder?.productName : undefined) ?? "Guaranteed Service Package"} amountVnd={passAmountVnd} guaranteeId={passId} holderLabel={activeGuarantee?.payerName ?? (payerName || "OpalX Cardholder")} bankLabel={activeGuarantee?.maskedBankRef ?? selectedEnt?.bankShortName ?? "NAPAS 247"} statusLabel={activeGuarantee ? (activeGuarantee.sandbox ? "[SANDBOX]" : "[LIVE BANK]") : activeProfile.badgeLabel} solidState={Boolean(activeGuarantee)} stamped={Boolean(activeGuarantee)} scanning={busy === "settle"} typing={busy === "create" || busy === "settle"} shine={activeGuarantee ? "once" : "none"} tilt burstKey={burstCount} txRef={activeGuarantee?.proofBundle.guaranteeTxHash ?? "0x43113"} className="mx-auto" />
+            <PaymentAgentTrace phase={stepperPhase} orderAmountVnd={passAmountVnd ?? 1_500_000} orderCode={activeOrder?.orderCode} guarantee={activeGuarantee} agentAudit={traceMatch?.agentAudit} x402Seal={traceMatch?.x402Seal} sealPending={busy === "seal"} />
           </div>
           <div className="hidden lg:block">
             <SegmentedTabs ariaLabel="Toggle QR Payment and Guarantee Slip" value={desktopTab} onChange={setDesktopTab} items={[{ key: "QR", label: "QR Payment", icon: <QrCode className="h-3.5 w-3.5" /> }, { key: "INVOICE", label: "Guarantee Slip", icon: <FileText className="h-3.5 w-3.5" />, dot: Boolean(activeGuarantee) }]} />

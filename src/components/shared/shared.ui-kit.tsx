@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Check, Cpu, QrCode, ShieldCheck } from "lucide-react";
+import { Check, Coins, Cpu, QrCode, ShieldCheck } from "lucide-react";
 
 export { PortalSheet } from "./shared.portal-sheet";
 
@@ -71,27 +71,28 @@ export function SegmentedTabs<K extends string>({
   );
 }
 
-export type GuaranteeStepPhase = "idle" | "qr" | "verifying" | "guaranteed";
+export type GuaranteeStepPhase = "idle" | "qr" | "verifying" | "sealing" | "guaranteed";
 
 const STEP_META = [
-  { label: "1. Payment QR", icon: QrCode },
-  { label: "2. WASM Policy", icon: Cpu },
-  { label: "3. Fuji Proof", icon: ShieldCheck },
+  { label: "1. Bank QR", icon: QrCode },
+  { label: "2. AI + WASM", icon: Cpu },
+  { label: "3. x402 Seal", icon: Coins },
+  { label: "4. Fuji Proof", icon: ShieldCheck },
 ] as const;
 
 export function GuaranteeStepper({ phase }: { phase: GuaranteeStepPhase }) {
-  const activeIdx = phase === "qr" ? 0 : phase === "verifying" ? 1 : phase === "guaranteed" ? 3 : -1;
-  const progress = activeIdx < 0 ? 0 : activeIdx >= 3 ? 1 : activeIdx / 2;
+  const activeIdx = phase === "qr" ? 0 : phase === "verifying" ? 1 : phase === "sealing" ? 2 : phase === "guaranteed" ? 4 : -1;
+  const progress = activeIdx < 0 ? 0 : activeIdx >= 3 ? 1 : activeIdx / 3;
 
   return (
     <div aria-label="Payment and guarantee progress" className="relative mx-auto w-full py-1">
-      <span aria-hidden="true" className="absolute top-[21px] right-7 left-7 h-0.5 bg-[var(--ox-line)]" />
+      <span aria-hidden="true" className="absolute top-[21px] right-[12%] left-[12%] h-0.5 bg-[var(--ox-line)]" />
       <span
         aria-hidden="true"
-        className="absolute top-[21px] right-7 left-7 h-0.5 origin-left bg-[var(--ox-avax)]"
+        className="absolute top-[21px] right-[12%] left-[12%] h-0.5 origin-left bg-[var(--ox-avax)]"
         style={{ transform: `scaleX(${progress})`, transition: "transform 0.65s var(--ox-spring)" }}
       />
-      <div className="relative grid grid-cols-3 gap-2">
+      <div className="relative grid grid-cols-4 gap-1.5">
         {STEP_META.map((step, i) => {
           const Icon = activeIdx > i ? Check : step.icon;
           const done = activeIdx > i;
@@ -110,7 +111,7 @@ export function GuaranteeStepper({ phase }: { phase: GuaranteeStepPhase }) {
               >
                 <Icon className="h-4 w-4" />
               </span>
-              <span className={`text-[11px] font-semibold leading-tight ${done || current ? "text-[var(--ox-ink)]" : "text-[var(--ox-muted)]"}`}>
+              <span className={`text-[10px] font-semibold leading-tight tabular-nums sm:text-[11px] ${done || current ? "text-[var(--ox-ink)]" : "text-[var(--ox-muted)]"}`}>
                 {step.label}
               </span>
             </div>

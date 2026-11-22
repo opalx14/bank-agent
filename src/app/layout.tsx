@@ -22,7 +22,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("opalx-theme")==="dark"?"dark":"light";var r=document.documentElement;r.dataset.theme=t;r.style.colorScheme=t;}catch(e){}})();`;
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("opalx-theme")==="light"?"light":"dark";var r=document.documentElement;r.dataset.theme=t;r.style.colorScheme=t;}catch(e){document.documentElement.dataset.theme="dark";document.documentElement.style.colorScheme="dark";}})();`;
 
 export const metadata: Metadata = {
   title: "Bank Agent · OpalX GO — Direct Bank Payments & Avalanche Fuji Guarantees",
@@ -51,6 +51,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
+      data-theme="dark"
       suppressHydrationWarning
       className={`${beVietnamPro.variable} ${jetbrainsMono.variable}`}
     >

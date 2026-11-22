@@ -44,6 +44,19 @@ export interface GuaranteeRightClaim {
   verificationNote: string;
 }
 
+export interface NftReceiptProof {
+  standard: "ERC-721";
+  chainId: 43113;
+  caip2: "eip155:43113";
+  tokenId: string;
+  evidenceHash: `0x${string}`;
+  hasManualEvidenceImage: boolean;
+  evidenceImageDataUrl?: string;
+  metadataUri: string;
+  imageUri: string;
+  mintedAtIso: string;
+}
+
 export interface GuaranteeCertificate {
   guaranteeId: string;
   orderCode: number;
@@ -76,6 +89,7 @@ export interface GuaranteeCertificate {
   totalPrintFeeAvax?: string;
   lastPrintHash?: `0x${string}`;
   lastPrintTxHash?: `0x${string}`;
+  nftReceipt?: NftReceiptProof;
   verifyPath: string;
   issuedAtIso: string;
   revoked: boolean;

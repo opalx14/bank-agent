@@ -4,11 +4,13 @@ import {
   SNOWTRACE_BASE_URL,
   getFujiAddressUrl,
   getFujiNetworkTelemetry,
+  getFujiPublicClient,
   getFujiRpcUrl,
   getGatewayAddresses,
   isNonZeroAddress,
 } from "@/lib/avalanche/avalanche.network";
 import { readPortalContractsTelemetry, verifyGuaranteeOnFuji } from "@/lib/avalanche/avalanche.reader";
+import { FUJI_CAIP2, FUJI_USDC_ADDRESS, FUJI_USDC_EIP712_EXTRA } from "@/lib/avalanche/avalanche.x402";
 import type { AvalancheStackVerification, AvalancheTechPillar } from "@/types";
 
 const FALLBACK_GATEWAYS = {
@@ -18,14 +20,34 @@ const FALLBACK_GATEWAYS = {
 };
 
 const ERC8004_VALIDATION_REGISTRY = "0x8004Cb1BF31DAf7788923b405b754f57acEB4272" as const;
-const FUJI_USDC_ADDRESS = "0x5425890298aed601595a70AB815c96711a31Bc65" as const;
 const DAIMO_P256_VERIFIER = "0xc2b78104907F722DABAc4C69f826a522B2754De4" as const;
+
+interface BytecodeProbeResult {
+  erc8004BytecodeOk: boolean;
+  usdcBytecodeOk: boolean;
+  p256BytecodeOk: boolean;
+}
+
+async function verifyFujiContractBytecode(): Promise<BytecodeProbeResult> {
+  const client = getFujiPublicClient();
+  const hasCode = (address: `0x${string}`) =>
+    client.getCode({ address }).then((code) => Boolean(code && code !== "0x" && code.length > 2)).catch(() => false);
+  const timeoutFallback: BytecodeProbeResult = { erc8004BytecodeOk: false, usdcBytecodeOk: false, p256BytecodeOk: false };
+  return Promise.race([
+    Promise.all([
+      hasCode(AVALANCHE_FUJI_NETWORK.erc8004.identityRegistry),
+      hasCode(FUJI_USDC_ADDRESS),
+      hasCode(DAIMO_P256_VERIFIER),
+    ]).then(([erc8004BytecodeOk, usdcBytecodeOk, p256BytecodeOk]) => ({ erc8004BytecodeOk, usdcBytecodeOk, p256BytecodeOk })),
+    new Promise<BytecodeProbeResult>((resolve) => setTimeout(() => resolve(timeoutFallback), 2_500)),
+  ]);
+}
 
 export async function GET(request: Request): Promise<Response> {
   const guaranteeId = new URL(request.url).searchParams.get("guaranteeId")?.trim() || undefined;
   const offline = process.env.OPALX_OFFLINE_TEST === "1";
 
-  const [network, coreState, guaranteeOnChain, kernelCheck] = await Promise.all([
+  const [network, coreState, guaranteeOnChain, bytecode, kernelCheck] = await Promise.all([
     offline
       ? Promise.resolve({
           chainId: 43113 as const,
@@ -38,6 +60,9 @@ export async function GET(request: Request): Promise<Response> {
       : getFujiNetworkTelemetry(),
     readPortalContractsTelemetry(),
     guaranteeId ? verifyGuaranteeOnFuji(guaranteeId) : Promise.resolve(null),
+    offline
+      ? Promise.resolve({ erc8004BytecodeOk: false, usdcBytecodeOk: false, p256BytecodeOk: false })
+      : verifyFujiContractBytecode(),
     Promise.resolve(
       evaluateThreeWayPolicy({
         orderAmountVnd: 1_500_000,
@@ -104,24 +129,30 @@ export async function GET(request: Request): Promise<Response> {
     {
       id: "ERC_8004",
       title: "ERC-8004 Identity & Reputation",
-      status: "VERIFIED",
-      summary: "Canonical Identity, Reputation & Validation Registry on Fuji + Agent Discovery Card",
+      status: bytecode.erc8004BytecodeOk ? "VERIFIED" : "STANDBY",
+      summary: bytecode.erc8004BytecodeOk
+        ? "Live Fuji bytecode verified · Canonical Identity, Reputation & Validation Registry + /api/agent-card"
+        : "Standby · Canonical Identity, Reputation & Validation Registry on Fuji + Agent Discovery Card (/api/agent-card)",
       proofRef: AVALANCHE_FUJI_NETWORK.erc8004.identityRegistry,
       explorerUrl: getFujiAddressUrl(AVALANCHE_FUJI_NETWORK.erc8004.identityRegistry),
     },
     {
       id: "X402_USDC",
       title: "Circle Fuji USDC · x402 EIP-3009",
-      status: "VERIFIED",
-      summary: 'x402 standard A2A settlement · EIP-712 extra { name: "USD Coin", version: "2" }',
+      status: bytecode.usdcBytecodeOk ? "VERIFIED" : "STANDBY",
+      summary: bytecode.usdcBytecodeOk
+        ? 'Live Fuji USDC bytecode verified · HTTP 402 /api/x402/audit-proof + /api/x402/settle · EIP-712 extra { name: "USD Coin", version: "2" }'
+        : 'Standby · HTTP 402 /api/x402/audit-proof + /api/x402/settle · EIP-712 extra { name: "USD Coin", version: "2" }',
       proofRef: FUJI_USDC_ADDRESS,
       explorerUrl: getFujiAddressUrl(FUJI_USDC_ADDRESS),
     },
     {
       id: "PASSKEY_P256",
       title: "Daimo P-256 Passkey Verifier",
-      status: "VERIFIED",
-      summary: "Passwordless P-256 signature verification & member wallet guarantee rights signing",
+      status: bytecode.p256BytecodeOk ? "VERIFIED" : "STANDBY",
+      summary: bytecode.p256BytecodeOk
+        ? "Live Fuji Daimo P-256 bytecode verified · Passwordless signature verification & guarantee rights signing"
+        : "Standby · Passwordless P-256 signature verification & member wallet guarantee rights signing",
       proofRef: DAIMO_P256_VERIFIER,
       explorerUrl: getFujiAddressUrl(DAIMO_P256_VERIFIER),
     },
@@ -152,9 +183,9 @@ export async function GET(request: Request): Promise<Response> {
     },
     x402: {
       assetAddress: FUJI_USDC_ADDRESS,
-      domainName: "USD Coin",
-      domainVersion: "2",
-      caip2: "eip155:43113",
+      domainName: FUJI_USDC_EIP712_EXTRA.name,
+      domainVersion: FUJI_USDC_EIP712_EXTRA.version,
+      caip2: FUJI_CAIP2,
       settleEndpoint: "/api/x402/settle",
     },
     passkeyP256Verifier: DAIMO_P256_VERIFIER,

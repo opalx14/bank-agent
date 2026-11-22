@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, ExternalLink, Loader2, Printer, ShieldAlert, ShieldCheck } from "lucide-react";
-import type { GuaranteeCertificate } from "@/types";
+import { CheckCircle2, ExternalLink, ImagePlus, Loader2, Printer, ShieldAlert, ShieldCheck } from "lucide-react";
+import type { GuaranteeCertificate, NftReceiptProof } from "@/types";
 import type { OnChainGuaranteeVerification } from "@/lib/avalanche/avalanche.reader";
 import { computePrintFeeBreakdown } from "@/core/opalx/opalx.print-fee";
 import { AvalancheTechVerifier } from "@/components/opalx/opalx.avalanche-verifier";
 import { BrandOrb } from "@/components/shared/shared.brand-orb";
 import { formatAvax, formatUtcTime, formatVnd, truncateHex } from "@/components/shared/shared.formatters";
+import { compressImageFileToDataUrl } from "@/components/shared/shared.image-utils";
 import { OnChainProofBadge } from "@/components/shared/shared.onchain-proof-badge";
 import { OpalxGuaranteePass } from "@/components/shared/shared.guarantee-pass";
+import { VerifyX402AuditDrawer } from "@/components/verify/verify.x402-audit-drawer";
 
 interface GuaranteeVerifyCardProps {
   guaranteeId: string;
@@ -20,6 +22,8 @@ interface GuaranteeVerifyCardProps {
 
 export function GuaranteeVerifyCard({ guaranteeId, guarantee, onChain }: GuaranteeVerifyCardProps) {
   const [payingFee, setPayingFee] = useState(false);
+  const [uploadingNft, setUploadingNft] = useState(false);
+  const [nftReceipt, setNftReceipt] = useState<NftReceiptProof | undefined>(guarantee?.nftReceipt);
   const [feeTxHash, setFeeTxHash] = useState<string | undefined>(guarantee?.proofBundle.feeSettlementTxHash);
   const isValid = onChain.source === "ON_CHAIN_FUJI_RPC" ? onChain.valid : Boolean(guarantee && !guarantee.revoked);
   const fee = computePrintFeeBreakdown(Math.max(1, guarantee?.printCount ?? 1));
@@ -40,6 +44,22 @@ export function GuaranteeVerifyCard({ guaranteeId, guarantee, onChain }: Guarant
       if (json.receipt?.txHash) setFeeTxHash(json.receipt.txHash);
     } finally {
       setPayingFee(false);
+    }
+  };
+
+  const handleUploadNftEvidence = async (file: File) => {
+    setUploadingNft(true);
+    try {
+      const evidenceImageDataUrl = await compressImageFileToDataUrl(file, 960, 0.78);
+      const res = await fetch(`/api/guarantees/${encodeURIComponent(guaranteeId)}/nft-receipt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ evidenceImageDataUrl }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { nftReceipt?: NftReceiptProof };
+      if (json.nftReceipt) setNftReceipt(json.nftReceipt);
+    } finally {
+      setUploadingNft(false);
     }
   };
 
@@ -162,6 +182,67 @@ export function GuaranteeVerifyCard({ guaranteeId, guarantee, onChain }: Guarant
         )}
 
         {guarantee && (
+          <div className="space-y-3 rounded-2xl border border-[var(--ox-line)] bg-[var(--ox-soft)]/50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-xs font-bold text-[var(--ox-ink)]">
+                  Avalanche ERC-721 NFT Receipt Proof (Chain 43113)
+                </p>
+                <p className="font-mono text-[11px] text-[var(--ox-muted)]">
+                  Token #{nftReceipt?.tokenId ? `${nftReceipt.tokenId.slice(0, 10)}...${nftReceipt.tokenId.slice(-6)}` : "ERC-721"} ·{" "}
+                  {nftReceipt?.hasManualEvidenceImage ? "Manual Invoice Photo Anchored" : "On-Chain Hash Seal"}
+                </p>
+              </div>
+              <label className="ox-btn-ghost inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-semibold">
+                {uploadingNft ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5 text-[var(--ox-avax)]" />}
+                <span>{uploadingNft ? "Anchoring..." : nftReceipt?.hasManualEvidenceImage ? "Update Manual Photo" : "Attach Manual Invoice Photo"}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleUploadNftEvidence(file);
+                  }}
+                />
+              </label>
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <img
+                src={nftReceipt?.evidenceImageDataUrl || `/api/guarantees/${encodeURIComponent(guaranteeId)}/nft-receipt?format=svg`}
+                alt={`NFT Receipt Evidence ${guaranteeId}`}
+                className="h-24 w-36 rounded-xl border border-[var(--ox-line)] bg-[#090c12] object-contain p-1"
+              />
+              <div className="min-w-0 flex-1 space-y-1.5 font-mono text-[11px]">
+                <p className="truncate text-[var(--ox-muted)]">
+                  Evidence Hash: <span className="text-[var(--ox-ink)]">{truncateHex(nftReceipt?.evidenceHash ?? commitmentHex, 8)}</span>
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href={`/api/guarantees/${encodeURIComponent(guaranteeId)}/nft-receipt?format=svg`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 font-semibold text-[var(--ox-ok-ink)] hover:underline"
+                  >
+                    <span>View NFT Image (SVG)</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                  <a
+                    href={`/api/guarantees/${encodeURIComponent(guaranteeId)}/nft-receipt`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 font-semibold text-[var(--ox-muted)] hover:text-[var(--ox-ink)] hover:underline"
+                  >
+                    <span>ERC-721 Metadata JSON</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {guarantee && (
           <div className="space-y-2">
             <p className="text-xs font-semibold text-[var(--ox-ink)]">Avalanche Fuji On-Chain Proofs:</p>
             <div className="flex flex-wrap gap-2">
@@ -203,6 +284,7 @@ export function GuaranteeVerifyCard({ guaranteeId, guarantee, onChain }: Guarant
         </div>
       </div>
 
+      <VerifyX402AuditDrawer guaranteeId={guaranteeId} />
       <AvalancheTechVerifier guaranteeId={guaranteeId} compact defaultOpen />
     </div>
   );

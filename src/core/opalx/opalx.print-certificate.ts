@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
 import type { EnterpriseOrder, GuaranteeCertificate } from "@/types";
+import { resolveNftReceiptForGuarantee } from "./opalx.nft-receipt";
 import { computePrintFeeBreakdown } from "./opalx.print-fee";
 
 export type PrintPaperSize = "a4" | "pos80" | "pos58";
@@ -52,15 +53,29 @@ function buildFeeAndHashHtml(g: GuaranteeCertificate, verifyUrl: string, qrDataU
   const fee = computePrintFeeBreakdown(printCount);
   const txHash = g.lastPrintTxHash ?? g.proofBundle.feeSettlementTxHash ?? g.proofBundle.guaranteeTxHash;
   const docHash = g.lastPrintHash ?? g.orderCommitment;
+  const nftProof = resolveNftReceiptForGuarantee(g);
+  const nftImgSrc =
+    nftProof.evidenceImageDataUrl && nftProof.evidenceImageDataUrl.startsWith("data:image/")
+      ? nftProof.evidenceImageDataUrl
+      : `${paramsOrigin(verifyUrl)}${nftProof.imageUri}`;
   const rows: Array<[string, string]> = [
     ["Print Edition", `#${printCount} (Cumulative: ${fee.cumulativeFeeAvax} AVAX ≈ ${formatVnd(fee.cumulativeFeeVnd)})`],
     ["OpalX Protocol Fee / Print", `${fee.protocolFeePerPrintAvax} AVAX (≈ ${formatVnd(fee.protocolFeePerPrintVnd)})`],
     ["Estimated Avalanche Gas Fee", `~${fee.estimatedGasPerPrintAvax} AVAX (≈ ${formatVnd(fee.estimatedGasPerPrintVnd)})`],
     ["Total Cost per Print & Hash", `~${fee.totalFeePerPrintAvax} AVAX (≈ ${formatVnd(fee.totalFeePerPrintVnd)})`],
+    ["NFT Receipt Token ID (ERC-721)", nftProof.tokenId.length > 22 ? `${nftProof.tokenId.slice(0, 12)}...${nftProof.tokenId.slice(-8)}` : nftProof.tokenId],
+    ["NFT Evidence Hash (Fuji 43113)", isPos ? shortHex(nftProof.evidenceHash, 6) : nftProof.evidenceHash],
     ["Reconciliation Hash (Fuji 43113)", isPos ? shortHex(docHash, 6) : docHash],
     ["Avalanche Tx Hash", isPos ? shortHex(txHash, 6) : txHash],
   ];
   const items = rows.map(([k, v]) => `<li><span>${escapeHtml(k)}</span><code>${escapeHtml(v)}</code></li>`).join("");
+  const evidenceBox = `<section class="nft-box">
+    <div class="nft-meta">
+      <h3>Avalanche ERC-721 NFT Receipt Evidence (Chain 43113)</h3>
+      <p>${nftProof.hasManualEvidenceImage ? "Manual invoice / payment screenshot bound to non-fungible proof:" : "Non-fungible reconciliation seal (no manual photo attached):"}</p>
+    </div>
+    <img class="nft-img" src="${escapeHtml(nftImgSrc)}" alt="NFT Receipt Evidence ${escapeHtml(g.guaranteeId)}" />
+  </section>`;
   return `<section class="verify-box">
     <div class="qr-col">
       <img src="${qrDataUrl}" alt="Verification QR ${escapeHtml(g.guaranteeId)}" width="${qrSize}" height="${qrSize}" />
@@ -71,7 +86,15 @@ function buildFeeAndHashHtml(g: GuaranteeCertificate, verifyUrl: string, qrDataU
       <h3>Avalanche Hash &amp; Print Fee (${escapeHtml(g.proofBundle.mode)})</h3>
       <ul class="proof-list">${items}</ul>
     </div>
-  </section>`;
+  </section>${evidenceBox}`;
+}
+
+function paramsOrigin(verifyUrl: string): string {
+  try {
+    return new URL(verifyUrl).origin;
+  } catch {
+    return "";
+  }
 }
 
 const POS80_CSS = "@page{size:80mm auto;margin:3mm;}body{background:#fff;padding:0;}.sheet{width:74mm;margin:0 auto;padding:3mm;border:1px dashed #111;box-shadow:none;}.hdr{text-align:center;border-bottom:1px dashed #111;padding-bottom:6px;margin-bottom:8px;}.hdr h1{font-size:13px;}.stamp{font-size:10px;padding:2px 6px;margin-top:4px;display:inline-block;}.tbl th,.tbl td{display:block;width:100%;padding:2px 0;border:none;font-size:11px;}.tbl th{color:#475569;font-size:10px;padding-top:5px;}.tbl td{border-bottom:1px dotted #cbd5e1;padding-bottom:4px;}.verify-box{display:block;text-align:center;margin-top:8px;padding-top:8px;border-top:1px dashed #111;}.proof-list{text-align:left;font-size:9px;margin-top:6px;}.proof-list li{padding:2px 0;}";
@@ -118,6 +141,10 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172
 .qr-url{font-size:9px;color:#475569;word-break:break-all;margin-top:2px;}
 .proof-col h3{font-size:12px;color:#0f172a;margin-bottom:6px;text-transform:uppercase;}
 .proof-list{list-style:none;}.proof-list span{color:#475569;font-weight:600;margin-right:6px;}
+.nft-box{margin-top:10px;border:1px solid #cbd5e1;border-radius:8px;padding:10px;background:#f8fafc;text-align:center;}
+.nft-meta h3{font-size:11px;color:#0f172a;text-transform:uppercase;margin-bottom:3px;}
+.nft-meta p{font-size:10px;color:#475569;margin-bottom:8px;}
+.nft-img{max-width:100%;max-height:240px;border-radius:6px;border:1px solid #94a3b8;object-fit:contain;margin:0 auto;display:block;}
 .ftr{margin-top:12px;font-size:10px;color:#64748b;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
 .no-print-bar{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;gap:8px;}
 .print-btn{background:#0f766e;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;}

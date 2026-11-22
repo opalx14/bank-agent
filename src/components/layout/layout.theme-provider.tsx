@@ -22,7 +22,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "light",
+  theme: "dark",
   setTheme: () => undefined,
   toggleTheme: () => undefined,
 });
@@ -34,16 +34,16 @@ function applyThemeToDom(next: OpalxTheme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<OpalxTheme>("light");
+  const [theme, setThemeState] = useState<OpalxTheme>("dark");
 
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY);
-      const initial: OpalxTheme = saved === "dark" ? "dark" : "light";
+      const initial: OpalxTheme = saved === "light" ? "light" : "dark";
       setThemeState(initial);
       applyThemeToDom(initial);
     } catch {
-      applyThemeToDom("light");
+      applyThemeToDom("dark");
     }
   }, []);
 

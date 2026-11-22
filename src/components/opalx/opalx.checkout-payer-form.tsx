@@ -1,8 +1,9 @@
 "use client";
 
-import { Loader2, Mail, QrCode, ShieldCheck, UserCheck, Zap } from "lucide-react";
+import { ImagePlus, Loader2, Mail, QrCode, ShieldCheck, Trash2, UserCheck, Zap } from "lucide-react";
 import type { EnterpriseServicePackage } from "@/types";
 import { formatVnd } from "@/components/shared/shared.formatters";
+import { compressImageFileToDataUrl } from "@/components/shared/shared.image-utils";
 
 export type CheckoutPaymentMethod = "VIETQR_BANK_APP" | "OPALX_DIRECT";
 
@@ -15,6 +16,8 @@ interface CheckoutPayerFormProps {
   onPreferredMethodChange: (method: CheckoutPaymentMethod) => void;
   requireInvoiceXml: boolean;
   onRequireInvoiceXmlChange: (val: boolean) => void;
+  manualReceiptImageDataUrl?: string;
+  onManualReceiptImageChange?: (val: string) => void;
   selectedPkg: EnterpriseServicePackage | null;
   canSubmit: boolean;
   creating: boolean;
@@ -29,6 +32,8 @@ export function CheckoutPayerForm({
   onPreferredMethodChange,
   requireInvoiceXml,
   onRequireInvoiceXmlChange,
+  manualReceiptImageDataUrl = "",
+  onManualReceiptImageChange,
   selectedPkg,
   canSubmit,
   creating,
@@ -131,16 +136,57 @@ export function CheckoutPayerForm({
       </div>
 
       <details className="ox-subcard rounded-xl px-3.5 py-2.5 text-xs">
-        <summary className="font-semibold text-[var(--ox-ink)]">E-Invoice (TT78 XML)</summary>
-        <label className="mt-2.5 flex cursor-pointer items-center justify-between gap-2 border-t border-[var(--ox-line)] pt-2.5 text-[var(--ox-muted)]">
-          <span>Attach Circular 78 XML for 3-way match</span>
-          <input
-            type="checkbox"
-            checked={requireInvoiceXml}
-            onChange={(e) => onRequireInvoiceXmlChange(e.target.checked)}
-            className="h-4 w-4 accent-[var(--ox-ok)]"
-          />
-        </label>
+        <summary className="font-semibold text-[var(--ox-ink)]">
+          Invoice &amp; NFT Photo Evidence (TT78 XML / Manual Receipt)
+        </summary>
+        <div className="mt-2.5 space-y-2.5 border-t border-[var(--ox-line)] pt-2.5 text-[var(--ox-muted)]">
+          <label className="flex cursor-pointer items-center justify-between gap-2">
+            <span>Attach Circular 78 XML for 3-way match</span>
+            <input
+              type="checkbox"
+              checked={requireInvoiceXml}
+              onChange={(e) => onRequireInvoiceXmlChange(e.target.checked)}
+              className="h-4 w-4 accent-[var(--ox-ok)]"
+            />
+          </label>
+          {onManualReceiptImageChange && (
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--ox-line)]/70 pt-2">
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--ox-line)] bg-[var(--ox-surface)] px-2.5 py-1.5 font-semibold text-[var(--ox-ink)] hover:border-[var(--ox-avax)]/50">
+                <ImagePlus className="h-3.5 w-3.5 text-[var(--ox-avax)]" />
+                <span>{manualReceiptImageDataUrl ? "Change Manual Invoice Photo" : "Attach Manual Invoice / Photo (NFT)"}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    void compressImageFileToDataUrl(file, 960, 0.78)
+                      .then((url: string) => onManualReceiptImageChange(url))
+                      .catch(() => undefined);
+                  }}
+                />
+              </label>
+              {manualReceiptImageDataUrl && (
+                <div className="flex items-center gap-2">
+                  <img
+                    src={manualReceiptImageDataUrl}
+                    alt="Manual receipt NFT preview"
+                    className="h-8 w-8 rounded border border-[var(--ox-line)] object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onManualReceiptImageChange("")}
+                    aria-label="Remove manual invoice photo"
+                    className="rounded p-1 text-[var(--ox-muted)] hover:text-[var(--ox-avax-ink)]"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </details>
 
       <button

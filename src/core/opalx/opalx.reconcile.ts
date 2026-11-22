@@ -16,6 +16,7 @@ import { findVerifiedEnterprise, listVerifiedEnterprises } from "@/core/registry
 import { broadcastFullReconciliationProofs, vndToCollateralWei } from "@/lib/avalanche/avalanche.broadcaster";
 import { computeCommitmentHash } from "@/lib/avalanche/avalanche.signer";
 import { formatEther } from "viem";
+import { buildNftReceiptProof } from "./opalx.nft-receipt";
 import { detectCircularWashTrade, evaluateThreeWayPolicy, type TransferEdge } from "./opalx.policy-bridge";
 
 export interface ReconcileParams {
@@ -76,7 +77,8 @@ export async function reconcileAndBroadcastProofs(
     computeCommitmentHash("order", `${params.order.orderCode}:${params.order.amountVnd}:${params.order.sellerTaxId}`);
   const invoiceCommitment = einvoice
     ? einvoice.xmlDigestHex
-    : computeCommitmentHash("invoice", `NO_XML:${params.order.orderCode}`);
+    : (params.order.manualReceiptDigestHex ??
+      computeCommitmentHash("invoice", `NO_XML:${params.order.orderCode}`));
 
   const decision = evaluateThreeWayPolicy({
     orderAmountVnd: params.order.amountVnd,
@@ -188,6 +190,15 @@ export async function reconcileAndBroadcastProofs(
     printCount: 0,
     feePerPrintAvax: "0.00001",
     estimatedGasPerPrintAvax: "0.00055",
+    nftReceipt: buildNftReceiptProof({
+      guaranteeId,
+      orderCommitment,
+      bankRefCommitment,
+      invoiceCommitment,
+      manualReceiptImageDataUrl: params.order.manualReceiptImageDataUrl,
+      manualReceiptDigestHex: params.order.manualReceiptDigestHex,
+      mintedAtIso: nowIso,
+    }),
     totalPrintFeeAvax: "0",
     verifyPath: `/verify/${guaranteeId}`,
     issuedAtIso: nowIso,

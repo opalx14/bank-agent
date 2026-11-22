@@ -82,6 +82,8 @@ export interface EnterpriseOrder {
   bankAccountNo?: string;
   bankAccountName?: string;
   customQrImageDataUrl?: string;
+  manualReceiptImageDataUrl?: string;
+  manualReceiptDigestHex?: `0x${string}`;
   confirmedByWallet?: `0x${string}`;
   merchantContractAddress?: `0x${string}`;
   walletSignature?: `0x${string}`;

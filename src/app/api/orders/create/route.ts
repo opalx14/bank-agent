@@ -14,6 +14,7 @@ import {
 } from "@/core/registry/registry.portal";
 import { broadcastOrderRegistration } from "@/lib/avalanche/avalanche.broadcaster";
 import { computeCommitmentHash } from "@/lib/avalanche/avalanche.signer";
+import { computeEvidenceImageDigest } from "@/core/opalx/opalx.nft-receipt";
 
 const createOrderSchema = z.object({
   orderCode: z.number().int().positive().optional(),
@@ -37,6 +38,11 @@ const createOrderSchema = z.object({
     .string()
     .max(600_000)
     .refine((v) => v === "" || v.startsWith("data:image/"), "INVALID_QR_IMAGE_DATA_URL")
+    .optional(),
+  manualReceiptImageDataUrl: z
+    .string()
+    .max(900_000)
+    .refine((v) => v === "" || v.startsWith("data:image/"), "INVALID_MANUAL_RECEIPT_IMAGE")
     .optional(),
   confirmedByWallet: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional(),
   merchantContractAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional(),
@@ -141,13 +147,18 @@ export async function POST(request: Request): Promise<Response> {
     verifiedEnt?.merchantContractAddress) as `0x${string}` | undefined;
   const walletSignature = data.walletSignature as `0x${string}` | undefined;
 
+  const manualReceiptImageDataUrl = data.manualReceiptImageDataUrl?.trim() || undefined;
+  const manualReceiptDigestHex = manualReceiptImageDataUrl
+    ? computeEvidenceImageDigest(manualReceiptImageDataUrl)
+    : undefined;
+
   const orderCommitment = computeCommitmentHash(
     "order",
     `${orderCode}:${amountVnd}:${sellerTaxId}:${Date.now()}`,
   );
   const invoiceCommitment = einvoice
     ? einvoice.xmlDigestHex
-    : computeCommitmentHash("invoice", `PENDING_XML:${orderCode}`);
+    : (manualReceiptDigestHex ?? computeCommitmentHash("invoice", `PENDING_XML:${orderCode}`));
 
   let enterpriseTxHash: `0x${string}` | undefined;
   if (data.broadcastOnChain !== false) {
@@ -181,6 +192,8 @@ export async function POST(request: Request): Promise<Response> {
     bankAccountNo: qr.accountNo,
     bankAccountName: qr.accountName,
     ...(customQrImageDataUrl ? { customQrImageDataUrl } : {}),
+    ...(manualReceiptImageDataUrl ? { manualReceiptImageDataUrl } : {}),
+    ...(manualReceiptDigestHex ? { manualReceiptDigestHex } : {}),
     ...(confirmedByWallet ? { confirmedByWallet } : {}),
     ...(merchantContractAddress ? { merchantContractAddress } : {}),
     ...(walletSignature ? { walletSignature } : {}),

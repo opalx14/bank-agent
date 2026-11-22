@@ -9,7 +9,7 @@ import type { PortalRole } from "@/types";
 import { BankAuditorLoginCard } from "./auth.bank-auditor-card";
 import { ExternalWalletConnectButton } from "./auth.external-wallet-button";
 import { HowWalletWorksSheet } from "./auth.how-wallet-works-sheet";
-import { RoleFanStage } from "./auth.role-fan-stage";
+import { Nexus3dStage } from "./auth.nexus-3d-stage";
 import { useWalletAuth } from "./auth.wallet-provider";
 
 const ROLE_TABS = [
@@ -67,9 +67,9 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
     : "Bank Agent Member";
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center px-4 py-8 sm:px-6 lg:px-8">
-      <div className="grid w-full items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-        <section aria-labelledby="opalx-gateway-title" className="mx-auto w-full max-w-[460px] lg:mx-0">
+    <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl items-center px-4 py-6 sm:px-6 lg:px-8">
+      <div className="grid w-full items-center gap-8 lg:grid-cols-[minmax(360px,430px)_1fr] lg:gap-10">
+        <section aria-labelledby="opalx-gateway-title" className="mx-auto w-full max-w-[440px] lg:mx-0">
           <BankAgentLogo variant="full" className="h-[64px] w-auto sm:h-[74px]" priority />
 
           {defaultRole === "ENTERPRISE" && roleSession?.role === "CUSTOMER" ? (
@@ -191,8 +191,8 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
           </div>
         </section>
 
-        <div className="flex flex-col items-center">
-          <RoleFanStage
+        <div className="flex w-full flex-col items-center">
+          <Nexus3dStage
             activeRole={selectedRole}
             onSelectRole={(role) => {
               if (role === "BANK") { router.push("/bank"); return; }
@@ -202,9 +202,6 @@ export function RoleLoginGateway({ defaultRole = "CUSTOMER" }: { defaultRole?: P
             enterpriseName={passEnterpriseName}
             holderLabel={emailInput.trim() || undefined}
           />
-          <p className="mt-1 text-center font-mono text-[11px] text-[var(--ox-muted)]">
-            Click card to switch role · Fuji 43113 · 0 PII
-          </p>
         </div>
       </div>
     </div>

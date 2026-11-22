@@ -205,3 +205,31 @@ export function mutateLedger<T>(mutator: (state: LedgerState) => T): T {
   persistLedger(ledger);
   return result;
 }
+
+export function attachNftEvidenceToGuarantee(params: {
+  guaranteeId: string;
+  evidenceImageDataUrl: string;
+  evidenceHash: `0x${string}`;
+}): GuaranteeCertificate | undefined {
+  const ledger = readLedger();
+  const target = ledger.guarantees.find(
+    (g) => g.guaranteeId.toLowerCase() === params.guaranteeId.trim().toLowerCase(),
+  );
+  if (!target) return undefined;
+  const order = ledger.orders.find((o) => o.orderCode === target.orderCode);
+  if (order) {
+    order.manualReceiptImageDataUrl = params.evidenceImageDataUrl;
+    order.manualReceiptDigestHex = params.evidenceHash;
+    order.updatedAtIso = new Date().toISOString();
+  }
+  if (target.nftReceipt) {
+    target.nftReceipt = {
+      ...target.nftReceipt,
+      evidenceHash: params.evidenceHash,
+      hasManualEvidenceImage: true,
+      evidenceImageDataUrl: params.evidenceImageDataUrl,
+    };
+  }
+  persistLedger(ledger);
+  return target;
+}
